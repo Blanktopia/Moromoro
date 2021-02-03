@@ -11,6 +11,7 @@ class Monogoto : JavaPlugin() {
     }
 
     val itemManager: ItemManager by lazy { ItemManager(this) }
+    val itemParser: ItemParser by lazy { ItemParser(this) }
 
     private val essentialsxHook: EssentialsXHook by lazy { EssentialsXHook(this) }
 
