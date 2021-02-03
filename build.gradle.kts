@@ -22,6 +22,9 @@ repositories {
     // bStats
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
 
+    // MineDown
+    maven { url = uri("https://repo.minebench.de/") }
+
     // EssentialsX
     maven { url = uri("https://repo.essentialsx.net/releases/") }
 }
@@ -36,6 +39,9 @@ dependencies {
 
     // bStats
     implementation("org.bstats", "bstats-bukkit", "1.8")
+
+    // MineDown
+    implementation("de.themoep", "minedown", "1.7.0-SNAPSHOT")
 
     // EssentialsX
     compileOnly("net.ess3", "EssentialsX", "2.18.2")

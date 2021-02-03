@@ -1,12 +1,16 @@
 package me.weiwen.monogoto
 
+import me.weiwen.monogoto.actions.Action
+import me.weiwen.monogoto.actions.Trigger
 import java.io.File
 import java.util.logging.Level
 
 class ItemManager(val plugin: Monogoto) {
-    var items: Map<String, ItemTemplate> = HashMap()
+    var keys: Set<String> = setOf()
         private set
-    var names: Set<String> = setOf()
+    var templates: Map<String, ItemTemplate> = mapOf()
+        private set
+    var triggers: MutableMap<String, Map<Trigger, List<Action>>> = mutableMapOf()
         private set
 
     fun load() {
@@ -18,12 +22,18 @@ class ItemManager(val plugin: Monogoto) {
             return
         }
 
-        items = files
+        triggers.clear()
+
+        templates = files
             .mapNotNull { file ->
                 plugin.itemParser.parse(file)?.let { Pair(file.nameWithoutExtension, it) }
             }
             .associate { it }
 
-        names = items.keys
+        keys = templates.keys
+    }
+
+    fun registerTriggers(key: String, triggers: Map<Trigger, List<Action>>) {
+        this.triggers[key] = triggers
     }
 }

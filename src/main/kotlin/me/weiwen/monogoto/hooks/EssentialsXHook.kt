@@ -19,10 +19,10 @@ class EssentialsXHook(private val monogoto: Monogoto) : Hook, IItemDb.ItemResolv
     }
 
     override fun apply(type: String?): ItemStack? {
-        return monogoto.itemManager.items.get(type)?.build()
+        return monogoto.itemManager.templates.get(type)?.build()
     }
 
     override fun getNames(): Collection<String> {
-        return monogoto.itemManager.names
+        return monogoto.itemManager.keys
     }
 }
