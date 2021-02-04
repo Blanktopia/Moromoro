@@ -9,6 +9,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
@@ -45,7 +46,7 @@ class PlayerInteractListener(val plugin: Moromoro) : Listener {
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onBreakBlock(event: BlockBreakEvent) {
+    fun onBlockBreak(event: BlockBreakEvent) {
         val item = event.player.inventory.itemInMainHand
 
         val data = item.itemMeta?.persistentDataContainer ?: return
@@ -62,5 +63,26 @@ class PlayerInteractListener(val plugin: Moromoro) : Listener {
         )
 
         triggers[Trigger.BREAK_BLOCK]?.forEach { it.perform(ctx) }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onBlockPlace(event: BlockPlaceEvent) {
+        val item = event.player.inventory.itemInMainHand
+        event.blockPlaced
+
+        val data = item.itemMeta?.persistentDataContainer ?: return
+        val key = data.get(NamespacedKey(plugin, "key"), PersistentDataType.STRING) ?: return
+        val triggers = plugin.itemManager.triggers[key] ?: return
+
+        val ctx = Context(
+            event,
+            event.player,
+            item,
+            null,
+            event.blockPlaced,
+            null
+        )
+
+        triggers[Trigger.PLACE_BLOCK]?.forEach { it.perform(ctx) }
     }
 }

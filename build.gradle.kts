@@ -25,6 +25,9 @@ repositories {
 
     // EssentialsX
     maven { url = uri("https://repo.essentialsx.net/releases/") }
+
+    // ProtectionLib
+    maven { url = uri("https://jitpack.io") }
 }
 
 
@@ -35,6 +38,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
     implementation("com.charleskorn.kaml:kaml:0.26.0")
 
+    // Spigot
     compileOnly("org.spigotmc", "spigot-api", "1.16.3-R0.1-SNAPSHOT")
 
     // bStats
@@ -45,6 +49,9 @@ dependencies {
 
     // EssentialsX
     compileOnly("net.ess3", "EssentialsX", "2.18.2")
+
+    // ProtectionLib
+    implementation("com.gitlab.Ste3et_C0st", "protectionlib", "0.9.7")
 }
 
 bukkit {

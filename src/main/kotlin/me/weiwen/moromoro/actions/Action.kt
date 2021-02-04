@@ -39,6 +39,7 @@ val actionModule = SerializersModule {
 
         // Conditions
         subclass(IsInWorld::class)
+        subclass(CanBuild::class)
 
         // Actions
         subclass(MultiTool::class)
