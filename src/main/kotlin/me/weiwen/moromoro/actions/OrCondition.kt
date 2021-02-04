@@ -1,4 +1,4 @@
-package me.weiwen.monogoto.actions
+package me.weiwen.moromoro.actions
 
 class OrCondition(private val actions: List<Action>) : Action {
     override fun perform(ctx: Context): Boolean {

@@ -1,19 +1,19 @@
-package me.weiwen.monogoto
+package me.weiwen.moromoro
 
-import me.weiwen.monogoto.hooks.EssentialsXHook
-import me.weiwen.monogoto.listeners.PlayerInteractListener
+import me.weiwen.moromoro.hooks.EssentialsHook
+import me.weiwen.moromoro.listeners.PlayerInteractListener
 import org.bukkit.plugin.java.JavaPlugin
 
-class Monogoto : JavaPlugin() {
+class Moromoro: JavaPlugin() {
     companion object {
-        lateinit var plugin: Monogoto
+        lateinit var plugin: Moromoro
             private set
     }
 
     val itemManager: ItemManager by lazy { ItemManager(this) }
     val itemParser: ItemParser by lazy { ItemParser(this) }
 
-    private val essentialsxHook: EssentialsXHook by lazy { EssentialsXHook(this) }
+    private val essentialsHook: EssentialsHook by lazy { EssentialsHook(this) }
 
     override fun onLoad() {
         plugin = this
@@ -25,7 +25,7 @@ class Monogoto : JavaPlugin() {
         itemManager.load()
 
         if (server.pluginManager.getPlugin("Essentials") != null) {
-            essentialsxHook.register()
+            essentialsHook.register()
         }
 
         logger.info("Monogoto is enabled")
@@ -33,7 +33,7 @@ class Monogoto : JavaPlugin() {
 
     override fun onDisable() {
         if (server.pluginManager.getPlugin("Essentials") != null) {
-            essentialsxHook.unregister()
+            essentialsHook.unregister()
         }
 
         logger.info("Monogoto is disabled")

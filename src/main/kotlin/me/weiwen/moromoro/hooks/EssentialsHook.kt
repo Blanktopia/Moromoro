@@ -1,28 +1,28 @@
-package me.weiwen.monogoto.hooks
+package me.weiwen.moromoro.hooks
 
 import com.earth2me.essentials.Essentials
-import me.weiwen.monogoto.Monogoto
+import me.weiwen.moromoro.Moromoro
 import net.ess3.api.IItemDb
 import org.bukkit.inventory.ItemStack
 
-class EssentialsXHook(private val monogoto: Monogoto) : Hook, IItemDb.ItemResolver {
+class EssentialsHook(private val moromoro: Moromoro) : Hook, IItemDb.ItemResolver {
     override val name = "Essentials"
 
     fun register() {
         val plugin = plugin as? Essentials ?: return
-        plugin.itemDb.registerResolver(monogoto, "monogoto", this)
+        plugin.itemDb.registerResolver(moromoro, "monogoto", this)
     }
 
     fun unregister() {
         val plugin = plugin as? Essentials ?: return
-        plugin.itemDb.unregisterResolver(monogoto, "monogoto")
+        plugin.itemDb.unregisterResolver(moromoro, "monogoto")
     }
 
     override fun apply(type: String?): ItemStack? {
-        return monogoto.itemManager.templates.get(type)?.build()
+        return moromoro.itemManager.templates.get(type)?.build()
     }
 
     override fun getNames(): Collection<String> {
-        return monogoto.itemManager.keys
+        return moromoro.itemManager.keys
     }
 }

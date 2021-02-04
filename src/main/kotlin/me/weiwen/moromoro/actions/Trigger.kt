@@ -1,4 +1,4 @@
-package me.weiwen.monogoto.actions
+package me.weiwen.moromoro.actions
 
 enum class Trigger {
     LEFT_CLICK_BLOCK,

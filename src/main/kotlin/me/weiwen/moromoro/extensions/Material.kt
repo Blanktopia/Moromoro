@@ -1,4 +1,4 @@
-package me.weiwen.monogoto.extensions
+package me.weiwen.moromoro.extensions
 
 import org.bukkit.Material
 import org.bukkit.Material.*

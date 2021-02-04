@@ -7,7 +7,7 @@ plugins {
     id("com.github.johnrengelman.shadow")
 }
 
-group = "me.weiwen.monogoto"
+group = "me.weiwen.moromoro"
 version = "1.0.0"
 
 repositories {

@@ -1,7 +1,5 @@
-package me.weiwen.monogoto
+package me.weiwen.moromoro
 
-import me.weiwen.monogoto.actions.Action
-import me.weiwen.monogoto.actions.Trigger
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
@@ -29,7 +27,7 @@ data class ItemTemplate(
             customModelData?.let { data -> itemMeta.setCustomModelData(data) }
 
             val data = itemMeta.persistentDataContainer
-            data.set(NamespacedKey(Monogoto.plugin, "key"), PersistentDataType.STRING, key)
+            data.set(NamespacedKey(Moromoro.plugin, "key"), PersistentDataType.STRING, key)
 
             it.itemMeta = itemMeta
         }

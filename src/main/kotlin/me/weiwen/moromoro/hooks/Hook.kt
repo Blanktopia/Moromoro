@@ -1,4 +1,4 @@
-package me.weiwen.monogoto.hooks
+package me.weiwen.moromoro.hooks
 
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin

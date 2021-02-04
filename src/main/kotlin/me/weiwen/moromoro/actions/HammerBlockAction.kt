@@ -1,7 +1,6 @@
-package me.weiwen.monogoto.actions
+package me.weiwen.moromoro.actions
 
-import me.weiwen.monogoto.extensions.canMineBlock
-import org.bukkit.Material
+import me.weiwen.moromoro.extensions.canMineBlock
 import org.bukkit.util.Vector
 
 class HammerBlockAction(radius: Int?, depth: Int?) : Action {

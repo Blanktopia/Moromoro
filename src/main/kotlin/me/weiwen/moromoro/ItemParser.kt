@@ -1,4 +1,4 @@
-package me.weiwen.monogoto
+package me.weiwen.moromoro
 
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.uchuhimo.konf.Config
@@ -9,10 +9,10 @@ import com.uchuhimo.konf.source.Source
 import com.uchuhimo.konf.source.toml
 import com.uchuhimo.konf.source.yaml
 import de.themoep.minedown.MineDown
-import me.weiwen.monogoto.actions.Action
-import me.weiwen.monogoto.actions.ActionDeserializer
-import me.weiwen.monogoto.actions.NoopAction
-import me.weiwen.monogoto.actions.Trigger
+import me.weiwen.moromoro.actions.Action
+import me.weiwen.moromoro.actions.ActionDeserializer
+import me.weiwen.moromoro.actions.NoopAction
+import me.weiwen.moromoro.actions.Trigger
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Material
 import org.bukkit.enchantments.EnchantmentWrapper
@@ -29,7 +29,7 @@ object Spec : ConfigSpec("") {
     val triggers by optional<Map<String, List<Action>>>(mapOf())
 }
 
-class ItemParser(private val plugin: Monogoto) {
+class ItemParser(private val plugin: Moromoro) {
     fun parse(file: File): ItemTemplate? {
         plugin.logger.log(Level.INFO, "Parsing ${file.name}")
 

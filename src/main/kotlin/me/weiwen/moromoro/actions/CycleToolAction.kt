@@ -1,6 +1,6 @@
-package me.weiwen.monogoto.actions
+package me.weiwen.moromoro.actions
 
-import me.weiwen.monogoto.extensions.canMineBlock
+import me.weiwen.moromoro.extensions.canMineBlock
 import org.bukkit.Material
 
 class CycleToolAction(private val materials: List<Material>) : Action {

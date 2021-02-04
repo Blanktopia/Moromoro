@@ -1,4 +1,4 @@
-package me.weiwen.monogoto.actions
+package me.weiwen.moromoro.actions
 
 import org.bukkit.Sound
 import org.bukkit.SoundCategory

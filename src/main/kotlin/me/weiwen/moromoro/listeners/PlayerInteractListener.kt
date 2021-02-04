@@ -1,9 +1,8 @@
-package me.weiwen.monogoto.listeners
+package me.weiwen.moromoro.listeners
 
-import me.weiwen.monogoto.Monogoto
-import me.weiwen.monogoto.actions.BreakBlockAction
-import me.weiwen.monogoto.actions.Context
-import me.weiwen.monogoto.actions.Trigger
+import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.actions.Trigger
 import org.bukkit.NamespacedKey
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -13,9 +12,8 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
-import java.util.logging.Level
 
-class PlayerInteractListener(val plugin: Monogoto) : Listener {
+class PlayerInteractListener(val plugin: Moromoro) : Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerInteract(event: PlayerInteractEvent) {
         val item = when (event.hand) {

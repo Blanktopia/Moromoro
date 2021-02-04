@@ -1,11 +1,10 @@
-package me.weiwen.monogoto
+package me.weiwen.moromoro
 
-import me.weiwen.monogoto.actions.Action
-import me.weiwen.monogoto.actions.Trigger
+import me.weiwen.moromoro.actions.Action
+import me.weiwen.moromoro.actions.Trigger
 import java.io.File
-import java.util.logging.Level
 
-class ItemManager(val plugin: Monogoto) {
+class ItemManager(val plugin: Moromoro) {
     var keys: Set<String> = setOf()
         private set
     var templates: Map<String, ItemTemplate> = mapOf()

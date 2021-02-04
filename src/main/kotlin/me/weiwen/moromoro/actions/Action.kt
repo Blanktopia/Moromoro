@@ -1,10 +1,10 @@
-package me.weiwen.monogoto.actions
+package me.weiwen.moromoro.actions
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import me.weiwen.monogoto.Monogoto
+import me.weiwen.moromoro.Moromoro
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.block.Block
@@ -31,7 +31,7 @@ fun interface Action {
 internal object ActionDeserializer : StdDeserializer<Action>(Action::class.java) {
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Action {
         val node = p.codec.readTree<JsonNode>(p)
-        Monogoto.plugin.logger.log(Level.INFO, "$node")
+        Moromoro.plugin.logger.log(Level.INFO, "$node")
         val action = node.get("action")?.asText(null)
         return when (action) {
             // Flow control
