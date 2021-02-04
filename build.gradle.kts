@@ -31,7 +31,9 @@ repositories {
 dependencies {
     compileOnly(kotlin("stdlib-jdk8", "1.4.21"))
 
+    // Deserialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation("com.charleskorn.kaml:kaml:0.26.0")
 
     compileOnly("org.spigotmc", "spigot-api", "1.16.3-R0.1-SNAPSHOT")
 
