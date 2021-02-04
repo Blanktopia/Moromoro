@@ -1,24 +1,14 @@
 package me.weiwen.moromoro.actions
 
-enum class Trigger {
-    LEFT_CLICK_BLOCK,
-    RIGHT_CLICK_BLOCK,
-    LEFT_CLICK_ENTITY,
-    RIGHT_CLICK_ENTITY,
-    BREAK_BLOCK,
-    PLACE_BLOCK;
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-    companion object {
-        fun parse(s: String): Trigger {
-            return when (s) {
-                "left-click-block" -> LEFT_CLICK_BLOCK
-                "right-click-block" -> RIGHT_CLICK_BLOCK
-                "left-click-entity" -> LEFT_CLICK_ENTITY
-                "right-click-entity" -> RIGHT_CLICK_ENTITY
-                "break-block" -> BREAK_BLOCK
-                "place-block" -> PLACE_BLOCK
-                else -> throw EnumConstantNotPresentException(Trigger::class.java, s)
-            }
-        }
-    }
+@Serializable
+enum class Trigger {
+    @SerialName("left-click-block") LEFT_CLICK_BLOCK,
+    @SerialName("right-click-block") RIGHT_CLICK_BLOCK,
+    @SerialName("left-click-entity") LEFT_CLICK_ENTITY,
+    @SerialName("right-click-entity") RIGHT_CLICK_ENTITY,
+    @SerialName("break-block") BREAK_BLOCK,
+    @SerialName("place-block") PLACE_BLOCK;
 }

@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.4.21"
+    kotlin("plugin.serialization") version "1.4.21"
     id("net.minecrell.plugin-yml.bukkit")
     id("com.github.johnrengelman.shadow")
 }
@@ -15,9 +16,6 @@ repositories {
 
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
-
-    // konf
-    maven { url = uri("https://jitpack.io") }
 
     // bStats
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
@@ -32,10 +30,10 @@ repositories {
 
 dependencies {
     compileOnly(kotlin("stdlib-jdk8", "1.4.21"))
-    compileOnly("org.spigotmc", "spigot-api", "1.16.3-R0.1-SNAPSHOT")
 
-    // konf
-    implementation("com.github.uchuhimo.konf", "konf", "master-SNAPSHOT")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+
+    compileOnly("org.spigotmc", "spigot-api", "1.16.3-R0.1-SNAPSHOT")
 
     // bStats
     implementation("org.bstats", "bstats-bukkit", "1.8")
@@ -48,8 +46,8 @@ dependencies {
 }
 
 bukkit {
-    main = "me.weiwen.monogoto.Monogoto"
-    name = "Monogoto"
+    main = "me.weiwen.moromoro.Moromoro"
+    name = "Moromoro"
     version = "1.0.0"
     description = "Easily build custom items for your Minecraft server"
     apiVersion = "1.16"
@@ -62,6 +60,11 @@ bukkit {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.languageVersion = "1.5"
+    kotlinOptions.freeCompilerArgs = listOf(
+        "-Xopt-in=kotlin.RequiresOptIn",
+        "-Xuse-experimental=org.jetbrains.kotlinx.serialization.ExperimentalSerializationApi"
+    )
 }
 
 tasks.withType<ShadowJar> {

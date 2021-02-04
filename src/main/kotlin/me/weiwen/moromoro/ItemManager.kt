@@ -3,6 +3,7 @@ package me.weiwen.moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import java.io.File
+import java.util.logging.Level
 
 class ItemManager(val plugin: Moromoro) {
     var keys: Set<String> = setOf()
@@ -30,6 +31,9 @@ class ItemManager(val plugin: Moromoro) {
             .associate { it }
 
         keys = templates.keys
+
+        plugin.logger.log(Level.INFO, "$templates")
+        plugin.logger.log(Level.INFO, "$triggers")
     }
 
     fun registerTriggers(key: String, triggers: Map<Trigger, List<Action>>) {
