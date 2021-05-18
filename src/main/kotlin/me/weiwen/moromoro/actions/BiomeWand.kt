@@ -1,8 +1,12 @@
+@file:UseSerializers(BiomeSerializer::class)
+
 package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.extensions.*
+import me.weiwen.moromoro.serializers.BiomeSerializer
 import org.bukkit.*
 import org.bukkit.block.Biome
 import org.bukkit.block.BlockFace

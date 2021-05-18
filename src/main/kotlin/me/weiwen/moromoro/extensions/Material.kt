@@ -39,7 +39,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         WARPED_NYLIUM,
         WHITE_CONCRETE_POWDER,
         YELLOW_CONCRETE_POWDER ->
-            isShovel()
+            isShovel
 
         ACTIVATOR_RAIL,
         ANCIENT_DEBRIS,
@@ -387,7 +387,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         YELLOW_STAINED_GLASS,
         YELLOW_STAINED_GLASS_PANE,
         YELLOW_TERRACOTTA ->
-            isPickaxe()
+            isPickaxe
 
         ACACIA_BUTTON,
         ACACIA_DOOR,
@@ -547,7 +547,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         WARPED_STEM,
         WARPED_TRAPDOOR,
         WARPED_WALL_SIGN ->
-            isAxe()
+            isAxe
 
         DRIED_KELP_BLOCK,
         HAY_BLOCK,
@@ -555,7 +555,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         SPONGE,
         WARPED_WART_BLOCK,
         WET_SPONGE ->
-            isHoe()
+            isHoe
 
         COBWEB,
         DEAD_BUSH,
@@ -604,7 +604,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         WHITE_WOOL,
         YELLOW_CARPET,
         YELLOW_WOOL ->
-            isShear()
+            isShear
 
         SLIME_BLOCK,
         HONEY_BLOCK,
@@ -616,34 +616,102 @@ fun Material.canMineBlock(block: Block): Boolean {
     }
 }
 
-fun Material.isShovel(): Boolean {
-    return when (this) {
+val Material.isShovel: Boolean
+    get() = when (this) {
         STONE_SHOVEL, DIAMOND_SHOVEL, GOLDEN_SHOVEL, IRON_SHOVEL, WOODEN_SHOVEL, NETHERITE_SHOVEL -> true
         else -> false
     }
-}
 
-fun Material.isPickaxe(): Boolean {
-    return when (this) {
+val Material.isPickaxe: Boolean
+    get() = when (this) {
         DIAMOND_PICKAXE, GOLDEN_PICKAXE, IRON_PICKAXE, STONE_PICKAXE, WOODEN_PICKAXE, NETHERITE_PICKAXE -> true
         else -> false
     }
-}
 
-fun Material.isAxe(): Boolean {
-    return when (this) {
+val Material.isAxe: Boolean
+    get() = when (this) {
         DIAMOND_AXE, GOLDEN_AXE, IRON_AXE, STONE_AXE, WOODEN_AXE, NETHERITE_AXE -> true
         else -> false
     }
-}
 
-fun Material.isHoe(): Boolean {
-    return when (this) {
+val Material.isHoe: Boolean
+    get() = when (this) {
         DIAMOND_HOE, GOLDEN_HOE, IRON_HOE, STONE_HOE, WOODEN_HOE, NETHERITE_HOE -> true
         else -> false
     }
-}
 
-fun Material.isShear(): Boolean {
-    return this == SHEARS
-}
+val Material.isShear: Boolean
+    get() = this == SHEARS
+
+val Material.isShulker: Boolean
+    get() = when (this) {
+        SHULKER_BOX,
+        WHITE_SHULKER_BOX,
+        ORANGE_SHULKER_BOX,
+        MAGENTA_SHULKER_BOX,
+        LIGHT_BLUE_SHULKER_BOX,
+        YELLOW_SHULKER_BOX,
+        LIME_SHULKER_BOX,
+        PINK_SHULKER_BOX,
+        GRAY_SHULKER_BOX,
+        LIGHT_GRAY_SHULKER_BOX,
+        CYAN_SHULKER_BOX,
+        PURPLE_SHULKER_BOX,
+        BLUE_SHULKER_BOX,
+        BROWN_SHULKER_BOX,
+        GREEN_SHULKER_BOX,
+        RED_SHULKER_BOX,
+        BLACK_SHULKER_BOX -> true
+        else -> false
+    }
+
+val Material.isPartial: Boolean
+    get() = when (this) {
+        CHEST,
+        TRAPPED_CHEST,
+        WHITE_BED,
+        ORANGE_BED,
+        MAGENTA_BED,
+        LIGHT_BLUE_BED,
+        YELLOW_BED,
+        LIME_BED,
+        PINK_BED,
+        GRAY_BED,
+        LIGHT_GRAY_BED,
+        CYAN_BED,
+        PURPLE_BED,
+        BLUE_BED,
+        BROWN_BED,
+        GREEN_BED,
+        RED_BED,
+        BLACK_BED,
+        SUNFLOWER,
+        LILAC,
+        ROSE_BUSH,
+        PEONY,
+        TALL_GRASS,
+        LARGE_FERN,
+        IRON_DOOR,
+        OAK_DOOR,
+        SPRUCE_DOOR,
+        BIRCH_DOOR,
+        JUNGLE_DOOR,
+        ACACIA_DOOR,
+        DARK_OAK_DOOR,
+        END_PORTAL_FRAME -> true
+        else -> false
+    }
+
+val Material.isEmpty: Boolean
+    get() = when (this) {
+        CAVE_AIR,
+        AIR,
+        WATER,
+        LAVA,
+        GRASS,
+        TALL_GRASS,
+        FERN,
+        LARGE_FERN,
+        SNOW -> true
+        else -> false
+    }
