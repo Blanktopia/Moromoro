@@ -10,12 +10,12 @@ class EssentialsHook(private val moromoro: Moromoro) : Hook, IItemDb.ItemResolve
 
     fun register() {
         val plugin = plugin as? Essentials ?: return
-        plugin.itemDb.registerResolver(moromoro, "monogoto", this)
+        plugin.itemDb.registerResolver(moromoro, "moromoro", this)
     }
 
     fun unregister() {
         val plugin = plugin as? Essentials ?: return
-        plugin.itemDb.unregisterResolver(moromoro, "monogoto")
+        plugin.itemDb.unregisterResolver(moromoro, "moromoro")
     }
 
     override fun apply(type: String?): ItemStack? {

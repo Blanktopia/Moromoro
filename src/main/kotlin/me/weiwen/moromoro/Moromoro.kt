@@ -58,7 +58,7 @@ class Moromoro: JavaPlugin() {
             }
         }
 
-        logger.info("Monogoto is enabled")
+        logger.info("Moromoro is enabled")
     }
 
     override fun onDisable() {
@@ -67,7 +67,8 @@ class Moromoro: JavaPlugin() {
         }
 
         permanentPotionEffectManager.disable()
+        equippedItemsManager.disable()
 
-        logger.info("Monogoto is disabled")
+        logger.info("Moromoro is disabled")
     }
 }
