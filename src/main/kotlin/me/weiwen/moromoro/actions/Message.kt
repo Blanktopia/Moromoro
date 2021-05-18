@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.serializers.FormattedString
 
 @Serializable
-@SerialName("console-command")
-data class ConsoleCommand(val command: String) : Action {
+@SerialName("message")
+data class Message(val message: FormattedString) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player
-        val formatted = command.replace("%p", player.name)
-        return player.server.dispatchCommand(player.server.consoleSender, formatted)
+        player.sendMessage(message.value)
+        return true
     }
 }
