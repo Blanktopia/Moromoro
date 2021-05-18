@@ -24,7 +24,7 @@ class PlayerInteractListener(val plugin: Moromoro) : Listener {
         }
 
         val data = item.itemMeta?.persistentDataContainer ?: return
-        val key = data.get(NamespacedKey(plugin, "key"), PersistentDataType.STRING) ?: return
+        val key = data.get(NamespacedKey(plugin.config.namespace, "key"), PersistentDataType.STRING) ?: return
         val triggers = plugin.itemManager.triggers[key] ?: return
 
         val ctx = Context(
@@ -50,7 +50,7 @@ class PlayerInteractListener(val plugin: Moromoro) : Listener {
         val item = event.player.inventory.itemInMainHand
 
         val data = item.itemMeta?.persistentDataContainer ?: return
-        val key = data.get(NamespacedKey(plugin, "key"), PersistentDataType.STRING) ?: return
+        val key = data.get(NamespacedKey(plugin.config.namespace, "key"), PersistentDataType.STRING) ?: return
         val triggers = plugin.itemManager.triggers[key] ?: return
 
         val ctx = Context(
@@ -71,7 +71,7 @@ class PlayerInteractListener(val plugin: Moromoro) : Listener {
         event.blockPlaced
 
         val data = item.itemMeta?.persistentDataContainer ?: return
-        val key = data.get(NamespacedKey(plugin, "key"), PersistentDataType.STRING) ?: return
+        val key = data.get(NamespacedKey(plugin.config.namespace, "key"), PersistentDataType.STRING) ?: return
         val triggers = plugin.itemManager.triggers[key] ?: return
 
         val ctx = Context(

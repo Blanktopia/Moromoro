@@ -10,6 +10,8 @@ class Moromoro: JavaPlugin() {
             private set
     }
 
+    val config: MoromoroConfig by lazy { parseConfig(this) }
+
     val itemManager: ItemManager by lazy { ItemManager(this) }
     val itemParser: ItemParser by lazy { ItemParser(this) }
 

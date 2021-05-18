@@ -43,7 +43,7 @@ data class ItemTemplate(
             properties.enchantments.forEach { (enchant, level) -> itemMeta.addEnchant(enchant, level, true) }
 
             val data = itemMeta.persistentDataContainer
-            data.set(NamespacedKey(Moromoro.plugin, "key"), PersistentDataType.STRING, key)
+            data.set(NamespacedKey(Moromoro.plugin.config.namespace, "key"), PersistentDataType.STRING, key)
 
             item.itemMeta = itemMeta
         }
