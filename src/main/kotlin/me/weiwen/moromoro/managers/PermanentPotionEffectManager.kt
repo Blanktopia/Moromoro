@@ -1,4 +1,4 @@
-package me.weiwen.moromoro
+package me.weiwen.moromoro.managers
 
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin

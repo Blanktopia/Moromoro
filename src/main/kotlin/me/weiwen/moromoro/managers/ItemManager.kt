@@ -1,5 +1,7 @@
-package me.weiwen.moromoro
+package me.weiwen.moromoro.managers
 
+import me.weiwen.moromoro.ItemTemplate
+import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import java.io.File
@@ -15,17 +17,19 @@ class ItemManager(val plugin: Moromoro) {
 
     fun load() {
         val directory = File(plugin.dataFolder, "items")
-        val files = directory.listFiles { file -> file.extension in listOf("toml", "json", "yaml") }
 
-        if (files == null) {
+        if (directory.isDirectory) {
             directory.mkdirs()
-            return
         }
+
+        // We walk bottom up so that the files closer to the root are processed last, and will take priority.
+        val files = directory.walkBottomUp().filter { file -> file.extension in listOf("toml", "json", "yaml") }
 
         triggers.clear()
 
         templates = files
             .mapNotNull { file ->
+                plugin.logger.log(Level.INFO, "Parsing '${file.name}'")
                 plugin.itemParser.parse(file)?.let { Pair(file.nameWithoutExtension, it) }
             }
             .associate { it }

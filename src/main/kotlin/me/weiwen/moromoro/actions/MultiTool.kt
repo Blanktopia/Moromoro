@@ -7,14 +7,14 @@ import org.bukkit.Material
 
 @Serializable
 @SerialName("multi-tool")
-data class MultiTool(val materials: List<Material>) : Action {
+data class MultiTool(val tools: List<Material>) : Action {
     override fun perform(ctx: Context): Boolean {
         val block = ctx.block ?: return false
         if (ctx.item.type.canMineBlock(block)) return false
 
-        for (material in materials) {
-            if (material.canMineBlock(block)) {
-                ctx.item.type = material
+        for (tool in tools) {
+            if (tool.canMineBlock(block)) {
+                ctx.item.type = tool
                 return true
             }
         }

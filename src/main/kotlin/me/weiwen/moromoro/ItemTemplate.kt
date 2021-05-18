@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
+import me.weiwen.moromoro.managers.ItemManager
 import me.weiwen.moromoro.serializers.EnchantmentSerializer
 import me.weiwen.moromoro.serializers.FormattedString
 import me.weiwen.moromoro.serializers.MaterialSerializer

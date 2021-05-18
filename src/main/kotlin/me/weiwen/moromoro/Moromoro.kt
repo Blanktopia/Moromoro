@@ -1,7 +1,10 @@
 package me.weiwen.moromoro
 
 import me.weiwen.moromoro.hooks.EssentialsHook
-import me.weiwen.moromoro.listeners.PlayerInteractListener
+import me.weiwen.moromoro.listeners.PlayerListener
+import me.weiwen.moromoro.managers.EquippedItemsManager
+import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.managers.PermanentPotionEffectManager
 import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -17,6 +20,7 @@ class Moromoro: JavaPlugin() {
     val itemParser: ItemParser by lazy { ItemParser(this) }
 
     val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
+    val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
 
     private val essentialsHook: EssentialsHook by lazy { EssentialsHook(this) }
 
@@ -25,9 +29,10 @@ class Moromoro: JavaPlugin() {
     }
 
     override fun onEnable() {
-        server.pluginManager.registerEvents(PlayerInteractListener(this), this)
+        server.pluginManager.registerEvents(PlayerListener(this), this)
 
         itemManager.load()
+        equippedItemsManager.enable()
         permanentPotionEffectManager.enable()
 
         if (server.pluginManager.getPlugin("Essentials") != null) {
