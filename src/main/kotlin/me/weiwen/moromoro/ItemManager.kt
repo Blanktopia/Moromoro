@@ -31,9 +31,6 @@ class ItemManager(val plugin: Moromoro) {
             .associate { it }
 
         keys = templates.keys
-
-        plugin.logger.log(Level.INFO, "$templates")
-        plugin.logger.log(Level.INFO, "$triggers")
     }
 
     fun registerTriggers(key: String, triggers: Map<Trigger, List<Action>>) {

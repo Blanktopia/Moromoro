@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("if")
-data class If(val condition: Action, val ifTrue: List<Action>, val ifFalse: List<Action>) : Action {
+data class If(val condition: Action, val ifTrue: List<Action> = listOf(), val ifFalse: List<Action> = listOf()) :
+    Action {
     override fun perform(ctx: Context): Boolean {
         return if (condition.perform(ctx)) {
             ifTrue.forEach { it.perform(ctx) }
@@ -26,3 +27,26 @@ object Noop : Action {
         return false
     }
 }
+
+@Serializable
+@SerialName("all-players")
+data class AllPlayers(val actions: List<Action> = listOf()) : Action {
+    override fun perform(ctx: Context): Boolean {
+        val ctxs = ctx.player.server.onlinePlayers.map {
+            Context(
+                event = ctx.event,
+                player = it,
+                item = ctx.item,
+                entity = ctx.entity,
+                block = ctx.block,
+                blockFace = ctx.blockFace
+            )
+        }
+        return actions.all { action ->
+            ctxs.all { ctx ->
+                action.perform(ctx)
+            }
+        }
+    }
+}
+

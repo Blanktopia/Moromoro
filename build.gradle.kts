@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -28,6 +30,8 @@ repositories {
 
     // ProtectionLib
     maven { url = uri("https://jitpack.io") }
+
+    mavenLocal()
 }
 
 
@@ -38,8 +42,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
     implementation("com.charleskorn.kaml:kaml:0.26.0")
 
+    // Paper
+    compileOnly("com.destroystokyo.paper", "paper-api", "1.16.5-R0.1-SNAPSHOT")
+
     // Spigot
-    compileOnly("org.spigotmc", "spigot-api", "1.16.3-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc", "spigot", "1.16.5-R0.1-SNAPSHOT")
 
     // bStats
     implementation("org.bstats", "bstats-bukkit", "1.8")
@@ -49,9 +56,6 @@ dependencies {
 
     // EssentialsX
     compileOnly("net.ess3", "EssentialsX", "2.18.2")
-
-    // ProtectionLib
-    implementation("com.gitlab.Ste3et_C0st", "protectionlib", "0.9.7")
 }
 
 bukkit {
@@ -65,6 +69,14 @@ bukkit {
 
     depend = listOf("Kotlin")
     softDepend = listOf("Essentials")
+
+    commands {
+        register("moromoro") {
+            description = "Manages the Moromoro plugin"
+            usage = "/<command> reload"
+            permission = "moromoro.admin"
+        }
+    }
 }
 
 tasks.withType<KotlinCompile> {

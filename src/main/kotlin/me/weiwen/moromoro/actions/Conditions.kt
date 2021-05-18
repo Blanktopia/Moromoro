@@ -1,8 +1,8 @@
 package me.weiwen.moromoro.actions
 
-import de.Ste3et_C0st.ProtectionLib.main.ProtectionLib
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.weiwen.moromoro.extensions.canBuildAt
 
 @Serializable
 @SerialName("is-in-world")
@@ -17,7 +17,7 @@ data class IsInWorld(val world: String) : Action {
 object CanBuild : Action {
     override fun perform(ctx: Context): Boolean {
         val loc = ctx.block?.location ?: return false
-        return ProtectionLib.getInstance().canBuild(loc, ctx.player)
+        return ctx.player.canBuildAt(loc)
     }
 }
 

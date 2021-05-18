@@ -2,6 +2,7 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.canMineBlock
 import org.bukkit.util.Vector
 
@@ -37,7 +38,7 @@ data class Hammer(val radius: Int = 1, val depth: Int = 1) : Action {
                         .add(xOffset.clone().multiply(x))
                         .add(yOffset.clone().multiply(y))
                         .add(zOffset.clone().multiply(z))
-//                    if (!player.canBuildAt(loc)) continue
+                    if (!player.canBuildAt(loc)) continue
                     val other = loc.block
                     if (other.type.hardness > hardness) continue
                     if (!item.type.canMineBlock(other)) continue
