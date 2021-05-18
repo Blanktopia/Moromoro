@@ -5,6 +5,7 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.logging.Level
@@ -16,6 +17,17 @@ data class MoromoroConfig(
 
 fun parseConfig(plugin: JavaPlugin): MoromoroConfig {
     val file = File(plugin.dataFolder, "config.yml")
+
+    if (!file.exists()) {
+        plugin.logger.log(Level.INFO, "Config file not found, creating default")
+        file.createNewFile()
+        file.writeText(Yaml(
+            configuration = YamlConfiguration(
+                polymorphismStyle = PolymorphismStyle.Property
+            )
+        ).encodeToString(MoromoroConfig()))
+    }
+
     return try {
         Yaml(
             configuration = YamlConfiguration(

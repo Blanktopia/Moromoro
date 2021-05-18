@@ -2,6 +2,7 @@ package me.weiwen.moromoro
 
 import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.listeners.PlayerInteractListener
+import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
 
 class Moromoro: JavaPlugin() {
@@ -10,7 +11,7 @@ class Moromoro: JavaPlugin() {
             private set
     }
 
-    val config: MoromoroConfig by lazy { parseConfig(this) }
+    var config: MoromoroConfig = parseConfig(this)
 
     val itemManager: ItemManager by lazy { ItemManager(this) }
     val itemParser: ItemParser by lazy { ItemParser(this) }
@@ -31,6 +32,25 @@ class Moromoro: JavaPlugin() {
 
         if (server.pluginManager.getPlugin("Essentials") != null) {
             essentialsHook.register()
+        }
+
+        val command = getCommand("moromoro")
+        command?.setExecutor { sender, _, _, args ->
+            when (args[0]) {
+                "reload" -> {
+                    config = parseConfig(this)
+                    itemManager.load()
+                    sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
+                    true
+                }
+                else -> false
+            }
+        }
+        command?.setTabCompleter { sender, _, _, args ->
+            when (args.size) {
+                0 -> listOf("reload")
+                else -> listOf()
+            }
         }
 
         logger.info("Monogoto is enabled")
