@@ -25,7 +25,7 @@ class ItemParser(private val plugin: Moromoro) {
     )
 
     fun parse(file: File): ItemTemplate? {
-        plugin.logger.log(Level.INFO, "Parsing ${file.name}")
+        plugin.logger.log(Level.INFO, "Parsing '${file.name}'")
 
         val key = file.nameWithoutExtension
 

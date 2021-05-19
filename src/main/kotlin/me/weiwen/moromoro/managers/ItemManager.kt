@@ -29,7 +29,6 @@ class ItemManager(val plugin: Moromoro) {
 
         templates = files
             .mapNotNull { file ->
-                plugin.logger.log(Level.INFO, "Parsing '${file.name}'")
                 plugin.itemParser.parse(file)?.let { Pair(file.nameWithoutExtension, it) }
             }
             .associate { it }

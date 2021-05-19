@@ -32,7 +32,7 @@ val actionModule = SerializersModule {
     polymorphic(Action::class) {
         subclass(ActionBar::class)
         subclass(AddPermanentPotionEffect::class)
-        subclass(AddPotionEffectAction::class)
+        subclass(AddPotionEffect::class)
         // subclass(AddVelocity::class)
         subclass(All::class)
         subclass(AllPlayers::class)
@@ -44,10 +44,10 @@ val actionModule = SerializersModule {
         subclass(CanBuild::class)
         subclass(ConsoleCommand::class)
         subclass(Delay::class)
-        // subclass(Disguise::class)
-        // subclass(ExperienceBoost::class)
+        subclass(Disguise::class)
+        subclass(ExperienceBoost::class)
         subclass(Feed::class)
-        // subclass(FlyInClaims::class)
+        subclass(FlyInClaims::class)
         // subclass(StripBlock::class)
         subclass(Heal::class)
         subclass(If::class)
@@ -79,7 +79,7 @@ val actionModule = SerializersModule {
         subclass(SudoCommand::class)
         // subclass(ToggleEnchantmentAction::class)
         // subclass(ToggleItemFrameVisibility::class)
-        // subclass(Undisguise::class)
+        subclass(Undisguise::class)
         // subclass(WaterBucket::class)
 
         default { Noop.serializer() }

@@ -4,6 +4,7 @@ import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.listeners.PlayerListener
 import me.weiwen.moromoro.managers.EquippedItemsManager
 import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.managers.ItemParser
 import me.weiwen.moromoro.managers.PermanentPotionEffectManager
 import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
@@ -51,7 +52,7 @@ class Moromoro: JavaPlugin() {
                 else -> false
             }
         }
-        command?.setTabCompleter { sender, _, _, args ->
+        command?.setTabCompleter { _, _, _, args ->
             when (args.size) {
                 0 -> listOf("reload")
                 else -> listOf()

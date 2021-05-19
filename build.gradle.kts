@@ -28,8 +28,11 @@ repositories {
     // EssentialsX
     maven { url = uri("https://repo.essentialsx.net/releases/") }
 
-    // ProtectionLib
+    // GriefPrevention
     maven { url = uri("https://jitpack.io") }
+
+    // Lib's Disguises
+    maven { url = uri("https://repo.md-5.net/content/groups/public/") }
 
     mavenLocal()
 }
@@ -56,6 +59,12 @@ dependencies {
 
     // EssentialsX
     compileOnly("net.ess3", "EssentialsX", "2.18.2")
+
+    // Libs Disguises
+    compileOnly("LibsDisguises", "LibsDisguises", "10.0.24")
+
+    // GriefPrevention
+    compileOnly("com.github.TechFortress:GriefPrevention:16.7.1")
 }
 
 bukkit {
@@ -67,7 +76,7 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Kotlin")
+    depend = listOf("Kotlin", "LibsDisguises")
     softDepend = listOf("Essentials")
 
     commands {
