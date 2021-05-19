@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @SerialName("noop")
 object Noop : Action {
     override fun perform(ctx: Context): Boolean {
-        return false
+        return true
     }
 }
 

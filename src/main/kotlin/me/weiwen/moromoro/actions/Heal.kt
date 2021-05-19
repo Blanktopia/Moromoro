@@ -7,7 +7,7 @@ import org.bukkit.Sound
 import org.bukkit.SoundCategory
 
 @Serializable
-@SerialName("feed")
+@SerialName("heal")
 data class Heal(val amount: Double) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player

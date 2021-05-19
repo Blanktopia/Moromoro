@@ -30,18 +30,18 @@ enum class Trigger {
 
     @SerialName("drop") DROP,
 
-    @SerialName("MOVE") MOVE,
-    @SerialName("JUMP") JUMP,
-    @SerialName("SNEAK") SNEAK,
-    @SerialName("UNSNEAK") UNSNEAK,
-    @SerialName("SPRINT") SPRINT,
-    @SerialName("UNSPRINT") UNSPRINT,
-    @SerialName("FLY") FLY,
-    @SerialName("UNFLY") UNFLY,
-    @SerialName("GLIDE") GLIDE,
-    @SerialName("UNGLIDE") UNGLIDE,
-    @SerialName("SWIM") SWIM,
-    @SerialName("UNSWIM") UNSWIM
+    @SerialName("move") MOVE,
+    @SerialName("jump") JUMP,
+    @SerialName("sneak") SNEAK,
+    @SerialName("unsneak") UNSNEAK,
+    @SerialName("sprint") SPRINT,
+    @SerialName("unsprint") UNSPRINT,
+    @SerialName("fly") FLY,
+    @SerialName("unfly") UNFLY,
+    @SerialName("glide") GLIDE,
+    @SerialName("unglide") UNGLIDE,
+    @SerialName("swim") SWIM,
+    @SerialName("unswim") UNSWIM
     ;
 }
 
