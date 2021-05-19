@@ -45,6 +45,7 @@ val actionModule = SerializersModule {
         subclass(ConsoleCommand::class)
         subclass(Delay::class)
         subclass(Disguise::class)
+        subclass(EquipItem::class)
         subclass(ExperienceBoost::class)
         subclass(Feed::class)
         subclass(FlyInClaims::class)
