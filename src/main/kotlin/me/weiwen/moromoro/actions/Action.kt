@@ -82,7 +82,5 @@ val actionModule = SerializersModule {
         // subclass(ToggleItemFrameVisibility::class)
         subclass(Undisguise::class)
         // subclass(WaterBucket::class)
-
-        default { Noop.serializer() }
     }
 }
