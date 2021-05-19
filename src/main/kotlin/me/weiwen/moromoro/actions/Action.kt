@@ -22,6 +22,7 @@ class Context(
     val blockFace: BlockFace?,
 ) {
     var isCancelled = false
+    var removeItem = false
 }
 
 interface Action {

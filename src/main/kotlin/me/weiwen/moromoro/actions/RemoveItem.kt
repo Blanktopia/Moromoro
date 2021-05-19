@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @SerialName("remove-item")
 object RemoveItem : Action {
     override fun perform(ctx: Context): Boolean {
-        ctx.player.inventory.remove(ctx.item)
+        ctx.removeItem = true
         return true
     }
 }

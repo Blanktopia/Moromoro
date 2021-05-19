@@ -20,7 +20,9 @@ import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.event.entity.EntityToggleSwimEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import java.util.logging.Level
 
 class PlayerListener(val plugin: Moromoro) : Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -64,6 +66,10 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
 
         event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            event.hand?.let { removeOne(event.player, it) }
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -90,6 +96,10 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         triggers[Trigger.RIGHT_CLICK]?.forEach { it.perform(ctx) }
 
         event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            removeOne(event.player, event.hand)
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -114,6 +124,10 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         triggers[Trigger.DAMAGE_ENTITY]?.forEach { it.perform(ctx) }
 
         event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            player.inventory.setItemInMainHand(removeOne(item))
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -135,6 +149,10 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         triggers[Trigger.BREAK_BLOCK]?.forEach { it.perform(ctx) }
 
         event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            event.player.inventory.setItemInMainHand(removeOne(item))
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -156,6 +174,10 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         triggers[Trigger.PLACE_BLOCK]?.forEach { it.perform(ctx) }
 
         event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            event.player.inventory.setItemInMainHand(removeOne(item))
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -177,6 +199,13 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         triggers[Trigger.CONSUME]?.forEach { it.perform(ctx) }
 
         event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            plugin.logger.log(
+                Level.WARNING,
+                "Attempting to remove item during PlayerItemConsumeEvent. This is not currently possible."
+            )
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -198,6 +227,27 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         triggers[Trigger.DROP]?.forEach { it.perform(ctx) }
 
         event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            val itemAfterRemoving = removeOne(item)
+            if (itemAfterRemoving == null) {
+                event.itemDrop.remove()
+            } else {
+                event.itemDrop.itemStack = itemAfterRemoving
+            }
+        }
     }
 
+
+private fun removeOne(item: ItemStack): ItemStack? {
+    if (item.amount > 1) {
+        item.amount -= 1
+        return item
+    } else {
+        return null
+    }
+}
+
+private fun removeOne(player: Player, slot: EquipmentSlot) {
+    player.inventory.setItem(slot, player.inventory.getItem(slot)?.let { removeOne(it) })
 }
