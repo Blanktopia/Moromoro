@@ -1,10 +1,13 @@
-package me.weiwen.moromoro
+package me.weiwen.moromoro.managers
 
 import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import me.weiwen.moromoro.ItemProperties
+import me.weiwen.moromoro.ItemTemplate
+import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.actionModule
 import java.io.File
 import java.util.logging.Level

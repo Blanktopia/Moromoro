@@ -21,19 +21,11 @@ fun parseConfig(plugin: JavaPlugin): MoromoroConfig {
     if (!file.exists()) {
         plugin.logger.log(Level.INFO, "Config file not found, creating default")
         file.createNewFile()
-        file.writeText(Yaml(
-            configuration = YamlConfiguration(
-                polymorphismStyle = PolymorphismStyle.Property
-            )
-        ).encodeToString(MoromoroConfig()))
+        file.writeText(Yaml().encodeToString(MoromoroConfig()))
     }
 
     return try {
-        Yaml(
-            configuration = YamlConfiguration(
-                polymorphismStyle = PolymorphismStyle.Property
-            )
-        ).decodeFromString<MoromoroConfig>(file.readText())
+        Yaml().decodeFromString<MoromoroConfig>(file.readText())
     } catch (e: Exception) {
         plugin.logger.log(Level.SEVERE, e.message)
         MoromoroConfig()
