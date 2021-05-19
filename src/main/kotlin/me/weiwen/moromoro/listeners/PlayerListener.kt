@@ -18,6 +18,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityToggleGlideEvent
 import org.bukkit.event.entity.EntityToggleSwimEvent
+import org.bukkit.event.inventory.ClickType
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
@@ -238,6 +240,66 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
     }
 
+
+    @EventHandler(ignoreCancelled = true)
+    fun onInventoryClick(event: InventoryClickEvent) {
+        val inventory = event.clickedInventory ?: return
+        val item = inventory.getItem(event.slot) ?: return
+
+        val key = item.customItemKey ?: return
+        val triggers = plugin.itemManager.triggers[key] ?: return
+
+        val player = event.whoClicked as? Player ?: return
+
+        val trigger = when (event.click) {
+            ClickType.RIGHT -> Trigger.RIGHT_CLICK_INVENTORY
+            ClickType.LEFT -> Trigger.LEFT_CLICK_INVENTORY
+            ClickType.MIDDLE -> Trigger.MIDDLE_CLICK_INVENTORY
+            ClickType.SHIFT_RIGHT -> Trigger.SHIFT_RIGHT_CLICK_INVENTORY
+            ClickType.SHIFT_LEFT -> Trigger.SHIFT_LEFT_CLICK_INVENTORY
+            ClickType.DOUBLE_CLICK -> Trigger.DOUBLE_CLICK_INVENTORY
+            ClickType.DROP -> Trigger.DROP_INVENTORY
+            ClickType.CONTROL_DROP -> Trigger.CONTROL_DROP_INVENTORY
+            ClickType.WINDOW_BORDER_LEFT -> Trigger.LEFT_BORDER_INVENTORY
+            ClickType.WINDOW_BORDER_RIGHT -> Trigger.RIGHT_BORDER_INVENTORY
+            ClickType.NUMBER_KEY -> when (event.hotbarButton) {
+                0 -> Trigger.NUMBER_1_INVENTORY
+                1 -> Trigger.NUMBER_2_INVENTORY
+                2 -> Trigger.NUMBER_3_INVENTORY
+                3 -> Trigger.NUMBER_4_INVENTORY
+                4 -> Trigger.NUMBER_5_INVENTORY
+                5 -> Trigger.NUMBER_6_INVENTORY
+                6 -> Trigger.NUMBER_7_INVENTORY
+                7 -> Trigger.NUMBER_8_INVENTORY
+                8 -> Trigger.NUMBER_9_INVENTORY
+                else -> {
+                    plugin.logger.log(Level.WARNING, "Unexpected hotbar button: ${event.hotbarButton}")
+                    Trigger.NUMBER_1_INVENTORY
+                }
+            }
+            ClickType.CREATIVE -> Trigger.CREATIVE_INVENTORY
+            ClickType.SWAP_OFFHAND -> Trigger.SWAP_OFFHAND_INVENTORY
+            ClickType.UNKNOWN -> return
+        }
+
+        val ctx = Context(
+            event,
+            player,
+            item,
+            null,
+            null,
+            null
+        )
+
+        triggers[trigger]?.forEach { it.perform(ctx) }
+
+        event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            inventory.setItem(event.slot, removeOne(item))
+        }
+    }
+}
 
 private fun removeOne(item: ItemStack): ItemStack? {
     if (item.amount > 1) {

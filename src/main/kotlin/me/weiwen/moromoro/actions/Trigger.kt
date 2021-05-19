@@ -41,7 +41,29 @@ enum class Trigger {
     @SerialName("glide") GLIDE,
     @SerialName("unglide") UNGLIDE,
     @SerialName("swim") SWIM,
-    @SerialName("unswim") UNSWIM
+    @SerialName("unswim") UNSWIM,
+
+    @SerialName("right-click-inventory") RIGHT_CLICK_INVENTORY,
+    @SerialName("left-click-inventory") LEFT_CLICK_INVENTORY,
+    @SerialName("middle-click-inventory") MIDDLE_CLICK_INVENTORY,
+    @SerialName("shift-right-click-inventory") SHIFT_RIGHT_CLICK_INVENTORY,
+    @SerialName("shift-left-click-inventory") SHIFT_LEFT_CLICK_INVENTORY,
+    @SerialName("double-click-inventory") DOUBLE_CLICK_INVENTORY,
+    @SerialName("drop-inventory") DROP_INVENTORY,
+    @SerialName("control-drop-inventory") CONTROL_DROP_INVENTORY,
+    @SerialName("left-border-inventory") LEFT_BORDER_INVENTORY,
+    @SerialName("right-border-inventory") RIGHT_BORDER_INVENTORY,
+    @SerialName("number-1-inventory") NUMBER_1_INVENTORY,
+    @SerialName("number-2-inventory") NUMBER_2_INVENTORY,
+    @SerialName("number-3-inventory") NUMBER_3_INVENTORY,
+    @SerialName("number-4-inventory") NUMBER_4_INVENTORY,
+    @SerialName("number-5-inventory") NUMBER_5_INVENTORY,
+    @SerialName("number-6-inventory") NUMBER_6_INVENTORY,
+    @SerialName("number-7-inventory") NUMBER_7_INVENTORY,
+    @SerialName("number-8-inventory") NUMBER_8_INVENTORY,
+    @SerialName("number-9-inventory") NUMBER_9_INVENTORY,
+    @SerialName("creative-inventory") CREATIVE_INVENTORY,
+    @SerialName("swap-offhand-inventory") SWAP_OFFHAND_INVENTORY,
     ;
 }
 
