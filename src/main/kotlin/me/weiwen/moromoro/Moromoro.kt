@@ -17,10 +17,10 @@ class Moromoro: JavaPlugin() {
     val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
     val flyItemsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
     val itemManager: ItemManager by lazy { ItemManager(this) }
-    val itemParser: ItemParser by lazy { ItemParser(this) }
+    val recipeManager: RecipeManager by lazy { RecipeManager(this) }
     val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
 
-    private val essentialsHook: EssentialsHook by lazy { EssentialsHook(this) }
+    val essentialsHook: EssentialsHook by lazy { EssentialsHook(this) }
 
     override fun onLoad() {
         plugin = this
@@ -29,7 +29,8 @@ class Moromoro: JavaPlugin() {
     override fun onEnable() {
         server.pluginManager.registerEvents(PlayerListener(this), this)
 
-        itemManager.load()
+        itemManager.enable()
+        recipeManager.enable()
         equippedItemsManager.enable()
         permanentPotionEffectManager.enable()
         flyItemsManager.enable()
@@ -68,6 +69,8 @@ class Moromoro: JavaPlugin() {
         flyItemsManager.disable()
         permanentPotionEffectManager.disable()
         equippedItemsManager.disable()
+        recipeManager.disable()
+        itemManager.disable()
 
         logger.info("Moromoro is disabled")
     }

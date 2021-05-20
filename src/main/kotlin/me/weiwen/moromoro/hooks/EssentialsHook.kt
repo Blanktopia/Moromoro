@@ -25,4 +25,14 @@ class EssentialsHook(private val moromoro: Moromoro) : Hook, IItemDb.ItemResolve
     override fun getNames(): Collection<String> {
         return moromoro.itemManager.keys
     }
+
+    fun getItemStack(name: String): ItemStack? {
+        val plugin = plugin as? Essentials ?: return null
+        return plugin.itemDb.get(name)
+    }
+
+    fun getName(item: ItemStack): String? {
+        val plugin = plugin as? Essentials ?: return null
+        return plugin.itemDb.name(item)
+    }
 }
