@@ -118,7 +118,8 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
                         .getOrPut(triggerType, { mutableMapOf() })[event.slotType] = Pair(item, actions)
                 }
             }
-            val trigger= when (event.slotType) {
+
+            val trigger = when (event.slotType) {
                 PlayerArmorChangeEvent.SlotType.HEAD -> Trigger.EQUIP_HEAD
                 PlayerArmorChangeEvent.SlotType.CHEST -> Trigger.EQUIP_CHEST
                 PlayerArmorChangeEvent.SlotType.LEGS -> Trigger.EQUIP_LEGS

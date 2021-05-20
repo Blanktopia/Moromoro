@@ -16,7 +16,7 @@ import org.bukkit.util.Vector
 
 @Serializable
 @SerialName("builders-wand")
-data class BuildersWand(val biome: Biome, val range: Int = 1) : Action {
+data class BuildersWand(val range: Int = 1) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player
         val block = ctx.block ?: return false

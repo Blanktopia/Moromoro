@@ -18,8 +18,8 @@ class Context(
     val player: Player,
     val item: ItemStack,
     val entity: Entity?,
-    val block: Block?,
-    val blockFace: BlockFace?,
+    var block: Block?,
+    var blockFace: BlockFace?,
 ) {
     var isCancelled = false
     var removeItem = false
@@ -34,7 +34,7 @@ val actionModule = SerializersModule {
         subclass(ActionBar::class)
         subclass(AddPermanentPotionEffect::class)
         subclass(AddPotionEffect::class)
-        // subclass(AddVelocity::class)
+        subclass(AddVelocity::class)
         subclass(All::class)
         subclass(AllPlayers::class)
         subclass(Any::class)
@@ -50,7 +50,7 @@ val actionModule = SerializersModule {
         subclass(ExperienceBoost::class)
         subclass(Feed::class)
         subclass(FlyInClaims::class)
-        // subclass(StripBlock::class)
+        subclass(StripBlock::class)
         subclass(Heal::class)
         subclass(If::class)
         subclass(IsFlying::class)
@@ -69,6 +69,7 @@ val actionModule = SerializersModule {
         subclass(Not::class)
         // subclass(PaintBrushPick::class)
         // subclass(PaintBrushPaint::class)
+        subclass(PlaceBlock::class)
         // subclass(PlaceRandomBlock::class)
         subclass(PlayerCommand::class)
         subclass(PlaySound::class)
@@ -76,7 +77,7 @@ val actionModule = SerializersModule {
         subclass(RemovePermanentPotionEffect::class)
         // subclass(Repeat::class)
         // subclass(Rotate::class)
-        // subclass(SetVelocity::class)
+        subclass(SetVelocity::class)
         subclass(SpawnParticle::class)
         subclass(SudoCommand::class)
         // subclass(ToggleEnchantmentAction::class)

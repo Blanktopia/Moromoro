@@ -2,10 +2,7 @@ package me.weiwen.moromoro
 
 import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.listeners.PlayerListener
-import me.weiwen.moromoro.managers.EquippedItemsManager
-import me.weiwen.moromoro.managers.ItemManager
-import me.weiwen.moromoro.managers.ItemParser
-import me.weiwen.moromoro.managers.PermanentPotionEffectManager
+import me.weiwen.moromoro.managers.*
 import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -17,11 +14,11 @@ class Moromoro: JavaPlugin() {
 
     var config: MoromoroConfig = parseConfig(this)
 
+    val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
+    val flyItemsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
     val itemManager: ItemManager by lazy { ItemManager(this) }
     val itemParser: ItemParser by lazy { ItemParser(this) }
-
     val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
-    val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
 
     private val essentialsHook: EssentialsHook by lazy { EssentialsHook(this) }
 
@@ -35,6 +32,7 @@ class Moromoro: JavaPlugin() {
         itemManager.load()
         equippedItemsManager.enable()
         permanentPotionEffectManager.enable()
+        flyItemsManager.enable()
 
         if (server.pluginManager.getPlugin("Essentials") != null) {
             essentialsHook.register()
@@ -67,6 +65,7 @@ class Moromoro: JavaPlugin() {
             essentialsHook.unregister()
         }
 
+        flyItemsManager.disable()
         permanentPotionEffectManager.disable()
         equippedItemsManager.disable()
 
