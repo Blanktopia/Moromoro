@@ -42,7 +42,7 @@ object PaintBrushPaint : Action {
             "GREEN" -> DyeColor.GREEN
             "RED" -> DyeColor.RED
             "BLACK" -> DyeColor.BLACK
-            else -> null
+            else -> return false
         }
 
         if (block.type in WOOL && WOOL_MAP[colour] != null) {

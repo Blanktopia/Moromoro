@@ -1,7 +1,12 @@
+@file:UseSerializers(MaterialSerializer::class)
+
 package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
+import me.weiwen.moromoro.extensions.isPartiallyEmpty
+import me.weiwen.moromoro.serializers.MaterialSerializer
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -17,7 +22,7 @@ data class PlaceBlock(val material: Material) : Action {
         val block = ctx.block ?: return false
         val face = ctx.blockFace ?: return false
 
-        val (targetBlock, replaceBlock, targetFace) = when (block.type) {
+        val (placedAgainst, placedBlock, targetFace) = when (block.type) {
             Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Triple(
                 block.getRelative(
                     BlockFace.DOWN
@@ -26,28 +31,27 @@ data class PlaceBlock(val material: Material) : Action {
             else -> Triple(block, block.getRelative(face), face)
         }
 
-        if (!replaceBlock.isEmpty) return false
+        if (!placedBlock.type.isPartiallyEmpty) return false
 
-        ctx.block = replaceBlock
+        ctx.block = placedBlock
         ctx.blockFace = targetFace
 
         return when (material) {
-            Material.TORCH -> placeTorch(ctx, replaceBlock)
-            else -> placeBlock(ctx, replaceBlock)
+            Material.TORCH -> placeTorch(ctx, placedAgainst)
+            else -> placeBlock(ctx, placedAgainst)
         }
     }
 
-    private fun placeBlock(ctx: Context, replaceBlock: Block): Boolean {
+    private fun placeBlock(ctx: Context, placedAgainst: Block): Boolean {
         val block = ctx.block ?: return false
-        val face = ctx.blockFace ?: return false
 
         val state = block.state
         state.type = material
 
         val buildEvent = BlockPlaceEvent(
-            replaceBlock,
-            state,
             block,
+            state,
+            placedAgainst,
             ctx.item,
             ctx.player,
             true,
@@ -61,12 +65,12 @@ data class PlaceBlock(val material: Material) : Action {
         return true
     }
 
-    private fun placeTorch(ctx: Context, replaceBlock: Block): Boolean {
+    private fun placeTorch(ctx: Context, placedAgainst: Block): Boolean {
         val block = ctx.block ?: return false
         val face = ctx.blockFace ?: return false
 
         val state = block.state
-        if (block.type.isSolid && face != BlockFace.DOWN) {
+        if (placedAgainst.type.isSolid && face != BlockFace.DOWN) {
             when (face) {
                 BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH, BlockFace.NORTH -> {
                     state.type = Material.WALL_TORCH
@@ -83,7 +87,7 @@ data class PlaceBlock(val material: Material) : Action {
         } else {
             var canPlace = false
             for (tryFace in listOf(BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH, BlockFace.NORTH)) {
-                if (replaceBlock.getRelative(tryFace).type.isSolid) {
+                if (block.getRelative(tryFace).type.isSolid) {
                     state.type = Material.WALL_TORCH
                     val data = Bukkit.getServer().createBlockData(Material.WALL_TORCH)
                     (data as? Directional)?.facing = tryFace.oppositeFace
@@ -92,7 +96,7 @@ data class PlaceBlock(val material: Material) : Action {
                     break
                 }
             }
-            if (!canPlace && replaceBlock.getRelative(BlockFace.DOWN).type.isSolid) {
+            if (!canPlace && block.getRelative(BlockFace.DOWN).type.isSolid) {
                 state.type = Material.TORCH
                 val data = Bukkit.getServer().createBlockData(Material.TORCH)
                 state.blockData = data
@@ -102,9 +106,9 @@ data class PlaceBlock(val material: Material) : Action {
         }
 
         val buildEvent = BlockPlaceEvent(
-            replaceBlock,
-            state,
             block,
+            state,
+            placedAgainst,
             ctx.item,
             ctx.player,
             true,

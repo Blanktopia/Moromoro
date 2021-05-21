@@ -704,7 +704,7 @@ val Material.isPartial: Boolean
         else -> false
     }
 
-val Material.isEmpty: Boolean
+val Material.isPartiallyEmpty: Boolean
     get() = when (this) {
         CAVE_AIR,
         AIR,
@@ -736,7 +736,6 @@ val Material.stripped: Material?
         CRIMSON_HYPHAE -> STRIPPED_CRIMSON_HYPHAE
         WARPED_STEM -> STRIPPED_WARPED_STEM
         WARPED_HYPHAE -> STRIPPED_WARPED_HYPHAE
-        GRASS_BLOCK -> GRASS_PATH
         else -> null
     }
 

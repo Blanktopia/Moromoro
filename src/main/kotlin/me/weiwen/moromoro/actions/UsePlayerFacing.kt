@@ -4,10 +4,11 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("not")
-data class Not(val not: Action) : Action {
+@SerialName("use-player-facing")
+object UsePlayerFacing : Action {
     override fun perform(ctx: Context): Boolean {
-        return !not.perform(ctx)
+        ctx.blockFace = ctx.player.facing
+        return true
     }
 }
 
