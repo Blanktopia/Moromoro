@@ -8,27 +8,29 @@ import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
 @Serializable
-sealed class DisguiseData
+sealed class DisguiseData {
+    abstract val burning: Boolean
+}
 
 @Serializable
 @SerialName("mob")
-data class MobDisguiseData(val entity: DisguiseType, val baby: Boolean = false) : DisguiseData()
+data class MobDisguiseData(val entity: DisguiseType, val baby: Boolean = false, override val burning: Boolean = false) : DisguiseData()
 
 @Serializable
 @SerialName("player")
-data class PlayerDisguiseData(val player: String) : DisguiseData()
+data class PlayerDisguiseData(val player: String, override val burning: Boolean = false) : DisguiseData()
 
 @Serializable
 @SerialName("block")
-data class BlockDisguiseData(val material: Material, val data: Int = 0) : DisguiseData()
+data class BlockDisguiseData(val material: Material, val data: Int = 0, override val burning: Boolean = false) : DisguiseData()
 
 @Serializable
 @SerialName("item")
-data class ItemDisguiseData(val material: Material, val amount: Int = 1) : DisguiseData()
+data class ItemDisguiseData(val material: Material, val amount: Int = 1, override val burning: Boolean = false) : DisguiseData()
 
 val DisguiseData.disguise: Disguise
     get() = when (this) {
-        is MobDisguiseData -> MobDisguise(entity, baby)
+        is MobDisguiseData -> MobDisguise(entity, !baby)
         is PlayerDisguiseData -> PlayerDisguise(player)
         is BlockDisguiseData -> MiscDisguise(DisguiseType.FALLING_BLOCK, material, data)
         is ItemDisguiseData -> {
@@ -41,11 +43,11 @@ val DisguiseData.disguise: Disguise
 @SerialName("disguise")
 data class Disguise(
     val disguise: DisguiseData,
-    val burning: Boolean = false,
     val invisible: Boolean = false
 ) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player
+        val burning = disguise.burning
         val disguise = disguise.disguise
         disguise.entity = player
         disguise.watcher.apply {
