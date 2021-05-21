@@ -2,6 +2,7 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.*
 import org.bukkit.*
 import org.bukkit.block.Biome
@@ -13,6 +14,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
+import java.util.logging.Level
 
 @Serializable
 @SerialName("builders-wand")
@@ -35,25 +37,41 @@ data class BuildersWand(val range: Int = 1) : Action {
             state.type = base.type
             val blockData = base.blockData.clone()
 
-            val cost = ItemStack(block.type, when (blockData) {
-                is Ageable -> { blockData.age = 0; 1 }
-                is Beehive -> { blockData.honeyLevel = 0; 1 }
-                is Cake -> { blockData.bites = 0; 1 }
-                is BrewingStand -> {
-                    blockData.setBottle(0, false)
-                    blockData.setBottle(1, false)
-                    blockData.setBottle(2, false)
-                    1
+            val cost = ItemStack(
+                block.type, when (blockData) {
+                    is Ageable -> {
+                        blockData.age = 0; 1
+                    }
+                    is Beehive -> {
+                        blockData.honeyLevel = 0; 1
+                    }
+                    is Cake -> {
+                        blockData.bites = 0; 1
+                    }
+                    is BrewingStand -> {
+                        blockData.setBottle(0, false)
+                        blockData.setBottle(1, false)
+                        blockData.setBottle(2, false)
+                        1
+                    }
+                    is EndPortalFrame -> {
+                        blockData.setEye(false); 1
+                    }
+                    is Furnace -> {
+                        blockData.isLit = false; 1
+                    }
+                    is Sapling -> {
+                        blockData.stage = 0; 1
+                    }
+                    is Slab -> if (blockData.type == Slab.Type.DOUBLE) 2 else 1
+                    is SeaPickle -> blockData.pickles
+                    is Snow -> blockData.layers
+                    is TurtleEgg -> {
+                        blockData.hatch = 0; blockData.eggs
+                    }
+                    else -> 1
                 }
-                is EndPortalFrame -> { blockData.setEye(false); 1 }
-                is Furnace -> { blockData.isLit = false; 1 }
-                is Sapling -> { blockData.stage = 0; 1 }
-                is Slab -> if (blockData.type == Slab.Type.DOUBLE) 2 else 1
-                is SeaPickle -> blockData.pickles
-                is Snow -> blockData.layers
-                is TurtleEgg -> { blockData.hatch = 0; blockData.eggs }
-                else -> 1
-            })
+            )
 
             state.blockData = blockData
             if (player.gameMode != GameMode.CREATIVE && !player.inventory.containsAtLeast(cost, 1)) {
@@ -62,7 +80,12 @@ data class BuildersWand(val range: Int = 1) : Action {
                 }
                 return false
             }
-            if (player.location.block.location == location || player.location.add( 0.0, 1.0, 0.0 ).block.location == location) {
+            if (player.location.block.location == location || player.location.add(
+                    0.0,
+                    1.0,
+                    0.0
+                ).block.location == location
+            ) {
                 continue
             }
 
@@ -116,9 +139,13 @@ data class BuildersWand(val range: Int = 1) : Action {
             Pair(Vector(1, 0, 0), Vector(0, 1, 0))
         }
         val locations: MutableList<Location> = mutableListOf()
-        for (x in -range .. range) {
-            for (y in -range .. range) {
-                locations.add(origin.clone().add(xOffset.clone().multiply(x)).add(yOffset.clone().multiply(y)))
+        for (x in -range..range) {
+            for (y in -range..range) {
+                locations.add(
+                    origin.clone()
+                        .add(xOffset.clone().multiply(x))
+                        .add(yOffset.clone().multiply(y))
+                )
             }
         }
         return locations
