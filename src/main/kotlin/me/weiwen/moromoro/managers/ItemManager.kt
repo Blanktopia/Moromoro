@@ -31,7 +31,7 @@ class ItemManager(val plugin: Moromoro) {
     fun load() {
         val directory = File(plugin.dataFolder, "items")
 
-        if (directory.isDirectory) {
+        if (!directory.isDirectory) {
             directory.mkdirs()
         }
 

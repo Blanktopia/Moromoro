@@ -2,6 +2,7 @@ package me.weiwen.moromoro
 
 import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.listeners.PlayerListener
+import me.weiwen.moromoro.listeners.RecipeListener
 import me.weiwen.moromoro.managers.*
 import org.bukkit.ChatColor
 import org.bukkit.plugin.java.JavaPlugin
@@ -28,23 +29,37 @@ class Moromoro: JavaPlugin() {
 
     override fun onEnable() {
         server.pluginManager.registerEvents(PlayerListener(this), this)
+        server.pluginManager.registerEvents(RecipeListener(this), this)
 
         itemManager.enable()
-        recipeManager.enable()
-        equippedItemsManager.enable()
-        permanentPotionEffectManager.enable()
-        flyItemsManager.enable()
-
         if (server.pluginManager.getPlugin("Essentials") != null) {
             essentialsHook.register()
+            recipeManager.enable()
         }
+        permanentPotionEffectManager.enable()
+        flyItemsManager.enable()
+        equippedItemsManager.enable()
 
         val command = getCommand("moromoro")
         command?.setExecutor { sender, _, _, args ->
             when (args[0]) {
                 "reload" -> {
-                    config = parseConfig(this)
-                    itemManager.load()
+                    if (args.size == 1) {
+                        config = parseConfig(this)
+                        itemManager.load()
+                        recipeManager.load()
+                    } else {
+                        when (args[1]) {
+                            "config" -> parseConfig(this)
+                            "items" -> itemManager.load()
+                            "recipes" -> recipeManager.load()
+                            else -> {
+                                config = parseConfig(this)
+                                itemManager.load()
+                                recipeManager.load()
+                            }
+                        }
+                    }
                     sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
                     true
                 }
@@ -66,9 +81,9 @@ class Moromoro: JavaPlugin() {
             essentialsHook.unregister()
         }
 
+        equippedItemsManager.disable()
         flyItemsManager.disable()
         permanentPotionEffectManager.disable()
-        equippedItemsManager.disable()
         recipeManager.disable()
         itemManager.disable()
 

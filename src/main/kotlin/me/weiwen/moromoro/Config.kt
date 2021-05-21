@@ -3,6 +3,7 @@ package me.weiwen.moromoro
 import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -13,6 +14,8 @@ import java.util.logging.Level
 @Serializable
 data class MoromoroConfig(
     val namespace: String = "moromoro",
+    @SerialName("discover-all-recipes")
+    val discoverAllRecipes: Boolean = true,
 )
 
 fun parseConfig(plugin: JavaPlugin): MoromoroConfig {

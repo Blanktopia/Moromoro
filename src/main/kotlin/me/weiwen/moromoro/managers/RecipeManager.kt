@@ -20,89 +20,119 @@ import java.util.logging.Level
 
 @Serializable
 sealed class RecipeTemplate {
-    lateinit var key: String
-
-    abstract val recipe: Recipe
+    abstract fun recipe(key: String): Recipe
 }
 
 @Serializable
 @SerialName("shaped")
 class ShapedRecipeTemplate(
-    val result: ItemStack,
-    val shape: List<String>,
-    val ingredients: Map<Char, ItemStack>
+    private val result: ItemStack,
+    private val shape: String,
+    private val ingredients: Map<Char, ItemStack>
 ) : RecipeTemplate() {
-    override val recipe: Recipe
-        get() = ShapedRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result).also {
-            it.shape(*shape.toTypedArray())
-            ingredients.forEach { (char, ingredient) -> it.setIngredient(char, ingredient) }
+    override fun recipe(key: String): Recipe {
+        val recipe = ShapedRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result)
+
+        recipe.shape(*shape.chunked(3).toTypedArray())
+
+        ingredients.forEach { (char, ingredient) ->
+            recipe.setIngredient(char, ingredient)
         }
+
+        return recipe
+    }
 }
 
 @Serializable
 @SerialName("shapeless")
-class ShapelessRecipeTemplate(val result: ItemStack, val ingredients: List<ItemStack>) :
+class ShapelessRecipeTemplate(private val result: ItemStack, private val ingredients: List<ItemStack>) :
     RecipeTemplate() {
-    override val recipe: Recipe
-        get() = ShapelessRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result).also {
-            ingredients.forEach { ingredient -> it.addIngredient(ingredient) }
+    override fun recipe(key: String): Recipe {
+        val recipe = ShapelessRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result)
+
+        ingredients.forEach { ingredient ->
+            recipe.addIngredient(ingredient)
         }
+
+        return recipe
+    }
 }
 
 @Serializable
 @SerialName("furnace")
 class FurnaceRecipeTemplate(
-    val result: ItemStack,
-    val input: ItemStack,
-    val experience: Float = 0f,
+    private val result: ItemStack,
+    private val input: ItemStack,
+    private val experience: Float = 0f,
     @SerialName("cooking-time")
-    val cookingTime: Int = 200
+    private val cookingTime: Int = 200
 ) : RecipeTemplate() {
-    override val recipe: Recipe
-        get() = FurnaceRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result, RecipeChoice.ExactChoice(input), experience, cookingTime)
+    override fun recipe(key: String): Recipe =
+        FurnaceRecipe(
+            NamespacedKey(Moromoro.plugin.config.namespace, key),
+            result,
+            RecipeChoice.ExactChoice(input),
+            experience,
+            cookingTime
+        )
 }
 
 @Serializable
 @SerialName("campfire")
 class CampfireRecipeTemplate(
-    val result: ItemStack,
-    val input: ItemStack,
-    val experience: Float = 0f,
+    private val result: ItemStack,
+    private val input: ItemStack,
+    private val experience: Float = 0f,
     @SerialName("cooking-time")
-    val cookingTime: Int = 600
+    private val cookingTime: Int = 600
 ) : RecipeTemplate() {
-    override val recipe: Recipe
-        get() = CampfireRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result, RecipeChoice.ExactChoice(input), experience, cookingTime)
+    override fun recipe(key: String): Recipe = CampfireRecipe(
+        NamespacedKey(Moromoro.plugin.config.namespace, key),
+        result,
+        RecipeChoice.ExactChoice(input),
+        experience,
+        cookingTime
+    )
 }
 
 @Serializable
 @SerialName("smoking")
 class SmokingRecipeTemplate(
-    val result: ItemStack,
-    val input: ItemStack,
-    val experience: Float = 0f,
+    private val result: ItemStack,
+    private val input: ItemStack,
+    private val experience: Float = 0f,
     @SerialName("cooking-time")
-    val cookingTime: Int = 100
+    private val cookingTime: Int = 100
 ) : RecipeTemplate() {
-    override val recipe: Recipe
-        get() = SmokingRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result, RecipeChoice.ExactChoice(input), experience, cookingTime)
+    override fun recipe(key: String): Recipe = SmokingRecipe(
+        NamespacedKey(Moromoro.plugin.config.namespace, key),
+        result,
+        RecipeChoice.ExactChoice(input),
+        experience,
+        cookingTime
+    )
 }
 
 @Serializable
 @SerialName("blasting")
 class BlastingRecipeTemplate(
-    val result: ItemStack,
-    val input: ItemStack,
-    val experience: Float = 0f,
+    private val result: ItemStack,
+    private val input: ItemStack,
+    private val experience: Float = 0f,
     @SerialName("cooking-time")
-    val cookingTime: Int = 100
+    private val cookingTime: Int = 100
 ) : RecipeTemplate() {
-    override val recipe: Recipe
-        get() = BlastingRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result, RecipeChoice.ExactChoice(input), experience, cookingTime)
+    override fun recipe(key: String): Recipe = BlastingRecipe(
+        NamespacedKey(Moromoro.plugin.config.namespace, key),
+        result,
+        RecipeChoice.ExactChoice(input),
+        experience,
+        cookingTime
+    )
 }
 
 class RecipeManager(val plugin: Moromoro) {
-    var recipes: Map<String, Recipe> = mapOf()
+    var recipes: Map<NamespacedKey, Recipe> = mapOf()
         private set
 
     fun enable() {
@@ -111,14 +141,14 @@ class RecipeManager(val plugin: Moromoro) {
 
     fun disable() {
         recipes.keys.forEach {
-            plugin.server.removeRecipe(NamespacedKey(plugin.config.namespace, it))
+            plugin.server.removeRecipe(it)
         }
     }
 
     fun load() {
         val directory = File(plugin.dataFolder, "recipes")
 
-        if (directory.isDirectory) {
+        if (!directory.isDirectory) {
             directory.mkdirs()
         }
 
@@ -126,16 +156,18 @@ class RecipeManager(val plugin: Moromoro) {
         val files = directory.walkBottomUp().filter { file -> file.extension in setOf("json", "yml", "yaml") }
 
         recipes.keys.forEach {
-            plugin.server.removeRecipe(NamespacedKey(plugin.config.namespace, it))
+            plugin.server.removeRecipe(it)
         }
 
         recipes = files
-            .mapNotNull { file -> parse(file)?.let { Pair(file.nameWithoutExtension, it) } }
+            .mapNotNull { file ->
+                parse(file)?.let { NamespacedKey(plugin.config.namespace, file.nameWithoutExtension) to it }
+            }
             .associate { it }
 
-       recipes.forEach { _, recipe ->
-           plugin.server.addRecipe(recipe)
-       }
+        recipes.forEach { (_, recipe) ->
+            plugin.server.addRecipe(recipe)
+        }
     }
 
     private val json = Json {
@@ -168,8 +200,6 @@ class RecipeManager(val plugin: Moromoro) {
             return null
         }
 
-        template.key = key
-
-        return template.recipe
+        return template.recipe(key)
     }
 }

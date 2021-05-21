@@ -28,7 +28,7 @@ class EssentialsHook(private val moromoro: Moromoro) : Hook, IItemDb.ItemResolve
 
     fun getItemStack(name: String): ItemStack? {
         val plugin = plugin as? Essentials ?: return null
-        return plugin.itemDb.get(name)
+        return plugin.itemDb.get(name, 1)
     }
 
     fun getName(item: ItemStack): String? {

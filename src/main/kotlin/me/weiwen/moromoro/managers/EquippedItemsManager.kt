@@ -84,7 +84,7 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
             val key = item.customItemKey ?: return@let
             val triggers = plugin.itemManager.triggers[key] ?: return@let
 
-            triggers.forEach { triggerType, _ ->
+            triggers.forEach { (triggerType, _) ->
                 if (triggerType in EQUIPPED_TRIGGERS) {
                     val triggersByType = equippedItems.get(event.player.uniqueId) ?: return@forEach
                     val triggers = triggersByType.get(triggerType) ?: return@forEach
@@ -111,7 +111,7 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
             val key = item.customItemKey ?: return@let
             val triggers = plugin.itemManager.triggers[key] ?: return@let
 
-            triggers.forEach { triggerType, actions ->
+            triggers.forEach { (triggerType, actions) ->
                 if (triggerType in EQUIPPED_TRIGGERS) {
                     equippedItems
                         .getOrPut(event.player.uniqueId, { mutableMapOf() })
