@@ -2,9 +2,7 @@
 
 package me.weiwen.moromoro
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.*
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.setHeadUrl
@@ -58,6 +56,8 @@ data class ItemTemplate(
 ) {
     fun build(amount: Int = 1): ItemStack {
         return ItemStack(properties.material, amount).also { item ->
+            properties.head?.let { item.setHeadUrl(properties.name?.value ?: "", it) }
+
             val itemMeta = item.itemMeta as ItemMeta
 
             properties.name?.let { itemMeta.setDisplayName(it.value) }
@@ -77,8 +77,6 @@ data class ItemTemplate(
             data.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
 
             item.itemMeta = itemMeta
-
-            properties.head?.let { item.setHeadUrl(properties.name?.value ?: "", it) }
         }
     }
 
