@@ -8,7 +8,7 @@ import org.bukkit.util.Vector
 
 @Serializable
 @SerialName("break-block")
-data class BreakBlock(val radius: Int = 1, val depth: Int = 1) : Action {
+data class BreakBlock(val radius: Int = 0, val depth: Int = 0) : Action {
     override fun perform(ctx: Context): Boolean {
         val block = ctx.block ?: return false
         val player = ctx.player

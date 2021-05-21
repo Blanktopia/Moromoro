@@ -3,23 +3,19 @@ package me.weiwen.moromoro.actions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.extensions.canBuildAt
-import me.weiwen.moromoro.extensions.canMineBlock
 import me.weiwen.moromoro.extensions.playSoundAt
-import me.weiwen.moromoro.extensions.stripped
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
-import org.bukkit.block.data.Orientable
 import org.bukkit.util.Vector
 
 @Serializable
-@SerialName("strip-block")
-data class StripBlock(val radius: Int = 0, val depth: Int = 0) : Action {
+@SerialName("path-block")
+data class PathBlock(val radius: Int = 0, val depth: Int = 0) : Action {
     override fun perform(ctx: Context): Boolean {
         val block = ctx.block ?: return false
         val player = ctx.player
         val blockFace = ctx.blockFace ?: player.rayTraceBlocks(6.0)?.hitBlockFace ?: return false
-        val item = ctx.item
 
         val (xOffset, yOffset, zOffset) = when {
             blockFace.modX != 0 -> {
@@ -33,7 +29,7 @@ data class StripBlock(val radius: Int = 0, val depth: Int = 0) : Action {
             }
         }
 
-        var didStrip = false
+        var didPath = false
         for (x in -radius..radius) {
             for (y in -radius..radius) {
                 for (z in 0..depth) {
@@ -46,27 +42,19 @@ data class StripBlock(val radius: Int = 0, val depth: Int = 0) : Action {
 
                     val other = loc.block
 
-                    val stripped = other.type.stripped ?: continue
+                    if (other.type != Material.GRASS_BLOCK && other.type != Material.MYCELIUM) continue
 
-                    didStrip = true
+                    didPath = true
 
-                    val data = other.blockData
-
-                    other.type = stripped
-
-                    val newData = other.blockData
-                    if (data is Orientable && newData is Orientable) {
-                        newData.axis = data.axis
-                        other.blockData = newData
-                    }
+                    other.type = Material.GRASS_PATH
                 }
             }
         }
 
-        if (didStrip) {
-            block.playSoundAt(Sound.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0f, 1.0f)
+        if (didPath) {
+            block.playSoundAt(Sound.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0f, 1.0f)
         }
 
-        return didStrip
+        return didPath
     }
 }

@@ -13,13 +13,12 @@ import org.bukkit.block.data.Orientable
 import org.bukkit.util.Vector
 
 @Serializable
-@SerialName("strip-block")
-data class StripBlock(val radius: Int = 0, val depth: Int = 0) : Action {
+@SerialName("till-block")
+data class TillBlock(val radius: Int = 0, val depth: Int = 0) : Action {
     override fun perform(ctx: Context): Boolean {
         val block = ctx.block ?: return false
         val player = ctx.player
         val blockFace = ctx.blockFace ?: player.rayTraceBlocks(6.0)?.hitBlockFace ?: return false
-        val item = ctx.item
 
         val (xOffset, yOffset, zOffset) = when {
             blockFace.modX != 0 -> {
@@ -33,7 +32,7 @@ data class StripBlock(val radius: Int = 0, val depth: Int = 0) : Action {
             }
         }
 
-        var didStrip = false
+        var didTill = false
         for (x in -radius..radius) {
             for (y in -radius..radius) {
                 for (z in 0..depth) {
@@ -46,27 +45,19 @@ data class StripBlock(val radius: Int = 0, val depth: Int = 0) : Action {
 
                     val other = loc.block
 
-                    val stripped = other.type.stripped ?: continue
+                    if (other.type != Material.DIRT && other.type != Material.GRASS_BLOCK) continue
 
-                    didStrip = true
+                    didTill = true
 
-                    val data = other.blockData
-
-                    other.type = stripped
-
-                    val newData = other.blockData
-                    if (data is Orientable && newData is Orientable) {
-                        newData.axis = data.axis
-                        other.blockData = newData
-                    }
+                    other.type = Material.FARMLAND
                 }
             }
         }
 
-        if (didStrip) {
-            block.playSoundAt(Sound.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0f, 1.0f)
+        if (didTill) {
+            block.playSoundAt(Sound.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0f, 1.0f)
         }
 
-        return didStrip
+        return didTill
     }
 }
