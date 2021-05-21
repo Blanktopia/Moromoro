@@ -1,12 +1,9 @@
 package me.weiwen.moromoro.listeners
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
-import com.destroystokyo.paper.event.player.PlayerJumpEvent
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -16,18 +13,15 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.EntityToggleGlideEvent
-import org.bukkit.event.entity.EntityToggleSwimEvent
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
 import java.util.logging.Level
 
 class PlayerListener(val plugin: Moromoro) : Listener {
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     fun onPlayerInteract(event: PlayerInteractEvent) {
         val item = when (event.hand) {
             EquipmentSlot.HAND -> event.player.inventory.itemInMainHand
@@ -74,7 +68,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerInteractEntity(event: PlayerInteractEntityEvent) {
         val item = when (event.hand) {
             EquipmentSlot.HAND -> event.player.inventory.itemInMainHand
@@ -104,7 +98,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onEntityDamageByPlayer(event: EntityDamageByEntityEvent) {
         if (event.cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK) return
 
@@ -132,7 +126,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onBlockBreak(event: BlockBreakEvent) {
         val item = event.player.inventory.itemInMainHand
 
@@ -157,7 +151,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onBlockPlace(event: BlockPlaceEvent) {
         val item = event.player.inventory.itemInMainHand
 
@@ -182,7 +176,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerItemConsume(event: PlayerItemConsumeEvent) {
         val item = event.item
 
@@ -210,7 +204,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerDropItem(event: PlayerDropItemEvent) {
         val item = event.itemDrop.itemStack
 
@@ -241,7 +235,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
     }
 
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onInventoryClick(event: InventoryClickEvent) {
         val inventory = event.clickedInventory ?: return
         val item = inventory.getItem(event.slot) ?: return
