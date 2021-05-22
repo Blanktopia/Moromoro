@@ -76,8 +76,8 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Kotlin", "LibsDisguises")
-    softDepend = listOf("Essentials")
+    depend = listOf("Kotlin", "LibsDisguises", "Essentials")
+    softDepend = listOf("Blanktopia")
 
     commands {
         register("moromoro") {
