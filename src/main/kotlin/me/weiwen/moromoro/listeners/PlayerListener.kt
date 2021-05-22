@@ -4,7 +4,10 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
+import me.weiwen.moromoro.extensions.isReallyInteractable
+import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
@@ -30,7 +33,14 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         }
 
         val key = item.customItemKey ?: return
-        val triggers = plugin.itemManager.triggers[key] ?: return
+
+        if (event.action == Action.RIGHT_CLICK_BLOCK && !event.player.isSneaking) {
+            val blockType = event.clickedBlock?.type
+            if (blockType?.isReallyInteractable == true) {
+                event.setUseItemInHand(Event.Result.DENY)
+                return
+            }
+        }
 
         val ctx = Context(
             event,
@@ -41,6 +51,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
             event.blockFace
         )
 
+        val triggers = plugin.itemManager.triggers[key] ?: return
         when (event.action) {
             Action.LEFT_CLICK_BLOCK -> {
                 triggers[Trigger.LEFT_CLICK_BLOCK]?.forEach { it.perform(ctx) }
@@ -61,7 +72,9 @@ class PlayerListener(val plugin: Moromoro) : Listener {
             Action.PHYSICAL -> return
         }
 
-        event.isCancelled = ctx.isCancelled
+        if (ctx.isCancelled) {
+            event.setUseItemInHand(Event.Result.DENY)
+        }
 
         if (ctx.removeItem) {
             event.hand?.let { removeOne(event.player, it) }

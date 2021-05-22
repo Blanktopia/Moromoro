@@ -2,6 +2,7 @@ package me.weiwen.moromoro.hooks
 
 import com.earth2me.essentials.Essentials
 import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.managers.item
 import net.ess3.api.IItemDb
 import org.bukkit.inventory.ItemStack
 
@@ -18,8 +19,8 @@ class EssentialsHook(private val moromoro: Moromoro) : Hook, IItemDb.ItemResolve
         plugin.itemDb.unregisterResolver(moromoro, "moromoro")
     }
 
-    override fun apply(type: String?): ItemStack? {
-        return moromoro.itemManager.templates.get(type)?.build()
+    override fun apply(type: String): ItemStack? {
+        return moromoro.itemManager.templates[type]?.item(type)
     }
 
     override fun getNames(): Collection<String> {
