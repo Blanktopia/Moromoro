@@ -1,6 +1,5 @@
 package me.weiwen.moromoro.listeners
 
-import com.avaje.ebean.LogLevel
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.customItemKey
 import org.bukkit.Keyed

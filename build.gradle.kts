@@ -34,6 +34,9 @@ repositories {
     // Lib's Disguises
     maven { url = uri("https://repo.md-5.net/content/groups/public/") }
 
+    // ProtocolLib
+    maven { url = uri("https://repo.dmulloy2.net/repository/public/") }
+
     mavenLocal()
 }
 
@@ -63,6 +66,9 @@ dependencies {
     // Libs Disguises
     compileOnly("LibsDisguises", "LibsDisguises", "10.0.24")
 
+    // ProtocolLib
+    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.6.0")
+
     // GriefPrevention
     compileOnly("com.github.TechFortress:GriefPrevention:16.7.1")
 }
@@ -76,7 +82,7 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Kotlin", "LibsDisguises", "Essentials")
+    depend = listOf("Kotlin", "LibsDisguises", "Essentials", "ProtocolLib", "GriefPrevention")
     softDepend = listOf("Blanktopia")
 
     commands {

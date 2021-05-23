@@ -34,6 +34,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
 
         val key = item.customItemKey ?: return
 
+        // Cancel if interacting with a block
         if (event.action == Action.RIGHT_CLICK_BLOCK && !event.player.isSneaking) {
             val blockType = event.clickedBlock?.type
             if (blockType?.isReallyInteractable == true) {

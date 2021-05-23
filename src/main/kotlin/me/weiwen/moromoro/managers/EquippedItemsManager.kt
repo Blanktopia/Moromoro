@@ -8,7 +8,6 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.EQUIPPED_TRIGGERS
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
-import me.weiwen.moromoro.listeners.PlayerListener
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority

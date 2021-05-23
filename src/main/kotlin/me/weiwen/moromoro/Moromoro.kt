@@ -1,6 +1,7 @@
 package me.weiwen.moromoro
 
 import me.weiwen.moromoro.hooks.EssentialsHook
+import me.weiwen.moromoro.listeners.CustomBlockListener
 import me.weiwen.moromoro.listeners.PlayerListener
 import me.weiwen.moromoro.listeners.RecipeListener
 import me.weiwen.moromoro.managers.*
@@ -30,6 +31,7 @@ class Moromoro: JavaPlugin() {
     override fun onEnable() {
         server.pluginManager.registerEvents(PlayerListener(this), this)
         server.pluginManager.registerEvents(RecipeListener(this), this)
+        server.pluginManager.registerEvents(CustomBlockListener(this), this)
 
         itemManager.enable()
         if (server.pluginManager.getPlugin("Essentials") != null) {
