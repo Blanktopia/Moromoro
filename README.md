@@ -1,4 +1,4 @@
-# Monogoto
+# Moromoro
 Easily build custom items for your Minecraft server
 
 ## Build
