@@ -9,6 +9,7 @@ import kotlinx.serialization.encoding.Encoder
 import me.weiwen.moromoro.Moromoro
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
+import java.util.logging.Level
 
 class ItemStackSerializer : KSerializer<ItemStack> {
     override val descriptor: SerialDescriptor
@@ -16,7 +17,14 @@ class ItemStackSerializer : KSerializer<ItemStack> {
 
     override fun deserialize(decoder: Decoder): ItemStack {
         val string = decoder.decodeString()
-        return Moromoro.plugin.essentialsHook.getItemStack(string) ?: ItemStack(Material.STICK)
+
+        val item = Moromoro.plugin.essentialsHook.getItemStack(string)
+
+        if (item == null) {
+            Moromoro.plugin.logger.log(Level.WARNING, "Unnknown item: $string")
+        }
+
+        return item ?: ItemStack(Material.STICK)
     }
 
     override fun serialize(encoder: Encoder, value: ItemStack) {

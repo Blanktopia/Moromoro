@@ -1,4 +1,4 @@
-@file:UseSerializers(ItemStackSerializer::class)
+@file:UseSerializers(ItemStackSerializer::class, RecipeChoiceSerializer::class)
 
 package me.weiwen.moromoro.managers
 
@@ -13,6 +13,7 @@ import kotlinx.serialization.json.Json
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.actionModule
 import me.weiwen.moromoro.serializers.ItemStackSerializer
+import me.weiwen.moromoro.serializers.RecipeChoiceSerializer
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.*
 import java.io.File
@@ -28,7 +29,7 @@ sealed class RecipeTemplate {
 class ShapedRecipeTemplate(
     private val result: ItemStack,
     private val shape: String,
-    private val ingredients: Map<Char, ItemStack>
+    private val ingredients: Map<Char, RecipeChoice>
 ) : RecipeTemplate() {
     override fun recipe(key: String): Recipe {
         val recipe = ShapedRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result)
@@ -45,7 +46,7 @@ class ShapedRecipeTemplate(
 
 @Serializable
 @SerialName("shapeless")
-class ShapelessRecipeTemplate(private val result: ItemStack, private val ingredients: List<ItemStack>) :
+class ShapelessRecipeTemplate(private val result: ItemStack, private val ingredients: List<RecipeChoice>) :
     RecipeTemplate() {
     override fun recipe(key: String): Recipe {
         val recipe = ShapelessRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result)
