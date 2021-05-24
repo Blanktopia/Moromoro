@@ -14,6 +14,10 @@ object ToggleItemFrameVisibility : Action {
         val entity = ctx.entity ?: return false
         val itemFrame = entity as? ItemFrame ?: return false
 
+        if (itemFrame.isFixed) {
+            return false
+        }
+
         itemFrame.isVisible = !itemFrame.isVisible
 
         entity.playSoundAt(Sound.BLOCK_GRINDSTONE_USE, SoundCategory.PLAYERS, 1.0f, 2.0f)
