@@ -4,8 +4,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.21"
-    kotlin("plugin.serialization") version "1.4.21"
+    kotlin("jvm") version "1.5.0"
+    kotlin("plugin.serialization") version "1.5.0"
     id("net.minecrell.plugin-yml.bukkit")
     id("com.github.johnrengelman.shadow")
 }
@@ -42,11 +42,11 @@ repositories {
 
 
 dependencies {
-    compileOnly(kotlin("stdlib-jdk8", "1.4.21"))
+    implementation(kotlin("stdlib-jdk8", "1.5.0"))
 
     // Deserialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-    implementation("com.charleskorn.kaml:kaml:0.26.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+    implementation("com.charleskorn.kaml:kaml:0.33.0")
 
     // Paper
     compileOnly("com.destroystokyo.paper", "paper-api", "1.16.5-R0.1-SNAPSHOT")
@@ -82,7 +82,7 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Kotlin", "LibsDisguises", "Essentials", "ProtocolLib", "GriefPrevention")
+    depend = listOf("LibsDisguises", "Essentials", "ProtocolLib", "GriefPrevention")
     softDepend = listOf("Blanktopia")
 
     commands {
