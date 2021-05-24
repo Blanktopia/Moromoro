@@ -8,6 +8,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.inventory.ComplexRecipe
 import java.util.logging.Level
 
 class RecipeListener(val plugin: Moromoro) : Listener {
@@ -23,6 +24,11 @@ class RecipeListener(val plugin: Moromoro) : Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPrepareItemCraft(event: PrepareItemCraftEvent) {
         val recipe = event.recipe as? Keyed ?: return
+
+        if (recipe is ComplexRecipe) {
+            // Allow custom items to be dyed
+            return
+        }
 
         if (recipe.key.namespace == plugin.config.namespace) {
             // Allow custom items to be used in plugin-defined recipes
