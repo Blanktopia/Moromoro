@@ -24,6 +24,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.util.Vector
 import java.util.logging.Level
 
 class CustomBlockListener(val plugin: Moromoro) : Listener {
@@ -141,7 +142,7 @@ fun ItemFrame.breakCustomBlock() {
         setDisplayName(name)
     }
     remove()
-    world.dropItemNaturally(this.location, item)
+    world.dropItemNaturally(this.location.clone().subtract(Vector(0.5, 0.5, 0.5)), item)
 
     playSoundAt(Sound.BLOCK_WOOD_BREAK, SoundCategory.BLOCKS, 1.0f, 1.0f)
 }
