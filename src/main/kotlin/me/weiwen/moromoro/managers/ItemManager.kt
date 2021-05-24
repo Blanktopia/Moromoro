@@ -1,4 +1,4 @@
-@file:UseSerializers(MaterialSerializer::class, EnchantmentSerializer::class, UUIDSerializer::class)
+@file:UseSerializers(MaterialSerializer::class, EnchantmentSerializer::class, ColorSerializer::class, UUIDSerializer::class)
 
 package me.weiwen.moromoro.managers
 
@@ -16,14 +16,9 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
 import me.weiwen.moromoro.extensions.*
-import me.weiwen.moromoro.serializers.EnchantmentSerializer
-import me.weiwen.moromoro.serializers.FormattedString
-import me.weiwen.moromoro.serializers.MaterialSerializer
-import me.weiwen.moromoro.serializers.UUIDSerializer
+import me.weiwen.moromoro.serializers.*
 import org.bukkit.*
 import org.bukkit.attribute.Attribute
-import org.bukkit.block.Block
-import org.bukkit.block.BlockFace
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
@@ -31,6 +26,8 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.inventory.meta.LeatherArmorMeta
+import org.bukkit.material.Colorable
 import org.bukkit.persistence.PersistentDataType
 import java.io.File
 import java.util.*
@@ -48,6 +45,7 @@ data class ItemTemplate(
     val enchantments: Map<Enchantment, Int> = mapOf(),
     val attributes: List<AttributeModifier> = listOf(),
     val flags: List<ItemFlag> = listOf(),
+    val color: Color? = null,
     val triggers: Map<Trigger, List<Action>> = mapOf(),
     val block: BlockTemplate? = null,
 )
@@ -148,7 +146,6 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
             }.toString()
 
             itemMeta.lore = itemMeta.lore?.apply { add(0, lore) }
-            Moromoro.plugin.logger.log(Level.INFO, "$lore ${itemMeta.lore?.joinToString("")}")
         }
     }
 
@@ -156,8 +153,16 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
 
     flags.forEach { itemMeta.addItemFlags(it) }
 
-    val data = itemMeta.persistentDataContainer
-    data.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
+    val persistentData = itemMeta.persistentDataContainer
+    persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
+
+    color?.let {
+        if (itemMeta !is LeatherArmorMeta) {
+            Moromoro.plugin.logger.log(Level.WARNING, "color property is defined, but item is not colorable")
+        } else {
+            itemMeta.setColor(color)
+        }
+    }
 
     item.itemMeta = itemMeta
 
