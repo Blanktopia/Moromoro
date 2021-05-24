@@ -10,7 +10,9 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.extensions.playSoundAt
+import me.weiwen.moromoro.managers.item
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
 import org.bukkit.block.Block
@@ -24,6 +26,7 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import java.util.logging.Level
 
@@ -41,17 +44,17 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
 
                 val entityId = packet.integers.read(0)
 
-                plugin.logger.log(Level.INFO, "entityID looking for: $entityId")
-
                 plugin.server.scheduler.scheduleSyncDelayedTask(plugin) {
                     val entity = e.player.world.getNearbyEntities(e.player.location, 10.0, 10.0, 10.0) {
-                        plugin.logger.log(Level.INFO, "entityID found: ${it.entityId}")
                         it.entityId == entityId
                     }.firstOrNull() ?: return@scheduleSyncDelayedTask
 
                     // Break custom blocks
                     if (entity.type == EntityType.ITEM_FRAME) {
-                        // TODO: check persistent data
+                        val key = entity.persistentDataContainer.get(
+                            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                            PersistentDataType.STRING
+                        ) ?: return@scheduleSyncDelayedTask
                         (entity as ItemFrame).breakCustomBlock()
                         e.isCancelled = true
                     }
@@ -106,7 +109,10 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onItemFrameBreak(event: HangingBreakEvent) {
-        // TODO: check persistent data
+        val key = event.entity.persistentDataContainer.get(
+            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+            PersistentDataType.STRING
+        ) ?: return
         event.isCancelled = true
     }
 }
@@ -115,8 +121,11 @@ fun Block.breakCustomBlock(): Boolean {
     val location = location.add(0.5, 0.5, 0.5)
 
     val itemFrames = world.getNearbyEntities(location, 0.5, 0.5, 0.5) {
+        val key = it.persistentDataContainer.get(
+            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+            PersistentDataType.STRING
+        ) ?: return@getNearbyEntities false
         it.type == EntityType.ITEM_FRAME
-        // TODO: check persistent data
     }
 
     if (itemFrames.isEmpty()) {
@@ -135,13 +144,17 @@ fun Block.breakCustomBlock(): Boolean {
 }
 
 fun ItemFrame.breakCustomBlock() {
+    persistentDataContainer.get(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING) ?: return
+
     val item = item
     item.itemMeta = item.itemMeta.apply {
         val template = Moromoro.plugin.itemManager.templates[item.customItemKey] ?: return@apply
         val name = template.name?.value ?: return@apply
         setDisplayName(name)
     }
+
     remove()
+
     world.dropItemNaturally(this.location.clone().subtract(Vector(0.5, 0.5, 0.5)), item)
 
     playSoundAt(Sound.BLOCK_WOOD_BREAK, SoundCategory.BLOCKS, 1.0f, 1.0f)
