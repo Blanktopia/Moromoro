@@ -23,6 +23,7 @@ fun parseConfig(plugin: JavaPlugin): MoromoroConfig {
 
     if (!file.exists()) {
         plugin.logger.log(Level.INFO, "Config file not found, creating default")
+        plugin.dataFolder.mkdirs()
         file.createNewFile()
         file.writeText(Yaml().encodeToString(MoromoroConfig()))
     }
