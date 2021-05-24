@@ -27,11 +27,11 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.LeatherArmorMeta
-import org.bukkit.material.Colorable
 import org.bukkit.persistence.PersistentDataType
 import java.io.File
 import java.util.*
 import java.util.logging.Level
+import kotlin.IllegalArgumentException
 
 @Serializable
 data class ItemTemplate(
@@ -83,7 +83,7 @@ class ItemBlockTemplate(val collision: Boolean) : BlockTemplate() {
         // Try to place item frame
         val itemFrame = try {
             world.spawnEntity(location, EntityType.ITEM_FRAME) as ItemFrame
-        } catch (e: java.lang.IllegalArgumentException) {
+        } catch (e: IllegalArgumentException) {
             return
         }.apply {
             setFacingDirection(blockFace, true)
@@ -93,7 +93,7 @@ class ItemBlockTemplate(val collision: Boolean) : BlockTemplate() {
 
             // Set persistent data
             persistentDataContainer.set(
-                NamespacedKey(Moromoro.plugin.config.namespace, "key"),
+                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
                 PersistentDataType.STRING,
                 key
             )
