@@ -16,6 +16,7 @@ class Moromoro: JavaPlugin() {
 
     var config: MoromoroConfig = parseConfig(this)
 
+    val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this) }
     val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
     val flyItemsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
     val itemManager: ItemManager by lazy { ItemManager(this) }
@@ -41,6 +42,7 @@ class Moromoro: JavaPlugin() {
         permanentPotionEffectManager.enable()
         flyItemsManager.enable()
         equippedItemsManager.enable()
+        resourcePackManager.enable()
 
         val command = getCommand("moromoro")
         command?.setExecutor { sender, _, _, args ->
@@ -83,6 +85,7 @@ class Moromoro: JavaPlugin() {
             essentialsHook.unregister()
         }
 
+        resourcePackManager.disable()
         equippedItemsManager.disable()
         flyItemsManager.disable()
         permanentPotionEffectManager.disable()
