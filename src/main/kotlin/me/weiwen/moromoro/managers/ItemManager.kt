@@ -1,4 +1,9 @@
-@file:UseSerializers(MaterialSerializer::class, EnchantmentSerializer::class, ColorSerializer::class, UUIDSerializer::class)
+@file:UseSerializers(
+    MaterialSerializer::class,
+    EnchantmentSerializer::class,
+    ColorSerializer::class,
+    UUIDSerializer::class
+)
 
 package me.weiwen.moromoro.managers
 
@@ -63,19 +68,27 @@ data class AttributeModifier(
 @Serializable
 sealed class BlockTemplate {
     abstract fun place(ctx: Context)
+
+    @SerialName("sit-height")
+    abstract val sitHeight: Double?
 }
 
 @Serializable
 @SerialName("item")
 /* Placed using invisible item frames */
-class ItemBlockTemplate(val collision: Boolean) : BlockTemplate() {
+class ItemBlockTemplate(
+    val collision: Boolean,
+    @SerialName("sit-height")
+    override val sitHeight: Double? = null
+) : BlockTemplate() {
     override fun place(ctx: Context) {
         val key = ctx.item.customItemKey ?: return
 
         val block = ctx.block ?: return
         val blockFace = ctx.blockFace ?: return
 
-        val rotation = ctx.player.location.rotation
+        val playerLocation = ctx.player.location.clone().apply { yaw += 180 }
+        val rotation = playerLocation.rotation
 
         val location = block.getRelative(blockFace).location
         val world = location.world ?: return

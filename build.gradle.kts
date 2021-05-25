@@ -71,6 +71,9 @@ dependencies {
 
     // GriefPrevention
     compileOnly("com.github.TechFortress:GriefPrevention:16.7.1")
+
+    // GSit
+    compileOnly(files("vendor/GSit.jar"))
 }
 
 bukkit {
@@ -82,7 +85,7 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("LibsDisguises", "Essentials", "ProtocolLib", "GriefPrevention")
+    depend = listOf("LibsDisguises", "Essentials", "ProtocolLib", "GriefPrevention", "GSit")
     softDepend = listOf("Blanktopia")
 
     commands {

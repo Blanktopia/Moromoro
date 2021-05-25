@@ -5,11 +5,14 @@ import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.wrappers.EnumWrappers
+import me.gsit.api.GSitAPI
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.extensions.playSoundAt
+import me.weiwen.moromoro.extensions.rotation
 import me.weiwen.moromoro.managers.item
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -24,6 +27,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.hanging.HangingBreakEvent
+import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
@@ -31,6 +35,8 @@ import org.bukkit.util.Vector
 import java.util.logging.Level
 
 class CustomBlockListener(val plugin: Moromoro) : Listener {
+    val gSitApi: GSitAPI by lazy { GSitAPI() }
+
     init {
         val manager = ProtocolLibrary.getProtocolManager()
 
@@ -108,6 +114,43 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    fun onPlayerInteractEntity(event: PlayerInteractEntityEvent) {
+        // Cancel if interacting with a block
+        if (event.player.isSneaking) {
+            return
+        }
+
+        val entity = event.rightClicked
+
+        // Sit
+        if (entity.type == EntityType.ITEM_FRAME && entity is ItemFrame) {
+            val key = entity.persistentDataContainer.get(
+                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                PersistentDataType.STRING
+            ) ?: return
+
+            val sitHeight = plugin.itemManager.blockTemplates[key]?.sitHeight ?: return
+
+            val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(entity.facing.direction)
+            val seatLocation = entity.location.toBlockLocation().apply {
+                rotation = entity.rotation
+            }
+
+            gSitApi.setPlayerSeat(
+                event.player,
+                seatLocation,
+                offset.x,
+                offset.y,
+                offset.z,
+                seatLocation.yaw,
+                entity.origin,
+                false,
+                true
+            )
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onItemFrameBreak(event: HangingBreakEvent) {
         val key = event.entity.persistentDataContainer.get(
             NamespacedKey(Moromoro.plugin.config.namespace, "type"),
@@ -144,7 +187,8 @@ fun Block.breakCustomBlock(): Boolean {
 }
 
 fun ItemFrame.breakCustomBlock() {
-    persistentDataContainer.get(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING) ?: return
+    persistentDataContainer.get(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING)
+        ?: return
 
     val item = item
     item.itemMeta = item.itemMeta.apply {
