@@ -109,7 +109,19 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
 
         val blockTemplate = plugin.itemManager.blockTemplates[key] ?: return
         if (event.action == Action.RIGHT_CLICK_BLOCK) {
-            blockTemplate.place(ctx)
+            val location = block?.getRelative(event.blockFace)?.location?.add(0.5, 0.5, 0.5) ?: return
+            
+            val nearbyItems = location.world.getNearbyEntities(location, 0.5, 0.5, 0.5) {
+                it.type == EntityType.ITEM_FRAME &&
+                        it.persistentDataContainer.has(
+                            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                            PersistentDataType.STRING
+                        )
+            }
+
+            if (nearbyItems.isEmpty()) {
+                blockTemplate.place(ctx)
+            }
         }
     }
 
@@ -152,10 +164,14 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onItemFrameBreak(event: HangingBreakEvent) {
-        val key = event.entity.persistentDataContainer.get(
-            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-            PersistentDataType.STRING
-        ) ?: return
+        if (!event.entity.persistentDataContainer.has(
+                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                PersistentDataType.STRING
+            )
+        ) {
+            return
+        }
+
         event.isCancelled = true
     }
 }
@@ -164,11 +180,11 @@ fun Block.breakCustomBlock(): Boolean {
     val location = location.add(0.5, 0.5, 0.5)
 
     val itemFrames = world.getNearbyEntities(location, 0.5, 0.5, 0.5) {
-        val key = it.persistentDataContainer.get(
-            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-            PersistentDataType.STRING
-        ) ?: return@getNearbyEntities false
-        it.type == EntityType.ITEM_FRAME
+        it.type == EntityType.ITEM_FRAME &&
+                it.persistentDataContainer.has(
+                    NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                    PersistentDataType.STRING
+                )
     }
 
     if (itemFrames.isEmpty()) {
