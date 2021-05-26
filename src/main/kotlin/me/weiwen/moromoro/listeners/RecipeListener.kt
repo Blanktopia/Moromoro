@@ -65,9 +65,4 @@ class RecipeListener(val plugin: Moromoro) : Listener {
             event.result = null
         }
     }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    fun onInventoryOpen(event: InventoryOpenEvent) {
-        plugin.logger.log(Level.INFO, "Open: $event")
-    }
 }
