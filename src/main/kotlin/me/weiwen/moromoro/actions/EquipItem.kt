@@ -16,12 +16,14 @@ data class EquipItem(val slot: EquipmentSlot) : Action {
         if (equippedItem == item) {
             player.inventory.setItem(slot, null)
             player.inventory.addItem(item)
+            return true
         } else if (equippedItem == null) {
-            player.inventory.removeItem(item)
+            ctx.removeItem = true
             player.inventory.setItem(slot, item)
+            return true
+        } else {
+            return false
         }
-
-        return true
     }
 }
 
