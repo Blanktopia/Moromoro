@@ -9,10 +9,7 @@ import me.gsit.api.GSitAPI
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
-import me.weiwen.moromoro.extensions.customItemKey
-import me.weiwen.moromoro.extensions.isReallyInteractable
-import me.weiwen.moromoro.extensions.playSoundAt
-import me.weiwen.moromoro.extensions.rotation
+import me.weiwen.moromoro.extensions.*
 import me.weiwen.moromoro.managers.item
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -55,6 +52,10 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
                         it.entityId == entityId
                     }.firstOrNull() ?: return@scheduleSyncDelayedTask
 
+                    if (!e.player.canBuildAt(entity.location)) {
+                        return@scheduleSyncDelayedTask
+                    }
+
                     // Break custom blocks
                     if (entity.type == EntityType.ITEM_FRAME) {
                         val key = entity.persistentDataContainer.get(
@@ -75,10 +76,15 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
         val block = event.clickedBlock
 
         // Break custom blocks
-        if (event.action == Action.LEFT_CLICK_BLOCK && block?.type == Material.BARRIER && block.breakCustomBlock()) {
-            event.setUseItemInHand(Event.Result.DENY)
-            event.setUseInteractedBlock(Event.Result.DENY)
-            return
+        if (event.action == Action.LEFT_CLICK_BLOCK && block?.type == Material.BARRIER) {
+            if (!event.player.canBuildAt(block.location)) {
+                return
+            }
+            if (block.breakCustomBlock()) {
+                event.setUseItemInHand(Event.Result.DENY)
+                event.setUseInteractedBlock(Event.Result.DENY)
+                return
+            }
         }
 
         val item = when (event.hand) {
@@ -108,9 +114,13 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
         )
 
         val blockTemplate = plugin.itemManager.blockTemplates[key] ?: return
-        if (event.action == Action.RIGHT_CLICK_BLOCK) {
-            val location = block?.getRelative(event.blockFace)?.location?.add(0.5, 0.5, 0.5) ?: return
-            
+        if (event.action == Action.RIGHT_CLICK_BLOCK && block != null) {
+            if (!event.player.canBuildAt(block.location)) {
+                return
+            }
+
+            val location = block.getRelative(event.blockFace).location.add(0.5, 0.5, 0.5)
+
             val nearbyItems = location.world.getNearbyEntities(location, 0.5, 0.5, 0.5) {
                 it.type == EntityType.ITEM_FRAME &&
                         it.persistentDataContainer.has(
