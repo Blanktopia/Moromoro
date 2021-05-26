@@ -54,5 +54,8 @@ var Player.canFlyInClaims: Boolean
             allowFlight = gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR || hasAccessTrust(location)
         } else {
             FlyInClaimsManager.manager.canFlyPlayers.remove(uniqueId)
+            if (gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR) {
+                allowFlight = false
+            }
         }
     }
