@@ -18,12 +18,14 @@ data class EquipItem(val slot: EquipmentSlot) : Action {
             player.inventory.addItem(item)
             return true
         } else if (equippedItem == null) {
-            ctx.removeItem = true
-            player.inventory.setItem(slot, item)
-            return true
-        } else {
-            return false
+            val couldntRemove = player.inventory.removeItem(item)
+            if (couldntRemove.isEmpty()) {
+                player.inventory.setItem(slot, item)
+                return true
+            }
         }
+
+        return false
     }
 }
 
