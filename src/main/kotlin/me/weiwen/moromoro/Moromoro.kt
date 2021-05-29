@@ -22,6 +22,7 @@ class Moromoro: JavaPlugin() {
     val itemManager: ItemManager by lazy { ItemManager(this) }
     val recipeManager: RecipeManager by lazy { RecipeManager(this) }
     val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
+    val experienceBoostManager: ExperienceBoostManager by lazy { ExperienceBoostManager(this) }
 
     val essentialsHook: EssentialsHook by lazy { EssentialsHook(this) }
 
@@ -39,6 +40,7 @@ class Moromoro: JavaPlugin() {
             essentialsHook.register()
             recipeManager.enable()
         }
+        experienceBoostManager.enable()
         permanentPotionEffectManager.enable()
         flyItemsManager.enable()
         equippedItemsManager.enable()
@@ -89,6 +91,7 @@ class Moromoro: JavaPlugin() {
         equippedItemsManager.disable()
         flyItemsManager.disable()
         permanentPotionEffectManager.disable()
+        experienceBoostManager.disable()
         recipeManager.disable()
         itemManager.disable()
 
