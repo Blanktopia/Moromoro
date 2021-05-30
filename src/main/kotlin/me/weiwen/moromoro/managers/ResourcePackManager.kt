@@ -29,10 +29,10 @@ class ResourcePackManager(val plugin: Moromoro) : Listener {
     @EventHandler
     fun onPlayerResourcePackStatus(event: PlayerResourcePackStatusEvent) {
         if (event.status == PlayerResourcePackStatusEvent.Status.DECLINED) {
-            event.player.sendMessage("${ChatColor.GOLD}Activating the resource pack will enhance your experience and is highly recommended. You can also download and apply it manually here: ${ChatColor.DARK_BLUE}${ChatColor.UNDERLINE}${plugin.config.resourcePackUrl}")
+            event.player.sendMessage("${ChatColor.GOLD}Activating the resource pack will enhance your experience and is highly recommended. You can also download and apply it manually here: ${ChatColor.BLUE}${ChatColor.UNDERLINE}${plugin.config.resourcePackUrl}")
         }
         if (event.status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
-            event.player.sendMessage("${ChatColor.GOLD}Resource pack download failed. You can download and apply the resource pack manually here: ${ChatColor.DARK_BLUE}${ChatColor.UNDERLINE}${plugin.config.resourcePackUrl}")
+            event.player.sendMessage("${ChatColor.GOLD}Resource pack download failed. You can download and apply the resource pack manually here: ${ChatColor.BLUE}${ChatColor.UNDERLINE}${plugin.config.resourcePackUrl}")
         }
     }
 }
