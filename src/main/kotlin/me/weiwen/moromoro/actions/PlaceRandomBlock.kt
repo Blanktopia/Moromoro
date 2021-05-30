@@ -43,16 +43,13 @@ object PlaceRandomBlock : Action {
 
         for (slot in (0..8).toMutableList().shuffled()) {
             val item = player.inventory.getItem(slot) ?: continue
-            if (!item.type.isBlock) continue
+
+            if (!item.type.isBlock) {
+                continue
+            }
 
             if (placeBlock(ctx, item.type, placedAgainst)) {
                 placedBlock.playSoundAt(placedBlock.soundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 1.0f)
-                if (player.gameMode != GameMode.CREATIVE) {
-                    val couldntRemove = player.inventory.removeItem(ItemStack(item.type, 1))
-                    if (couldntRemove.isNotEmpty()) {
-                        return false
-                    }
-                }
                 return true
             }
         }
@@ -78,6 +75,14 @@ object PlaceRandomBlock : Action {
         )
         Bukkit.getPluginManager().callEvent(buildEvent)
         if (buildEvent.isCancelled) return false
+
+        val player = ctx.player
+        if (player.gameMode != GameMode.CREATIVE) {
+            val couldntRemove = player.inventory.removeItem(cost)
+            if (couldntRemove.isNotEmpty()) {
+                return false
+            }
+        }
 
         state.update(true)
 
