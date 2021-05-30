@@ -700,6 +700,8 @@ val Material.isPartial: Boolean
         JUNGLE_DOOR,
         ACACIA_DOOR,
         DARK_OAK_DOOR,
+        WARPED_DOOR,
+        CRIMSON_DOOR,
         END_PORTAL_FRAME -> true
         else -> false
     }
