@@ -135,7 +135,7 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     fun onPlayerInteractEntity(event: PlayerInteractEntityEvent) {
         // Cancel if interacting with a block
         if (event.player.isSneaking) {
