@@ -2,6 +2,7 @@ package me.weiwen.moromoro.managers
 
 import me.weiwen.moromoro.Moromoro
 import org.bukkit.ChatColor
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
@@ -19,11 +20,19 @@ class ResourcePackManager(val plugin: Moromoro) : Listener {
 
     fun disable() {}
 
+    fun send(player: Player) {
+        val url = plugin.config.resourcePackUrl ?: return
+        val hash = plugin.config.resourcePackHash
+        if (hash == null || hash.isEmpty()) {
+            player.setResourcePack(url)
+        } else {
+            player.setResourcePack(url, hash)
+        }
+    }
+
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        val url = plugin.config.resourcePackUrl ?: return
-        val hash = plugin.config.resourcePackHash ?: return
-        event.player.setResourcePack(url, hash)
+        send(event.player)
     }
 
     @EventHandler

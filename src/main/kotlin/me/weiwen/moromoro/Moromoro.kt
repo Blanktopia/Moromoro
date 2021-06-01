@@ -6,6 +6,7 @@ import me.weiwen.moromoro.listeners.PlayerListener
 import me.weiwen.moromoro.listeners.RecipeListener
 import me.weiwen.moromoro.managers.*
 import org.bukkit.ChatColor
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
 class Moromoro: JavaPlugin() {
@@ -49,6 +50,14 @@ class Moromoro: JavaPlugin() {
         val command = getCommand("moromoro")
         command?.setExecutor { sender, _, _, args ->
             when (args[0]) {
+                "rp" -> {
+                    if (sender is Player) {
+                        resourcePackManager.send(sender)
+                        true
+                    } else {
+                        false
+                    }
+                }
                 "reload" -> {
                     if (args.size == 1) {
                         config = parseConfig(this)
@@ -74,7 +83,7 @@ class Moromoro: JavaPlugin() {
         }
         command?.setTabCompleter { _, _, _, args ->
             when (args.size) {
-                0 -> listOf("reload")
+                0 -> listOf("reload", "rp")
                 else -> listOf()
             }
         }
