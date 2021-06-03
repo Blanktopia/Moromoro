@@ -18,13 +18,15 @@ data class BiomeWand(val biome: Biome, val range: Int = 1) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player
         val block = player.rayTraceBlocks(5.0, FluidCollisionMode.ALWAYS)?.hitBlock ?: return false
+        val x0 = block.location.blockX
+        val z0 = block.location.blockZ
 
         val chunks = mutableSetOf<Chunk>()
         for (x in -range..range) {
             for (z in -range..range) {
-                val block = block.world.getHighestBlockAt(x, z)
+                val block = block.world.getHighestBlockAt(x + x0, z + z0)
                 if (player.canBuildAt(block.location)) {
-                    block.world.setBiome(x, z, biome)
+                    block.world.setBiome(block.location.blockX, block.location.blockZ, biome)
                     block.getRelative(BlockFace.UP).spawnParticle(Particle.VILLAGER_HAPPY, 2, 0.01)
                     chunks.add(block.location.chunk)
                 }
