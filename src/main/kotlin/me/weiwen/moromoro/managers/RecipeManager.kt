@@ -28,13 +28,13 @@ sealed class RecipeTemplate {
 @SerialName("shaped")
 class ShapedRecipeTemplate(
     private val result: ItemStack,
-    private val shape: String,
+    private val shape: List<String>,
     private val ingredients: Map<Char, RecipeChoice>
 ) : RecipeTemplate() {
     override fun recipe(key: String): Recipe {
         val recipe = ShapedRecipe(NamespacedKey(Moromoro.plugin.config.namespace, key), result)
 
-        recipe.shape(*shape.chunked(3).toTypedArray())
+        recipe.shape(*shape.toTypedArray())
 
         ingredients.forEach { (char, ingredient) ->
             recipe.setIngredient(char, ingredient)
