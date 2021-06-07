@@ -43,6 +43,11 @@ class PlayerListener(val plugin: Moromoro) : Listener {
             }
         }
 
+        // Prevent double interaction
+        if (event.useInteractedBlock() == Event.Result.DENY) {
+            return
+        }
+
         val ctx = Context(
             event,
             event.player,

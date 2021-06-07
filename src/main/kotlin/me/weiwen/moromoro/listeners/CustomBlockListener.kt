@@ -102,6 +102,11 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
             }
         }
 
+        // Prevent double interaction
+        if (event.useInteractedBlock() == Event.Result.DENY) {
+            return
+        }
+
         val item = when (event.hand) {
             EquipmentSlot.HAND -> event.player.inventory.itemInMainHand
             EquipmentSlot.OFF_HAND -> event.player.inventory.itemInOffHand
