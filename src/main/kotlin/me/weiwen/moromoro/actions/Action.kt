@@ -81,6 +81,7 @@ val actionModule = SerializersModule {
         subclass(Repeat::class)
         subclass(Rotate::class)
         subclass(SetBlock::class)
+        subclass(Sleep::class)
         subclass(StripBlock::class)
         subclass(SetVelocity::class)
         subclass(SpawnParticle::class)
