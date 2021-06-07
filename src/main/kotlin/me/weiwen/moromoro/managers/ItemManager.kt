@@ -17,7 +17,6 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
-import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
 import me.weiwen.moromoro.extensions.*
@@ -25,8 +24,6 @@ import me.weiwen.moromoro.serializers.*
 import org.bukkit.*
 import org.bukkit.attribute.Attribute
 import org.bukkit.enchantments.Enchantment
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.ItemFrame
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
@@ -36,7 +33,6 @@ import org.bukkit.persistence.PersistentDataType
 import java.io.File
 import java.util.*
 import java.util.logging.Level
-import kotlin.IllegalArgumentException
 
 @Serializable
 data class ItemTemplate(
@@ -64,70 +60,6 @@ data class AttributeModifier(
     val operation: org.bukkit.attribute.AttributeModifier.Operation,
     val slot: EquipmentSlot,
 )
-
-@Serializable
-sealed class BlockTemplate {
-    abstract fun place(ctx: Context)
-
-    @SerialName("sit-height")
-    abstract val sitHeight: Double?
-}
-
-@Serializable
-@SerialName("item")
-/* Placed using invisible item frames */
-class ItemBlockTemplate(
-    val collision: Boolean,
-    @SerialName("sit-height")
-    override val sitHeight: Double? = null
-) : BlockTemplate() {
-    override fun place(ctx: Context) {
-        val key = ctx.item.customItemKey ?: return
-
-        val block = ctx.block ?: return
-        val blockFace = ctx.blockFace ?: return
-
-        val playerLocation = ctx.player.location.clone().apply { yaw += 180 }
-        val rotation = playerLocation.rotation
-
-        val location = block.getRelative(blockFace).location
-        val world = location.world ?: return
-
-        // Try to place item frame
-        val itemFrame = try {
-            world.spawnEntity(location, EntityType.ITEM_FRAME) as ItemFrame
-        } catch (e: IllegalArgumentException) {
-            return
-        }.apply {
-            setFacingDirection(blockFace, true)
-            setRotation(rotation)
-            isFixed = true
-            isVisible = false
-
-            // Set persistent data
-            persistentDataContainer.set(
-                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                PersistentDataType.STRING,
-                key
-            )
-        }
-
-        // Move item into item frame
-        val item = ctx.item.clone()
-        item.itemMeta = item.itemMeta.apply {
-            setDisplayName(null)
-        }
-        item.amount = 1
-        ctx.item.amount -= 1
-        itemFrame.setItem(item, false)
-
-        if (collision) {
-            location.block.type = Material.BARRIER
-        }
-
-        world.playSound(location, Sound.BLOCK_WOOD_PLACE, 1.0f, 1.0f)
-    }
-}
 
 val AttributeModifier.modifier: org.bukkit.attribute.AttributeModifier
     get() = org.bukkit.attribute.AttributeModifier(uuid, name, amount, operation, slot)
@@ -183,12 +115,10 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
 }
 
 
-class ItemManager(val plugin: Moromoro) {
+class ItemManager(val plugin: Moromoro, val blockManager: BlockManager) {
     var keys: Set<String> = setOf()
         private set
     var templates: Map<String, ItemTemplate> = mapOf()
-        private set
-    var blockTemplates: Map<String, BlockTemplate> = mapOf()
         private set
     var triggers: MutableMap<String, Map<Trigger, List<Action>>> = mutableMapOf()
         private set
@@ -216,10 +146,10 @@ class ItemManager(val plugin: Moromoro) {
             .associate { it }
 
         keys = templates.keys
-        blockTemplates =
-            templates
-                .filterValues { it.block != null }
-                .mapValues { (_, item) -> item.block as BlockTemplate }
+
+        templates
+            .filterValues { it.block != null }
+            .forEach { (key, item) -> blockManager.register(key, item.block as BlockTemplate) }
     }
 
     private val json = Json {

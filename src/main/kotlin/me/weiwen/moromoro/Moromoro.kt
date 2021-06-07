@@ -20,7 +20,8 @@ class Moromoro: JavaPlugin() {
     val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this) }
     val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
     val flyItemsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
-    val itemManager: ItemManager by lazy { ItemManager(this) }
+    val blockManager: BlockManager by lazy { BlockManager(this) }
+    val itemManager: ItemManager by lazy { ItemManager(this, blockManager) }
     val recipeManager: RecipeManager by lazy { RecipeManager(this) }
     val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
     val experienceBoostManager: ExperienceBoostManager by lazy { ExperienceBoostManager(this) }
@@ -36,6 +37,7 @@ class Moromoro: JavaPlugin() {
         server.pluginManager.registerEvents(RecipeListener(this), this)
         server.pluginManager.registerEvents(CustomBlockListener(this), this)
 
+        blockManager.enable()
         itemManager.enable()
         if (server.pluginManager.getPlugin("Essentials") != null) {
             essentialsHook.register()
@@ -103,6 +105,7 @@ class Moromoro: JavaPlugin() {
         experienceBoostManager.disable()
         recipeManager.disable()
         itemManager.disable()
+        blockManager.disable()
 
         logger.info("Moromoro is disabled")
     }

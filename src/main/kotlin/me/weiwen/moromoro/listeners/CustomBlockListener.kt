@@ -10,11 +10,9 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.*
+import me.weiwen.moromoro.managers.customBlockState
 import me.weiwen.moromoro.managers.item
-import org.bukkit.Material
-import org.bukkit.NamespacedKey
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
+import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
@@ -23,6 +21,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -58,10 +57,13 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
 
                     // Break custom blocks
                     if (entity.type == EntityType.ITEM_FRAME) {
-                        val key = entity.persistentDataContainer.get(
-                            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                            PersistentDataType.STRING
-                        ) ?: return@scheduleSyncDelayedTask
+                        if (!entity.persistentDataContainer.has(
+                                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                                PersistentDataType.STRING
+                            )
+                        ) {
+                            return@scheduleSyncDelayedTask
+                        }
                         (entity as ItemFrame).breakCustomBlock()
                         e.isCancelled = true
                     }
@@ -69,6 +71,19 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
                 }
             }
         })
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    fun onBlockBreak(event: BlockBreakEvent) {
+        val block = event.block
+
+        if (block.customBlockState == null) {
+            return
+        }
+
+        event.isCancelled = true
+
+        plugin.blockManager.breakNaturally(block, event.player.gameMode != GameMode.CREATIVE)
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
@@ -113,24 +128,16 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
             event.blockFace
         )
 
-        val blockTemplate = plugin.itemManager.blockTemplates[key] ?: return
+        val blockTemplate = plugin.blockManager.blockTemplates[key] ?: return
         if (event.action == Action.RIGHT_CLICK_BLOCK && block != null) {
             if (!event.player.canBuildAt(block.location)) {
                 return
             }
 
-            val location = block.getRelative(event.blockFace).location.add(0.5, 0.5, 0.5)
-
-            val nearbyItems = location.world.getNearbyEntities(location, 0.5, 0.5, 0.5) {
-                it.type == EntityType.ITEM_FRAME &&
-                        it.persistentDataContainer.has(
-                            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                            PersistentDataType.STRING
-                        )
-            }
-
-            if (nearbyItems.isEmpty()) {
-                blockTemplate.place(ctx)
+            if (blockTemplate.place(ctx)) {
+                if (event.player.gameMode != GameMode.CREATIVE) {
+                    item.amount -= 1
+                }
             }
         }
     }
@@ -151,7 +158,7 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
                 PersistentDataType.STRING
             ) ?: return
 
-            val sitHeight = plugin.itemManager.blockTemplates[key]?.sitHeight ?: return
+            val sitHeight = plugin.blockManager.blockTemplates[key]?.sitHeight ?: return
 
             val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(entity.facing.direction)
             val seatLocation = entity.location.toBlockLocation().apply {
