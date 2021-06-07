@@ -260,6 +260,17 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         val item = inventory.getItem(event.slot) ?: return
 
         val key = item.customItemKey ?: return
+
+        // Migrate item data
+        val template = Moromoro.plugin.itemManager.templates[key]
+        if (template != null) {
+            val meta = item.itemMeta
+            if (!meta.hasCustomModelData() || meta.customModelData != template.customModelData) {
+                meta.setCustomModelData(template.customModelData)
+            }
+            item.itemMeta = meta
+        }
+
         val triggers = plugin.itemManager.triggers[key] ?: return
 
         val player = event.whoClicked as? Player ?: return
