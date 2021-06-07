@@ -137,8 +137,6 @@ class ItemBlockTemplate(
             location.block.type = Material.BARRIER
         }
 
-        world.playSound(location, Sound.BLOCK_WOOD_PLACE, 1.0f, 1.0f)
-
         return true
     }
 }

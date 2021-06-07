@@ -14,6 +14,7 @@ import me.weiwen.moromoro.managers.customBlockState
 import me.weiwen.moromoro.managers.item
 import org.bukkit.*
 import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.Event
@@ -124,24 +125,50 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
             }
         }
 
-        val ctx = Context(
-            event,
-            event.player,
-            item,
-            null,
-            event.clickedBlock,
-            event.blockFace
-        )
-
         val blockTemplate = plugin.blockManager.blockTemplates[key] ?: return
+
+        event.setUseItemInHand(Event.Result.DENY)
+
         if (event.action == Action.RIGHT_CLICK_BLOCK && block != null) {
             if (!event.player.canBuildAt(block.location)) {
                 return
             }
 
+            val blockFace = event.blockFace
+
+            val (placedAgainst, targetFace) = when (block.type) {
+                Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Pair(
+                    block.getRelative(BlockFace.DOWN), BlockFace.UP
+                )
+                else -> Pair(block, blockFace)
+            }
+            val placedBlock = placedAgainst.getRelative(targetFace)
+
+            if (event.player.location.block.location == placedBlock.location
+                || event.player.location.add(0.0, 1.0, 0.0).block.location == placedBlock.location
+            ) {
+                return
+            }
+
+            val ctx = Context(
+                event,
+                event.player,
+                item,
+                null,
+                placedAgainst,
+                targetFace
+            )
+
             if (blockTemplate.place(ctx)) {
                 if (event.player.gameMode != GameMode.CREATIVE) {
                     item.amount -= 1
+                }
+                block.playSoundAt(Sound.BLOCK_WOOD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                when (event.hand) {
+                    EquipmentSlot.HAND -> event.player.swingMainHand()
+                    EquipmentSlot.OFF_HAND -> event.player.swingOffHand()
+                    else -> {
+                    }
                 }
             }
         }

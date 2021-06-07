@@ -14,7 +14,6 @@ import org.bukkit.Material
 import org.bukkit.SoundCategory
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
-import org.bukkit.block.data.Directional
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
@@ -23,23 +22,28 @@ import org.bukkit.inventory.ItemStack
 @SerialName("place-random-block")
 object PlaceRandomBlock : Action {
     override fun perform(ctx: Context): Boolean {
-        val player =ctx.player
+        val player = ctx.player
         val block = ctx.block ?: return false
-        val face = ctx.blockFace ?: return false
+        val blockFace = ctx.blockFace ?: return false
 
-        val (placedAgainst, placedBlock, targetFace) = when (block.type) {
-            Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Triple(
-                block.getRelative(
-                    BlockFace.DOWN
-                ), block, BlockFace.DOWN
+        val (placedAgainst, targetFace) = when (block.type) {
+            Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Pair(
+                block.getRelative(BlockFace.DOWN), BlockFace.UP
             )
-            else -> Triple(block, block.getRelative(face), face)
+            else -> Pair(block, blockFace)
         }
+        val placedBlock = placedAgainst.getRelative(targetFace)
 
         if (!placedBlock.type.isPartiallyEmpty) return false
 
         ctx.block = placedBlock
         ctx.blockFace = targetFace
+
+        if (player.location.block.location == placedBlock.location
+            || player.location.add(0.0, 1.0, 0.0).block.location == placedBlock.location
+        ) {
+            return false
+        }
 
         for (slot in (0..8).toMutableList().shuffled()) {
             val item = player.inventory.getItem(slot) ?: continue
