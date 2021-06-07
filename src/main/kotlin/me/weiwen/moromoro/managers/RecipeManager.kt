@@ -183,8 +183,6 @@ class RecipeManager(val plugin: Moromoro) {
     )
 
     fun parse(file: File): Recipe? {
-        plugin.logger.log(Level.INFO, "Parsing '${file.name}'")
-
         val key = file.nameWithoutExtension
 
         val format = when (file.extension) {
@@ -197,7 +195,7 @@ class RecipeManager(val plugin: Moromoro) {
         val template = try {
             format.decodeFromString<RecipeTemplate>(text)
         } catch (e: Exception) {
-            plugin.logger.log(Level.SEVERE, e.message)
+            plugin.logger.log(Level.SEVERE, "Error parsing '${file.name}': ${e.message}")
             return null
         }
 

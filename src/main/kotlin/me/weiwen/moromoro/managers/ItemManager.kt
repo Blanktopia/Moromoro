@@ -233,9 +233,7 @@ class ItemManager(val plugin: Moromoro) {
         )
     )
 
-    fun parse(file: File): ItemTemplate? {
-        plugin.logger.log(Level.INFO, "Parsing '${file.name}'")
-
+    private fun parse(file: File): ItemTemplate? {
         val key = file.nameWithoutExtension
 
         val format = when (file.extension) {
@@ -248,7 +246,7 @@ class ItemManager(val plugin: Moromoro) {
         val template = try {
             format.decodeFromString<ItemTemplate>(text)
         } catch (e: Exception) {
-            plugin.logger.log(Level.SEVERE, e.message)
+            plugin.logger.log(Level.SEVERE, "Error parsing '${file.name}': ${e.message}")
             return null
         }
 
