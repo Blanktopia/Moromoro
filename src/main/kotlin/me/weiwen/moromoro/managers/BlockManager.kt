@@ -263,6 +263,11 @@ var BlockState.customBlockState: Int?
 
 var Block.customBlockState: Int?
     get() {
+        if (type != Material.BROWN_MUSHROOM_BLOCK
+            && type != Material.RED_MUSHROOM_BLOCK
+            && type != Material.MUSHROOM_STEM) {
+            return null
+        }
         val multipleFacing = blockData as? MultipleFacing ?: return null
         var state = 0
         for (face in multipleFacing.faces) {
@@ -278,6 +283,11 @@ var Block.customBlockState: Int?
         return state
     }
     set(state: Int?) {
+        if (type != Material.BROWN_MUSHROOM_BLOCK
+            && type != Material.RED_MUSHROOM_BLOCK
+            && type != Material.MUSHROOM_STEM) {
+            return
+        }
         val multipleFacing = blockData as? MultipleFacing ?: return
         var state = state ?: return
         if (state >= 32) {
