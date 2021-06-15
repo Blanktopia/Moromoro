@@ -191,7 +191,12 @@ class BlockManager(val plugin: Moromoro) {
         val item = plugin.itemManager.templates[key]?.item(key, 1) ?: return false
 
         block.setType(Material.AIR, true)
-        block.world.dropItemNaturally(block.location, item)
+
+        if (dropItem) {
+            block.world.dropItemNaturally(block.location, item)
+        }
+
+        block.playSoundAt(Sound.BLOCK_WOOD_BREAK, SoundCategory.BLOCKS, 1.0f, 1.0f)
 
         return true
     }
@@ -268,6 +273,7 @@ var Block.customBlockState: Int?
             && type != Material.MUSHROOM_STEM) {
             return null
         }
+
         val multipleFacing = blockData as? MultipleFacing ?: return null
         var state = 0
         for (face in multipleFacing.faces) {
@@ -280,6 +286,11 @@ var Block.customBlockState: Int?
                 BlockFace.WEST -> state += 32
             }
         }
+
+        if (type.isRestrictedCustomBlockState(state)) {
+            return null
+        }
+
         return state
     }
     set(state: Int?) {
