@@ -33,6 +33,7 @@ data class BreakBlock(val radius: Int = 0, val depth: Int = 0) : Action {
 
         for (x in -radius..radius) {
             for (y in -radius..radius) {
+                if (x == 0 && y == 0) continue
                 for (z in 0..depth) {
                     val loc = block.location.clone()
                         .add(xOffset.clone().multiply(x))
