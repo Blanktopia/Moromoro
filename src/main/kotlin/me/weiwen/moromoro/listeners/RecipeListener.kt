@@ -26,8 +26,12 @@ class RecipeListener(val plugin: Moromoro) : Listener {
         val recipe = event.recipe as? Keyed ?: return
 
         if (recipe is ComplexRecipe) {
-            // Allow custom items to be dyed
-            return
+            val key = event.inventory.result?.customItemKey
+
+            if (key != null && plugin.itemManager.templates[key]?.dyeable == true) {
+                // Allow custom items to be dyed
+                return
+            }
         }
 
         if (recipe.key.namespace == plugin.config.namespace) {

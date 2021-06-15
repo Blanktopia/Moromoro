@@ -47,6 +47,7 @@ data class ItemTemplate(
     val attributes: List<AttributeModifier> = listOf(),
     val flags: List<ItemFlag> = listOf(),
     val color: Color? = null,
+    val dyeable: Boolean = false,
     val triggers: Map<Trigger, List<Action>> = mapOf(),
     val block: BlockTemplate? = null,
 )
