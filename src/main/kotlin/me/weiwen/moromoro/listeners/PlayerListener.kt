@@ -35,7 +35,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         val key = item.customItemKey ?: return
 
         // Cancel if interacting with a block
-        if (event.action == Action.RIGHT_CLICK_BLOCK && !event.player.isSneaking) {
+        if (event.useInteractedBlock() != Event.Result.DENY && event.action == Action.RIGHT_CLICK_BLOCK && !event.player.isSneaking) {
             val blockType = event.clickedBlock?.type
             if (blockType?.isReallyInteractable == true) {
                 event.setUseItemInHand(Event.Result.DENY)
@@ -43,8 +43,13 @@ class PlayerListener(val plugin: Moromoro) : Listener {
             }
         }
 
+        if (event.useItemInHand() == Event.Result.DENY) {
+            return
+        }
+
         // Prevent double interaction
-        if (event.useInteractedBlock() == Event.Result.DENY) {
+        if (event.action == Action.RIGHT_CLICK_BLOCK && event.useInteractedBlock() == Event.Result.DENY) {
+            event.setUseItemInHand(Event.Result.DENY)
             return
         }
 
