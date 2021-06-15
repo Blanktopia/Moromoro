@@ -8,10 +8,8 @@ import com.comphenix.protocol.wrappers.EnumWrappers
 import me.gsit.api.GSitAPI
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
-import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.*
 import me.weiwen.moromoro.managers.customBlockState
-import me.weiwen.moromoro.managers.item
 import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
@@ -23,13 +21,15 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockPhysicsEvent
+import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
-import java.util.logging.Level
+
 
 class CustomBlockListener(val plugin: Moromoro) : Listener {
     val gSitApi: GSitAPI by lazy { GSitAPI() }
@@ -74,7 +74,23 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
         })
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onMushroomPhysics(event: BlockPhysicsEvent) {
+        if (event.changedType == Material.BROWN_MUSHROOM_BLOCK || event.changedType == Material.RED_MUSHROOM_BLOCK || event.changedType == Material.MUSHROOM_STEM) {
+            event.isCancelled = true
+            event.block.state.update(true, false)
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    fun onMushroomBlockPlace(event: BlockPlaceEvent) {
+        val block = event.block
+        if (block.type == Material.BROWN_MUSHROOM_BLOCK || block.type == Material.RED_MUSHROOM_BLOCK || block.type == Material.MUSHROOM_STEM) {
+            event.block.customBlockState = 0b111111
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onBlockBreak(event: BlockBreakEvent) {
         val block = event.block
 
@@ -87,20 +103,23 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
         plugin.blockManager.breakNaturally(block, event.player.gameMode != GameMode.CREATIVE)
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerInteract(event: PlayerInteractEvent) {
         val block = event.clickedBlock
 
         // Break custom blocks
-        if (event.action == Action.LEFT_CLICK_BLOCK && block?.type == Material.BARRIER) {
-            if (!event.player.canBuildAt(block.location)) {
-                return
+        if (event.action == Action.LEFT_CLICK_BLOCK) {
+            if (block?.type == Material.BARRIER) {
+                if (!event.player.canBuildAt(block.location)) {
+                    return
+                }
+                if (block.breakCustomBlock()) {
+                    event.setUseItemInHand(Event.Result.DENY)
+                    event.setUseInteractedBlock(Event.Result.DENY)
+                    return
+                }
             }
-            if (block.breakCustomBlock()) {
-                event.setUseItemInHand(Event.Result.DENY)
-                event.setUseInteractedBlock(Event.Result.DENY)
-                return
-            }
+            return
         }
 
         // Prevent double interaction
@@ -159,6 +178,7 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
                 targetFace
             )
 
+
             if (blockTemplate.place(ctx)) {
                 if (event.player.gameMode != GameMode.CREATIVE) {
                     item.amount -= 1
@@ -208,6 +228,8 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
                 false,
                 true
             )
+
+            event.isCancelled = true
         }
     }
 
