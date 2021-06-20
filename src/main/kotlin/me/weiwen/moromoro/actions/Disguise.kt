@@ -4,7 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.libraryaddict.disguise.disguisetypes.*
 import me.libraryaddict.disguise.disguisetypes.Disguise
+import me.weiwen.moromoro.Moromoro
 import org.bukkit.Material
+import org.bukkit.entity.EntityType
 import org.bukkit.inventory.ItemStack
 
 @Serializable
