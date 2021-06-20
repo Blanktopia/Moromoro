@@ -10,6 +10,9 @@ import me.weiwen.moromoro.extensions.playSoundAt
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.*
+import org.bukkit.block.data.Directional
+import org.bukkit.block.data.MultipleFacing
+import org.bukkit.block.data.Orientable
 import org.bukkit.persistence.PersistentDataType
 
 @Serializable
@@ -50,11 +53,25 @@ object PaintBrushPaint : Action {
         } else if (block.type in STAINED_GLASS && STAINED_GLASS_MAP[colour] != null) {
             block.type = STAINED_GLASS_MAP[colour]!!
         } else if (block.type in STAINED_GLASS_PANE && STAINED_GLASS_PANE_MAP[colour] != null) {
+            val replacedBlockData = block.blockData as MultipleFacing
+
             block.type = STAINED_GLASS_PANE_MAP[colour]!!
+
+            val blockData = block.blockData as MultipleFacing
+            replacedBlockData.faces.forEach { blockData.setFace(it, true) }
+
+            block.blockData = blockData
         } else if (block.type in TERRACOTTA && TERRACOTTA_MAP[colour] != null) {
             block.type = TERRACOTTA_MAP[colour]!!
         } else if (block.type in GLAZED_TERRACOTTA && GLAZED_TERRACOTTA_MAP[colour] != null) {
+            val replacedBlockData = block.blockData as Directional
+
             block.type = GLAZED_TERRACOTTA_MAP[colour]!!
+
+            val blockData = block.blockData as Directional
+            blockData.facing = replacedBlockData.facing
+
+            block.blockData = blockData
         } else if (block.type in CONCRETE && CONCRETE_MAP[colour] != null) {
             block.type = CONCRETE_MAP[colour]!!
         } else if (block.type in CONCRETE_POWDER && CONCRETE_POWDER_MAP[colour] != null) {
