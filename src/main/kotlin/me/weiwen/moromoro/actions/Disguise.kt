@@ -14,7 +14,7 @@ sealed class DisguiseData {
 
 @Serializable
 @SerialName("mob")
-data class MobDisguiseData(val entity: DisguiseType, val baby: Boolean = false, override val burning: Boolean = false) : DisguiseData()
+data class MobDisguiseData(val entity: EntityType, val baby: Boolean = false, override val burning: Boolean = false) : DisguiseData()
 
 @Serializable
 @SerialName("player")
@@ -30,7 +30,7 @@ data class ItemDisguiseData(val material: Material, val amount: Int = 1, overrid
 
 val DisguiseData.disguise: Disguise
     get() = when (this) {
-        is MobDisguiseData -> MobDisguise(entity, !baby)
+        is MobDisguiseData -> MobDisguise(DisguiseType.getType(entity), !baby)
         is PlayerDisguiseData -> PlayerDisguise(player)
         is BlockDisguiseData -> MiscDisguise(DisguiseType.FALLING_BLOCK, material, data)
         is ItemDisguiseData -> {
@@ -46,6 +46,10 @@ data class Disguise(
     val invisible: Boolean = false
 ) : Action {
     override fun perform(ctx: Context): Boolean {
+        if (!Moromoro.plugin.server.pluginManager.isPluginEnabled("LibsDisguises")) {
+            return false
+        }
+
         val player = ctx.player
         val burning = disguise.burning
         val disguise = disguise.disguise
