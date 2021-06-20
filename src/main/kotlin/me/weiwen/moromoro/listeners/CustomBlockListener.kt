@@ -213,7 +213,7 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
             val sitHeight = plugin.blockManager.blockTemplates[key]?.sitHeight ?: return
 
             val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(entity.facing.direction)
-            val seatLocation = entity.location.toBlockLocation().apply {
+            val seatLocation = entity.location.block.location.apply {
                 rotation = entity.rotation
             }
 
@@ -224,7 +224,7 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
                 offset.y,
                 offset.z,
                 seatLocation.yaw,
-                entity.origin,
+                seatLocation,
                 false,
                 true
             )
@@ -278,7 +278,7 @@ fun ItemFrame.breakCustomBlock() {
         ?: return
 
     val item = item
-    item.itemMeta = item.itemMeta.apply {
+    item.itemMeta = item.itemMeta?.apply {
         val template = Moromoro.plugin.itemManager.templates[item.customItemKey] ?: return@apply
         val name = template.name?.value ?: return@apply
         setDisplayName(name)

@@ -46,7 +46,7 @@ data class PathBlock(val radius: Int = 0, val depth: Int = 0) : Action {
 
                     didPath = true
 
-                    other.type = Material.GRASS_PATH
+                    other.type = Material.DIRT_PATH
                 }
             }
         }

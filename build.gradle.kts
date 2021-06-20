@@ -17,6 +17,7 @@ repositories {
     jcenter()
 
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
+    maven { url = uri("https://papermc.io/repo/repository/maven-public") }
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
 
     // bStats
@@ -49,10 +50,10 @@ dependencies {
     implementation("com.charleskorn.kaml:kaml:0.33.0")
 
     // Paper
-    compileOnly("com.destroystokyo.paper", "paper-api", "1.16.5-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper", "paper-api", "1.17-R0.1-SNAPSHOT")
 
     // Spigot
-    compileOnly("org.spigotmc", "spigot", "1.16.5-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc", "spigot", "1.17-R0.1-SNAPSHOT")
 
     // bStats
     implementation("org.bstats", "bstats-bukkit", "1.8")
@@ -85,8 +86,8 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("LibsDisguises", "Essentials", "ProtocolLib", "GriefPrevention", "GSit")
-    softDepend = listOf("Blanktopia")
+    depend = listOf("Essentials", "ProtocolLib")
+    softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "GriefPrevention")
 
     commands {
         register("moromoro") {
