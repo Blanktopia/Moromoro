@@ -5,6 +5,7 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
+import me.weiwen.moromoro.managers.item
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -269,11 +270,18 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         // Migrate item data
         val template = Moromoro.plugin.itemManager.templates[key]
         if (template != null) {
-            val meta = item.itemMeta
-            if (!meta.hasCustomModelData() || meta.customModelData != template.customModelData) {
-                meta.setCustomModelData(template.customModelData)
+            val meta = item.itemMeta?.apply {
+                if (!hasCustomModelData() || customModelData != template.customModelData) {
+                    setCustomModelData(template.customModelData)
+                }
             }
             item.itemMeta = meta
+
+            if (item.type !== template.material) {
+                val replica = template.item(key, 1)
+                item.type = replica.type
+                item.itemMeta = replica.itemMeta
+            }
         }
 
         val triggers = plugin.itemManager.triggers[key] ?: return
