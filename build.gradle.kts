@@ -68,7 +68,7 @@ dependencies {
     compileOnly("LibsDisguises", "LibsDisguises", "10.0.24")
 
     // ProtocolLib
-    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.6.0")
+    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.7.0-SNAPSHOT")
 
     // GriefPrevention
     compileOnly("com.github.TechFortress:GriefPrevention:16.7.1")

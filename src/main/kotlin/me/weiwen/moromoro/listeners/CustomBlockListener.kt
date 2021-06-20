@@ -29,6 +29,8 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
+import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction
+import org.bukkit.SoundCategory
 
 
 class CustomBlockListener(val plugin: Moromoro) : Listener {
@@ -41,7 +43,10 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
             override fun onPacketReceiving(e: PacketEvent) {
                 val packet = e.packet
 
-                if (packet.entityUseActions.values[0] != EnumWrappers.EntityUseAction.ATTACK) {
+                val useAction: WrappedEnumEntityUseAction = packet.enumEntityUseActions.read(0)
+                val action: EnumWrappers.EntityUseAction = useAction.action
+
+                if (action != EnumWrappers.EntityUseAction.ATTACK) {
                     return
                 }
 
