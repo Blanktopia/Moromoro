@@ -4,10 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.isPartiallyEmpty
-import org.bukkit.Bukkit
-import org.bukkit.FluidCollisionMode
-import org.bukkit.Material
-import org.bukkit.World
+import me.weiwen.moromoro.extensions.playSoundAt
+import org.bukkit.*
 import org.bukkit.block.data.Levelled
 import org.bukkit.block.data.Waterlogged
 
@@ -19,49 +17,86 @@ object WaterBucket : Action {
 
         if (player.world.environment == World.Environment.NETHER) return false
 
-        val result = player.rayTraceBlocks(5.0, FluidCollisionMode.SOURCE_ONLY) ?: return false
+        var block = ctx.block
 
-        val block = result.hitBlock ?: return false
+        if (block != null) {
+            if (!player.canBuildAt(block.location)) {
+                return false
+            }
 
-        if (!player.canBuildAt(block.location)) {
-            return false
+            val state = block.state
+
+            if (block.type == Material.WATER_CAULDRON) {
+                state.type = Material.CAULDRON
+
+                state.update(true)
+
+                block.playSoundAt(Sound.ITEM_BUCKET_FILL, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                return true
+
+            } else if (block.type == Material.CAULDRON) {
+                state.type = Material.WATER_CAULDRON
+
+                val data = state.blockData
+                (data as? Levelled)?.level = 3
+                state.blockData = data
+
+                state.update(true)
+
+                block.playSoundAt(Sound.ITEM_BUCKET_EMPTY, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                return true
+
+            } else if (state.blockData is Waterlogged) {
+                val data = state.blockData as Waterlogged
+
+                data.isWaterlogged = !data.isWaterlogged
+
+                state.blockData = data
+
+                state.update()
+
+                block.playSoundAt(
+                    if (data.isWaterlogged) {
+                        Sound.ITEM_BUCKET_FILL
+                    } else {
+                        Sound.ITEM_BUCKET_EMPTY
+                    }, SoundCategory.BLOCKS, 1.0f, 1.0f
+                )
+
+                return true
+            }
         }
 
-        val state = block.state
-        val data = state.blockData
+        val result = player.rayTraceBlocks(5.0, FluidCollisionMode.SOURCE_ONLY) ?: return false
+        block = result.hitBlock ?: return false
 
         if (block.type == Material.WATER || block.type == Material.LAVA) {
+            val state = block.state
+
             state.type = Material.AIR
-            state.update(true)
-            return true
 
-        } else if (block.type == Material.CAULDRON) {
-            if (data is Levelled) {
-                data.level = if (data.level == 0) { 3 } else { 0 }
-            }
-            state.blockData = data
             state.update(true)
-            return true
 
-        } else if (data is Waterlogged) {
-            data.isWaterlogged = !data.isWaterlogged
-            state.blockData = data
-            state.update()
+            block.playSoundAt(Sound.ITEM_BUCKET_EMPTY, SoundCategory.BLOCKS, 1.0f, 1.0f)
             return true
 
         } else {
             val face = result.hitBlockFace ?: return false
-            val target = block.getRelative(face)
+            val block = block.getRelative(face)
 
-            if (!player.canBuildAt(target.location)) {
+            if (!player.canBuildAt(block.location)) {
                 return false
             }
 
-            if (!target.type.isPartiallyEmpty) {
+            if (!player.canBuildAt(block.location)) {
                 return false
             }
 
-            val state = target.state
+            if (!block.type.isPartiallyEmpty) {
+                return false
+            }
+
+            val state = block.state
 
             state.type = Material.WATER
 
@@ -70,6 +105,8 @@ object WaterBucket : Action {
             state.blockData = data
 
             state.update(true)
+
+            block.playSoundAt(Sound.ITEM_BUCKET_EMPTY, SoundCategory.BLOCKS, 1.0f, 1.0f)
 
             return true
         }
