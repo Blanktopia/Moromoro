@@ -18,7 +18,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         DIRT,
         FARMLAND,
         GRASS_BLOCK,
-        GRASS_PATH,
+        DIRT_PATH,
         GRAVEL,
         GRAY_CONCRETE_POWDER,
         GREEN_CONCRETE_POWDER,
@@ -759,7 +759,6 @@ val Material.unstripped: Material?
         STRIPPED_CRIMSON_HYPHAE -> CRIMSON_HYPHAE
         STRIPPED_WARPED_STEM -> WARPED_STEM
         STRIPPED_WARPED_HYPHAE -> WARPED_HYPHAE
-        GRASS_PATH -> GRASS_BLOCK
         else -> null
     }
 
