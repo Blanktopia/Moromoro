@@ -17,7 +17,7 @@ class Context(
     val event: Event?,
     val player: Player,
     val item: ItemStack,
-    val entity: Entity?,
+    var entity: Entity?,
     var block: Block?,
     var blockFace: BlockFace?,
 ) {
@@ -77,6 +77,7 @@ val actionModule = SerializersModule {
         subclass(PlaceRandomBlock::class)
         subclass(PlayerCommand::class)
         subclass(PlaySound::class)
+        subclass(Raycast::class)
         subclass(RemoveItem::class)
         subclass(RemovePermanentPotionEffect::class)
         subclass(Repeat::class)
