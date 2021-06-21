@@ -43,6 +43,8 @@ data class PlaceBlock(val material: Material) : Action {
     }
 
     private fun placeBlock(ctx: Context, placedAgainst: Block): Boolean {
+        val player = ctx.player ?: return false
+        val item = ctx.item ?: return false
         val block = ctx.block ?: return false
 
         val state = block.state
@@ -52,8 +54,8 @@ data class PlaceBlock(val material: Material) : Action {
             block,
             state,
             placedAgainst,
-            ctx.item,
-            ctx.player,
+            item,
+            player,
             true,
             EquipmentSlot.HAND
         )
@@ -66,6 +68,8 @@ data class PlaceBlock(val material: Material) : Action {
     }
 
     private fun placeTorch(ctx: Context, placedAgainst: Block): Boolean {
+        val player = ctx.player ?: return false
+        val item = ctx.item ?: return false
         val block = ctx.block ?: return false
         val face = ctx.blockFace ?: return false
 
@@ -109,8 +113,8 @@ data class PlaceBlock(val material: Material) : Action {
             block,
             state,
             placedAgainst,
-            ctx.item,
-            ctx.player,
+            item,
+            player,
             true,
             EquipmentSlot.HAND
         )

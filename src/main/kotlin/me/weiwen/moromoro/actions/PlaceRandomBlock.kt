@@ -22,7 +22,7 @@ import org.bukkit.inventory.ItemStack
 @SerialName("place-random-block")
 object PlaceRandomBlock : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val block = ctx.block ?: return false
         val blockFace = ctx.blockFace ?: return false
 
@@ -62,6 +62,7 @@ object PlaceRandomBlock : Action {
 
     private fun placeBlock(ctx: Context, material: Material, placedAgainst: Block): Boolean {
         val block = ctx.block ?: return false
+        val player = ctx.player ?: return false
 
         val state = block.state
         state.type = material
@@ -73,14 +74,13 @@ object PlaceRandomBlock : Action {
             state,
             placedAgainst,
             cost,
-            ctx.player,
+            player,
             true,
             EquipmentSlot.HAND
         )
         Bukkit.getPluginManager().callEvent(buildEvent)
         if (buildEvent.isCancelled) return false
 
-        val player = ctx.player
         if (player.gameMode != GameMode.CREATIVE) {
             val couldntRemove = player.inventory.removeItem(cost)
             if (couldntRemove.isNotEmpty()) {

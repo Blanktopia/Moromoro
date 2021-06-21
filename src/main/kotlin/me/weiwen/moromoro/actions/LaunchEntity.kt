@@ -21,7 +21,7 @@ data class LaunchEntity(
     val disguise: DisguiseData? = null,
 ) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val entity = player.world.spawnEntity(player.eyeLocation, entity)
 
         if (entity is Projectile) {

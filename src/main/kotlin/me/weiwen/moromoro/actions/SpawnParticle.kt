@@ -24,7 +24,7 @@ data class SpawnParticle(
     val extra: Double = 0.0,
 ) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ)
         return true
     }

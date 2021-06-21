@@ -20,7 +20,7 @@ import java.util.logging.Level
 @SerialName("builders-wand")
 data class BuildersWand(val range: Int = 1) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val block = ctx.block ?: return false
         val face = ctx.blockFace ?: return false
 

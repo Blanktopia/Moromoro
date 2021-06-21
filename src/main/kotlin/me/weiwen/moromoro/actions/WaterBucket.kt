@@ -13,7 +13,7 @@ import org.bukkit.block.data.Waterlogged
 @SerialName("water-bucket")
 object WaterBucket : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
 
         if (player.world.environment == World.Environment.NETHER) return false
 

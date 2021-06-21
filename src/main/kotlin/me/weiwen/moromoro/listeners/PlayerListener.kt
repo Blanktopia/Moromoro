@@ -7,7 +7,11 @@ import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.managers.item
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
+import org.bukkit.entity.ThrowableProjectile
+import org.bukkit.entity.Trident
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -15,16 +19,82 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.*
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import java.util.logging.Level
 
 class PlayerListener(val plugin: Moromoro) : Listener {
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    fun onEntityShootBow(event: EntityShootBowEvent) {
+        val item = event.bow ?: return
+        val key = item.customItemKey ?: return
+
+        val persistentData = event.projectile.persistentDataContainer
+        persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
+
+        val triggers = plugin.itemManager.triggers[key] ?: return
+
+        val ctx = Context(
+            event,
+            event.entity as? Player,
+            null,
+            null,
+            null,
+            null,
+            event.projectile as? Projectile,
+        )
+
+        triggers[Trigger.PROJECTILE_LAUNCH]?.forEach { it.perform(ctx) }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    fun onThrowableProjectileLaunch(event: ProjectileLaunchEvent) {
+        val projectile = event.entity as? ThrowableProjectile ?: return
+        val item = projectile.item
+        val key = item.customItemKey ?: return
+
+        val persistentData = projectile.persistentDataContainer
+        persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
+
+        val triggers = plugin.itemManager.triggers[key] ?: return
+
+        val ctx = Context(
+            event,
+            projectile.shooter as? Player,
+            null,
+            null,
+            null,
+            null,
+            projectile,
+        )
+
+        triggers[Trigger.PROJECTILE_LAUNCH]?.forEach { it.perform(ctx) }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
+    fun onProjectileHit(event: ProjectileHitEvent) {
+        val key = event.entity.customItemKey ?: return
+
+        val triggers = plugin.itemManager.triggers[key] ?: return
+
+        val ctx = Context(
+            event,
+            event.entity.shooter as? Player,
+            null,
+            event.hitEntity,
+            event.hitBlock,
+            event.hitBlockFace,
+            event.entity,
+        )
+
+        triggers[Trigger.PROJECTILE_HIT]?.forEach { it.perform(ctx) }
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     fun onPlayerInteract(event: PlayerInteractEvent) {
         val item = when (event.hand) {

@@ -18,8 +18,8 @@ import org.bukkit.inventory.meta.ItemMeta
 @SerialName("toggle-enchantment")
 data class ToggleEnchantment(val enchantment: Enchantment, val level: Int, val name: String) : Action {
     override fun perform(ctx: Context): Boolean {
-        val item = ctx.item
-        val player = ctx.player
+        val item = ctx.item ?: return false
+        val player = ctx.player ?: return false
 
         if (item.enchantments.containsKey(enchantment)) {
             item.removeEnchantment(enchantment)

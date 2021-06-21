@@ -7,10 +7,10 @@ import kotlinx.serialization.Serializable
 @SerialName("item-cooldown")
 data class ItemCooldown(val ticks: Int = 0) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
-        val material = ctx.item.type
+        val player = ctx.player ?: return false
+        val material = ctx.item?.type ?: return false
 
-        if (ctx.player.hasCooldown(ctx.item.type)) {
+        if (ctx.player.hasCooldown(material)) {
             return false
         }
 

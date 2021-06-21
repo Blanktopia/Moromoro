@@ -10,11 +10,13 @@ import org.bukkit.Material
 data class MultiTool(val tools: List<Material>) : Action {
     override fun perform(ctx: Context): Boolean {
         val block = ctx.block ?: return false
-        if (ctx.item.type.canMineBlock(block)) return false
+        val item = ctx.item ?: return false
+
+        if (item.type.canMineBlock(block)) return false
 
         for (tool in tools) {
             if (tool.canMineBlock(block)) {
-                ctx.item.type = tool
+                item.type = tool
                 return true
             }
         }

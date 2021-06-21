@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 @SerialName("is-flying")
 object IsFlying : Action {
     override fun perform(ctx: Context): Boolean {
-        return ctx.player.isFlying
+        val player = ctx.player ?: return false
+        return player.isFlying
     }
 }
 

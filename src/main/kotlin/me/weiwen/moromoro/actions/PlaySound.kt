@@ -10,7 +10,7 @@ import org.bukkit.SoundCategory
 @SerialName("play-sound")
 data class PlaySound(val sound: Sound, val category: SoundCategory = SoundCategory.BLOCKS, val pitch: Float = 1.0f, val volume: Float = 1.0f) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         player.playSoundAt(sound, category, volume, pitch)
         return true
     }

@@ -8,7 +8,7 @@ import org.bukkit.FluidCollisionMode
 @SerialName("raycast")
 data class Raycast(val range: Double, val actions: List<Action> = listOf()) : Action {
     override fun perform(ctx: Context): Boolean {
-        val result = ctx.player.rayTraceBlocks(range, FluidCollisionMode.NEVER) ?: return false
+        val result = ctx.player?.rayTraceBlocks(range, FluidCollisionMode.NEVER) ?: return false
 
         ctx.entity = result.hitEntity
         ctx.block = result.hitBlock

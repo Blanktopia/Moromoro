@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 @SerialName("is-in-world")
 data class IsInWorld(val world: String) : Action {
     override fun perform(ctx: Context): Boolean {
-        return ctx.player.world.name == world
+        val player = ctx.player ?: return false
+        return player.world.name == world
     }
 }
 

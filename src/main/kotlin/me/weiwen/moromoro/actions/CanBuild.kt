@@ -8,8 +8,9 @@ import me.weiwen.moromoro.extensions.canBuildAt
 @SerialName("can-build")
 object CanBuild : Action {
     override fun perform(ctx: Context): Boolean {
+        val player = ctx.player ?: return false
         val loc = ctx.block?.location ?: return false
-        return ctx.player.canBuildAt(loc)
+        return player.canBuildAt(loc)
     }
 }
 

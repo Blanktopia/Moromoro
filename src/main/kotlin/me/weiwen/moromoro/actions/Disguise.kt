@@ -52,7 +52,7 @@ data class Disguise(
             return false
         }
 
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val burning = disguise.burning
         val disguise = disguise.disguise
         disguise.entity = player

@@ -15,7 +15,7 @@ import org.bukkit.potion.PotionEffectType
 @SerialName("fly-in-claims")
 data class FlyInClaims(val fly: Boolean) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         player.canFlyInClaims = fly
         return true
     }

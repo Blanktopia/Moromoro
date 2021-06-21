@@ -2,14 +2,15 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.weiwen.moromoro.managers.removePermanentPotionEffects
 
 @Serializable
-@SerialName("remove-permanent-potion-effect")
-data class RemovePermanentPotionEffect(val key: String) : Action {
+@SerialName("consume-hunger")
+data class ConsumeHunger(val amount: Float) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
-        player.removePermanentPotionEffects(key)
+
+        player.exhaustion += amount * 4
+
         return true
     }
 }

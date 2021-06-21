@@ -17,7 +17,7 @@ data class MeasureDistance(@SerialName("is-origin") val isOrigin: Boolean = fals
 
     override fun perform(ctx: Context): Boolean {
         val block = ctx.block ?: return false
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val location = locations[player.uniqueId]
 
         if (!isOrigin && location != null) {

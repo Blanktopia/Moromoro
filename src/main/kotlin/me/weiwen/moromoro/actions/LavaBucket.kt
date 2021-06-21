@@ -13,7 +13,7 @@ import org.bukkit.block.data.Waterlogged
 @SerialName("lava-bucket")
 object LavaBucket : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
 
         var block = ctx.block
 

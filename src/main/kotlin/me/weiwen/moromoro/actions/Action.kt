@@ -4,22 +4,25 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.modules.*
 import kotlinx.serialization.UseSerializers
+import me.weiwen.moromoro.actions.marker.*
 import me.weiwen.moromoro.serializers.EnchantmentSerializer
 import me.weiwen.moromoro.serializers.MaterialSerializer
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
 import org.bukkit.event.Event
 import org.bukkit.inventory.ItemStack
 
 class Context(
     val event: Event?,
-    val player: Player,
-    val item: ItemStack,
+    val player: Player?,
+    val item: ItemStack?,
     var entity: Entity?,
     var block: Block?,
     var blockFace: BlockFace?,
+    var projectile: Projectile? = null,
 ) {
     var isCancelled = false
     var removeItem = false
@@ -31,6 +34,13 @@ interface Action {
 
 val actionModule = SerializersModule {
     polymorphic(Action::class) {
+        subclass(EntityHasMarker::class)
+        subclass(MarkEntity::class)
+        subclass(UnmarkEntity::class)
+        subclass(ProjectileHasMarker::class)
+        subclass(MarkProjectile::class)
+        subclass(UnmarkProjectile::class)
+
         subclass(ActionBar::class)
         subclass(AddPermanentPotionEffect::class)
         subclass(AddPotionEffect::class)
@@ -45,6 +55,7 @@ val actionModule = SerializersModule {
         subclass(CanBuild::class)
         subclass(Cancel::class)
         subclass(ConsoleCommand::class)
+        subclass(ConsumeHunger::class)
         subclass(Delay::class)
         subclass(Disguise::class)
         subclass(EntityIs::class)
@@ -61,10 +72,12 @@ val actionModule = SerializersModule {
         subclass(IsSprinting::class)
         subclass(ItemCooldown::class)
         subclass(ItemIs::class)
+        subclass(Immunity::class)
         subclass(LaunchEntity::class)
         subclass(LaunchFallingBlock::class)
         subclass(LavaBucket::class)
         subclass(Light::class)
+        subclass(Lightning::class)
         subclass(MeasureDistance::class)
         subclass(Message::class)
         subclass(MultiTool::class)
@@ -79,6 +92,7 @@ val actionModule = SerializersModule {
         subclass(PlaySound::class)
         subclass(Raycast::class)
         subclass(RemoveItem::class)
+        subclass(RemoveLight::class)
         subclass(RemovePermanentPotionEffect::class)
         subclass(Repeat::class)
         subclass(Rotate::class)

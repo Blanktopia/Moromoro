@@ -22,7 +22,7 @@ data class LaunchFallingBlock(
     val disguise: DisguiseData? = null,
 ) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val entity = player.world.spawnFallingBlock(player.eyeLocation, createBlockData(material))
         entity.dropItem = canDropItem
         entity.setHurtEntities(canHurtEntities)

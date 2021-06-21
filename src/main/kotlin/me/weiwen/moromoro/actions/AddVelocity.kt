@@ -9,7 +9,7 @@ import org.bukkit.util.Vector
 @SerialName("add-velocity")
 data class AddVelocity(val x: Double, val y: Double, val z: Double) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
 
         val vec = Vector(x, y, z)
         vec.rotateAroundY(player.location.yaw.toDouble())

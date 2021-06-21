@@ -14,7 +14,7 @@ import org.bukkit.potion.PotionEffectType
 @SerialName("experience-boost")
 data class ExperienceBoost(val multiplier: Double, val duration: Int) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         player.addExperienceBoost(multiplier, duration)
         return true
     }

@@ -19,8 +19,8 @@ import org.bukkit.persistence.PersistentDataType
 @SerialName("paint-brush-pick")
 object PaintBrushPick : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
-        val item = ctx.item
+        val player = ctx.player ?: return false
+        val item = ctx.item ?: return false
         val block = ctx.block ?: return false
 
         val colour = block.type.color

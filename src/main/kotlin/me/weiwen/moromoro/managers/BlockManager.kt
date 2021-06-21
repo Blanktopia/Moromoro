@@ -18,14 +18,12 @@ import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.BlockState
-import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.MultipleFacing
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
-import java.util.*
 import kotlin.IllegalArgumentException
 
 @Serializable
@@ -45,6 +43,9 @@ class MushroomBlockTemplate(
     override val sitHeight: Double? = null
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {
+        val player = ctx.player ?: return false
+        val item = ctx.item ?: return false
+        
         val placedAgainst = ctx.block ?: return false
         val blockFace = ctx.blockFace ?: return false
         val placedBlock = placedAgainst.getRelative(blockFace)
@@ -58,8 +59,8 @@ class MushroomBlockTemplate(
             placedBlock,
             blockState,
             placedAgainst,
-            ctx.item.clone().apply { amount = 1 },
-            ctx.player,
+            item.clone().apply { amount = 1 },
+            player,
             true,
             EquipmentSlot.HAND
         )
@@ -83,6 +84,8 @@ class ItemBlockTemplate(
     override val sitHeight: Double? = null
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {
+        val player = ctx.player ?: return false
+        val item = ctx.item ?: return false
         val key = ctx.item.customItemKey ?: return false
 
         val block = ctx.block ?: return false
@@ -100,7 +103,7 @@ class ItemBlockTemplate(
             return false
         }
 
-        val playerLocation = ctx.player.location.clone().apply { yaw += 180 }
+        val playerLocation = player.location.clone().apply { yaw += 180 }
         val rotation = playerLocation.rotation
 
         val location = block.getRelative(blockFace).location
@@ -126,12 +129,12 @@ class ItemBlockTemplate(
         }
 
         // Move item into item frame
-        val item = ctx.item.clone()
-        item.itemMeta = item.itemMeta.apply {
+        val cloned = item.clone()
+        cloned.itemMeta = cloned.itemMeta.apply {
             setDisplayName(null)
         }
-        item.amount = 1
-        itemFrame.setItem(item, false)
+        cloned.amount = 1
+        itemFrame.setItem(cloned, false)
 
         if (collision) {
             location.block.type = Material.BARRIER

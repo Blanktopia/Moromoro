@@ -13,7 +13,7 @@ import org.bukkit.potion.PotionEffectType
 @SerialName("add-permanent-potion-effect")
 data class AddPermanentPotionEffect(val key: String, val effects: Map<PotionEffectType, Int>) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         player.addPermanentPotionEffects(key, effects)
         return true
     }

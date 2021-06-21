@@ -17,9 +17,8 @@ import org.bukkit.util.Vector
 data class StripBlock(val radius: Int = 0, val depth: Int = 0) : Action {
     override fun perform(ctx: Context): Boolean {
         val block = ctx.block ?: return false
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val blockFace = ctx.blockFace ?: player.rayTraceBlocks(6.0)?.hitBlockFace ?: return false
-        val item = ctx.item
 
         val (xOffset, yOffset, zOffset) = when {
             blockFace.modX != 0 -> {

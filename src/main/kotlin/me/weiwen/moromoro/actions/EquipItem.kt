@@ -9,8 +9,8 @@ import org.bukkit.inventory.ItemStack
 @SerialName("equip-item")
 data class EquipItem(val slot: EquipmentSlot) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
-        val item = ctx.item
+        val player = ctx.player ?: return false
+        val item = ctx.item ?: return false
         val equippedItem: ItemStack? = ctx.player.inventory.getItem(slot)
 
         if (equippedItem == item) {

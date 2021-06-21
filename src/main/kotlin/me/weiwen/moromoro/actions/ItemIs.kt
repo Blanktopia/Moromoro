@@ -12,7 +12,7 @@ import org.bukkit.Material
 @SerialName("item-is")
 data class ItemIs(val material: Material) : Action {
     override fun perform(ctx: Context): Boolean {
-        return ctx.item.type == material
+        return ctx.item?.type == material
     }
 }
 

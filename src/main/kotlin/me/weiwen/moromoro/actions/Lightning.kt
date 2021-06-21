@@ -4,10 +4,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("use-player-facing")
-object UsePlayerFacing : Action {
+@SerialName("lightning")
+object Lightning : Action {
     override fun perform(ctx: Context): Boolean {
-        ctx.blockFace = ctx.player?.facing
+        val location = ctx.entity?.location ?: ctx.block?.location ?: return false
+
+        location.world.strikeLightning(location)
+
         return true
     }
 }

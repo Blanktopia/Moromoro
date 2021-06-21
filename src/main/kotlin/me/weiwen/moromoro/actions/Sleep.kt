@@ -10,7 +10,7 @@ import org.bukkit.World
 @SerialName("sleep")
 object Sleep : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         if (player.world.environment == World.Environment.NETHER || player.world.environment == World.Environment.THE_END) {
             return false
         }

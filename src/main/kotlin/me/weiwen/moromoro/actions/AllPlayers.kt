@@ -7,8 +7,10 @@ import kotlinx.serialization.Serializable
 @SerialName("all-players")
 data class AllPlayers(val actions: List<Action> = listOf()) : Action {
     override fun perform(ctx: Context): Boolean {
+        val player = ctx.player ?: return false
+
         // isCancelled is not propagated by design
-        val ctxs = ctx.player.server.onlinePlayers.map {
+        val ctxs = player.server.onlinePlayers.map {
             Context(
                 event = ctx.event,
                 player = it,
@@ -18,6 +20,7 @@ data class AllPlayers(val actions: List<Action> = listOf()) : Action {
                 blockFace = ctx.blockFace
             )
         }
+
         return actions.all { action ->
             ctxs.all { ctx ->
                 action.perform(ctx)

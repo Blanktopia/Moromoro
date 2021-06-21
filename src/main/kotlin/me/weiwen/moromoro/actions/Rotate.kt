@@ -22,7 +22,7 @@ val SIGN_ROTATIONS = listOf(
 @SerialName("rotate")
 class Rotate(val reversed: Boolean = false) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val block = ctx.block ?: return false
         val face = ctx.blockFace ?: return false
 

@@ -28,6 +28,9 @@ enum class Trigger {
     @SerialName("break-block") BREAK_BLOCK,
     @SerialName("place-block") PLACE_BLOCK,
 
+    @SerialName("projectile-launch") PROJECTILE_LAUNCH,
+    @SerialName("projectile-hit") PROJECTILE_HIT,
+
     @SerialName("drop") DROP,
 
     @SerialName("move") MOVE,
@@ -42,6 +45,7 @@ enum class Trigger {
     @SerialName("unglide") UNGLIDE,
     @SerialName("swim") SWIM,
     @SerialName("unswim") UNSWIM,
+    @SerialName("damaged") DAMAGED,
 
     @SerialName("right-click-inventory") RIGHT_CLICK_INVENTORY,
     @SerialName("left-click-inventory") LEFT_CLICK_INVENTORY,
@@ -79,5 +83,6 @@ val EQUIPPED_TRIGGERS = setOf(
     Trigger.GLIDE,
     Trigger.UNGLIDE,
     Trigger.SWIM,
-    Trigger.UNSWIM
+    Trigger.UNSWIM,
+    Trigger.DAMAGED,
 )

@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 @SerialName("is-sprinting")
 object IsSprinting : Action {
     override fun perform(ctx: Context): Boolean {
-        return ctx.player.isSprinting
+        val player = ctx.player ?: return false
+        return player.isSprinting
     }
 }
 

@@ -8,7 +8,7 @@ import me.weiwen.moromoro.serializers.FormattedString
 @SerialName("player-command")
 data class PlayerCommand(val command: String) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         val formatted = command.replace("%p", player.name)
         return player.performCommand(formatted)
     }

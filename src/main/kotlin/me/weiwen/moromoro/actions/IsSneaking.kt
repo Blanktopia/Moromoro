@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 @SerialName("is-sneaking")
 object IsSneaking : Action {
     override fun perform(ctx: Context): Boolean {
-        return ctx.player.isSneaking
+        val player = ctx.player ?: return false
+        return player.isSneaking
     }
 }
 

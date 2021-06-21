@@ -8,7 +8,8 @@ import kotlinx.serialization.Serializable
 object IsOnGround : Action {
     override fun perform(ctx: Context): Boolean {
         // TODO: don't use Player#isOnGround
-        return ctx.player.isOnGround
+        val player = ctx.player ?: return false
+        return player.isOnGround
     }
 }
 

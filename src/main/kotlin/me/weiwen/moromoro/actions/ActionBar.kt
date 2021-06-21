@@ -8,7 +8,7 @@ import me.weiwen.moromoro.serializers.FormattedString
 @SerialName("action-bar")
 data class ActionBar(val message: FormattedString) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player
+        val player = ctx.player ?: return false
         player.sendActionBar(message.value)
         return true
     }
