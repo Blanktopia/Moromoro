@@ -66,7 +66,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         val ctx = Context(
             event,
             projectile.shooter as? Player,
-            null,
+            (projectile as? ThrowableProjectile)?.item,
             null,
             null,
             null,
@@ -85,7 +85,7 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         val ctx = Context(
             event,
             event.entity.shooter as? Player,
-            null,
+            (event.entity as? ThrowableProjectile)?.item,
             event.hitEntity,
             event.hitBlock,
             event.hitBlockFace,

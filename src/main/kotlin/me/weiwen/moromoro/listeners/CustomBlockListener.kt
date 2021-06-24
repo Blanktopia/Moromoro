@@ -105,7 +105,11 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
 
         event.isCancelled = true
 
-        plugin.blockManager.breakNaturally(block, event.player.gameMode != GameMode.CREATIVE)
+        plugin.blockManager.breakNaturally(
+            event.player.inventory.itemInMainHand,
+            block,
+            event.player.gameMode != GameMode.CREATIVE
+        )
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

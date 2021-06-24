@@ -1,4 +1,5 @@
 @file:UseSerializers(
+    ItemStackSerializer::class,
     MaterialSerializer::class,
     EnchantmentSerializer::class,
     ColorSerializer::class,
@@ -19,12 +20,16 @@ import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.BlockState
 import org.bukkit.block.data.MultipleFacing
+import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import kotlin.IllegalArgumentException
+import kotlin.math.max
+import kotlin.random.Random
 
 @Serializable
 sealed class BlockTemplate {
@@ -32,6 +37,9 @@ sealed class BlockTemplate {
 
     @SerialName("sit-height")
     abstract val sitHeight: Double?
+
+    abstract val drops: ItemStack?
+    abstract val canFortune: Boolean
 }
 
 @Serializable
@@ -40,7 +48,9 @@ class MushroomBlockTemplate(
     val state: Int,
     val material: Material = Material.BROWN_MUSHROOM_BLOCK,
     @SerialName("sit-height")
-    override val sitHeight: Double? = null
+    override val sitHeight: Double? = null,
+    override val drops: ItemStack? = null,
+    override val canFortune: Boolean = false
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {
         val player = ctx.player ?: return false
@@ -82,6 +92,8 @@ class ItemBlockTemplate(
     val collision: Boolean,
     @SerialName("sit-height")
     override val sitHeight: Double? = null
+    override val drops: ItemStack? = null,
+    override val canFortune: Boolean = false
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {
         val player = ctx.player ?: return false
@@ -179,7 +191,7 @@ class BlockManager(val plugin: Moromoro) {
         }
     }
 
-    fun breakNaturally(block: Block, dropItem: Boolean): Boolean {
+    fun breakNaturally(tool: ItemStack, block: Block, dropItem: Boolean): Boolean {
         val states = when (block.type) {
             Material.BROWN_MUSHROOM_BLOCK -> brownMushroomStates
             Material.RED_MUSHROOM_BLOCK -> redMushroomStates
@@ -191,11 +203,19 @@ class BlockManager(val plugin: Moromoro) {
 
         val key = states[state] ?: return false
 
-        val item = plugin.itemManager.templates[key]?.item(key, 1) ?: return false
+        val template = plugin.itemManager.templates[key] ?: return false
 
         block.setType(Material.AIR, true)
 
         if (dropItem) {
+            val item = template.block?.drops ?: template.item(key, 1)
+
+            if (template.block?.canFortune == true) {
+                val fortune = tool.enchantments.get(Enchantment.LOOT_BONUS_BLOCKS) ?: 0
+                val multiplier = 1 + max(0, Random.nextInt(fortune + 2) - 2)
+                item.amount *= multiplier
+            }
+
             block.world.dropItemNaturally(block.location, item)
         }
 

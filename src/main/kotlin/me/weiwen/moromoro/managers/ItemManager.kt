@@ -50,6 +50,7 @@ data class ItemTemplate(
     val dyeable: Boolean = false,
     val triggers: Map<Trigger, List<Action>> = mapOf(),
     val block: BlockTemplate? = null,
+    val slots: Set<EquipmentSlot>? = setOf(),
 )
 
 @Serializable
