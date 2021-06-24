@@ -9,6 +9,10 @@ data class ConsumeHunger(val amount: Float) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
 
+        if (player.saturation + player.foodLevel < amount) {
+            return false
+        }
+
         player.exhaustion += amount * 4
 
         return true

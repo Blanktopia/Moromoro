@@ -6,6 +6,8 @@ import me.weiwen.moromoro.extensions.playSoundAt
 import org.bukkit.Particle
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
+import org.bukkit.util.Vector
+import kotlin.math.PI
 
 @Serializable
 @SerialName("spawn-particle")
@@ -25,7 +27,13 @@ data class SpawnParticle(
 ) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
-        player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ)
+
+        val vec = Vector(x, y, z)
+        vec.rotateAroundY(-player.location.yaw.toDouble() * PI / 180)
+
+        val location = player.location.add(vec)
+
+        player.world.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra)
         return true
     }
 }
