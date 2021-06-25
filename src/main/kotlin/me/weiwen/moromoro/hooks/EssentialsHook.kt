@@ -20,11 +20,11 @@ class EssentialsHook(private val moromoro: Moromoro) : Hook, IItemDb.ItemResolve
     }
 
     override fun apply(type: String): ItemStack? {
-        return moromoro.itemManager.templates[type]?.item(type)
+        return moromoro.itemManager.templates[type]?.item(type.replace('_', '-'))
     }
 
     override fun getNames(): Collection<String> {
-        return moromoro.itemManager.keys
+        return moromoro.itemManager.keys.map { it.replace('-', '_') }
     }
 
     fun getItemStack(name: String): ItemStack? {
