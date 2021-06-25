@@ -50,6 +50,7 @@ class MushroomBlockTemplate(
     @SerialName("sit-height")
     override val sitHeight: Double? = null,
     override val drops: ItemStack? = null,
+    @SerialName("can-fortune")
     override val canFortune: Boolean = false
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {
@@ -91,8 +92,9 @@ class MushroomBlockTemplate(
 class ItemBlockTemplate(
     val collision: Boolean,
     @SerialName("sit-height")
-    override val sitHeight: Double? = null
+    override val sitHeight: Double? = null,
     override val drops: ItemStack? = null,
+    @SerialName("can-fortune")
     override val canFortune: Boolean = false
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {
