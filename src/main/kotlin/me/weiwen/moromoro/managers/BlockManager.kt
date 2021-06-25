@@ -210,7 +210,11 @@ class BlockManager(val plugin: Moromoro) {
         block.setType(Material.AIR, true)
 
         if (dropItem) {
-            val item = template.block?.drops ?: template.item(key, 1)
+            val item = if (tool.enchantments.get(Enchantment.SILK_TOUCH) != null) {
+                template.item(key, 1)
+            } else {
+                template.block?.drops?.clone() ?: template.item(key, 1)
+            }
 
             if (template.block?.canFortune == true) {
                 val fortune = tool.enchantments.get(Enchantment.LOOT_BONUS_BLOCKS) ?: 0
