@@ -13,7 +13,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         BROWN_CONCRETE_POWDER,
         CLAY,
         COARSE_DIRT,
-        CRIMSON_NYLIUM,
         CYAN_CONCRETE_POWDER,
         DIRT,
         DIRT_PATH,
@@ -40,7 +39,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         SNOW_BLOCK,
         SOUL_SAND,
         SOUL_SOIL,
-        WARPED_NYLIUM,
         WHITE_CONCRETE_POWDER,
         YELLOW_CONCRETE_POWDER ->
             isShovel
@@ -126,6 +124,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         CRACKED_NETHER_BRICKS,
         CRACKED_POLISHED_BLACKSTONE_BRICKS,
         CRACKED_STONE_BRICKS,
+        CRIMSON_NYLIUM,
         CRYING_OBSIDIAN,
         CUT_COPPER,
         CUT_COPPER_SLAB,
@@ -419,6 +418,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         TUBE_CORAL_FAN,
         TUBE_CORAL_WALL_FAN,
         TUFF,
+        WARPED_NYLIUM,
         WHITE_CONCRETE,
         WHITE_GLAZED_TERRACOTTA,
         WHITE_SHULKER_BOX,
