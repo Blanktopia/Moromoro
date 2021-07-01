@@ -90,6 +90,11 @@ class Moromoro: JavaPlugin() {
             }
         }
 
+        // Hotfix: reload to allow recursive
+        config = parseConfig(this)
+        itemManager.load()
+        recipeManager.load()
+
         logger.info("Moromoro is enabled")
     }
 
