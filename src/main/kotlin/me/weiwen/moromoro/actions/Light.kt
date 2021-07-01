@@ -29,7 +29,7 @@ object Light : Action {
 
         val material = if (replacedBlock.type == Material.LIGHT) {
             Material.AIR
-        } else if (replacedBlock.type != Material.AIR || replacedBlock.type != Material.CAVE_AIR) {
+        } else if (replacedBlock.type == Material.AIR || replacedBlock.type == Material.CAVE_AIR) {
             Material.LIGHT
         } else {
             return false
