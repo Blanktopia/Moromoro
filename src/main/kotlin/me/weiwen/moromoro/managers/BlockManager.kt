@@ -198,7 +198,7 @@ class BlockManager(val plugin: Moromoro) {
             Material.BROWN_MUSHROOM_BLOCK -> brownMushroomStates
             Material.RED_MUSHROOM_BLOCK -> redMushroomStates
             Material.MUSHROOM_STEM -> mushroomStemStates
-            else -> return false
+            else -> return block.breakNaturally(tool)
         }
 
         val state = block.customBlockState ?: return false
