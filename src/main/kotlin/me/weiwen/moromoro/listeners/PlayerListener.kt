@@ -347,7 +347,10 @@ class PlayerListener(val plugin: Moromoro) : Listener {
             }
             item.itemMeta = meta
 
-            if (item.type !== template.material) {
+            if (item.type !== template.material
+                && item.type !== Material.NETHERITE_PICKAXE
+                && item.type !== Material.NETHERITE_SHOVEL
+            ) {
                 val replica = template.item(key, 1)
                 item.type = replica.type
                 item.itemMeta = replica.itemMeta
