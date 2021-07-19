@@ -5,18 +5,23 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.isPartial
 import me.weiwen.moromoro.extensions.playSoundAt
+import me.weiwen.moromoro.managers.customBlockState
+import me.weiwen.moromoro.managers.isRestrictedCustomBlockState
+import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.*
 import org.bukkit.block.data.type.Slab
+import org.bukkit.block.data.type.Wall
 
 val SIGN_ROTATIONS = listOf(
     BlockFace.NORTH, BlockFace.NORTH_NORTH_EAST, BlockFace.NORTH_EAST, BlockFace.EAST_NORTH_EAST,
     BlockFace.EAST, BlockFace.EAST_SOUTH_EAST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_SOUTH_EAST,
     BlockFace.SOUTH, BlockFace.SOUTH_SOUTH_WEST, BlockFace.SOUTH_WEST, BlockFace.WEST_SOUTH_WEST,
-    BlockFace.WEST, BlockFace.WEST_NORTH_WEST, BlockFace.NORTH_WEST, BlockFace.NORTH_NORTH_WEST)
+    BlockFace.WEST, BlockFace.WEST_NORTH_WEST, BlockFace.NORTH_WEST, BlockFace.NORTH_NORTH_WEST
+)
 
 @Serializable
 @SerialName("rotate")
@@ -27,6 +32,13 @@ class Rotate(val reversed: Boolean = false) : Action {
         val face = ctx.blockFace ?: return false
 
         if (!player.canBuildAt(block.location)) {
+            return false
+        }
+
+        if (block.type == Material.BROWN_MUSHROOM_BLOCK
+            || block.type == Material.RED_MUSHROOM_BLOCK
+            || block.type == Material.MUSHROOM_STEM
+        ) {
             return false
         }
 
@@ -50,6 +62,22 @@ class Rotate(val reversed: Boolean = false) : Action {
                 val faces = data.faces.sorted()
                 val index = faces.indexOf(data.facing) + 1
                 data.facing = faces[index % faces.size]
+            }
+            is Wall -> {
+                if (face == BlockFace.NORTH
+                    || face == BlockFace.EAST
+                    || face == BlockFace.SOUTH
+                    || face == BlockFace.WEST
+                ) {
+                    val height = data.getHeight(face)
+                    data.setHeight(
+                        face, when (height) {
+                            Wall.Height.NONE -> Wall.Height.TALL
+                            Wall.Height.LOW -> Wall.Height.NONE
+                            Wall.Height.TALL -> Wall.Height.LOW
+                        }
+                    )
+                }
             }
             is MultipleFacing -> {
                 if (data.allowedFaces.contains(face)) {
@@ -112,6 +140,22 @@ class Rotate(val reversed: Boolean = false) : Action {
             is MultipleFacing -> {
                 if (data.allowedFaces.contains(face)) {
                     data.setFace(face, !data.hasFace(face))
+                }
+            }
+            is Wall -> {
+                if (face == BlockFace.NORTH
+                    || face == BlockFace.EAST
+                    || face == BlockFace.SOUTH
+                    || face == BlockFace.WEST
+                ) {
+                    val height = data.getHeight(face)
+                    data.setHeight(
+                        face, when (height) {
+                            Wall.Height.NONE -> Wall.Height.LOW
+                            Wall.Height.LOW -> Wall.Height.TALL
+                            Wall.Height.TALL -> Wall.Height.NONE
+                        }
+                    )
                 }
             }
             is Directional -> {
