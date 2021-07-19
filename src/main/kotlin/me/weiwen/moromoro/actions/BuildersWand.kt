@@ -124,7 +124,7 @@ data class BuildersWand(val range: Int = 1) : Action {
         for (base in locationsInRange(block.location, face, range)) {
             if (base.block.type != material) continue
             val other = base.clone().add(face.direction)
-            if (other.block.type != Material.AIR && other.block.type != Material.WATER && other.block.type != Material.LAVA) continue
+            if (!other.block.type.isPartiallyEmpty) continue
             locations.add(Pair(base.block, other))
         }
         return locations
