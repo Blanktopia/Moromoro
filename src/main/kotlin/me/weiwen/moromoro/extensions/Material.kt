@@ -1020,7 +1020,30 @@ val Material.isReallyInteractable
         SPRUCE_STAIRS,
         STONE_BRICK_STAIRS,
         STONE_STAIRS,
-        WARPED_STAIRS -> false
+        WARPED_STAIRS,
+        DEEPSLATE_TILE_STAIRS,
+        DEEPSLATE_BRICK_STAIRS,
+        COBBLED_DEEPSLATE_STAIRS,
+        WAXED_CUT_COPPER_STAIRS,
+        WAXED_EXPOSED_CUT_COPPER_STAIRS,
+        WAXED_WEATHERED_CUT_COPPER_STAIRS,
+        WAXED_OXIDIZED_CUT_COPPER_STAIRS,
+        CUT_COPPER_STAIRS,
+        EXPOSED_CUT_COPPER_STAIRS,
+        WEATHERED_CUT_COPPER_STAIRS,
+        OXIDIZED_CUT_COPPER_STAIRS,
+
+        ACACIA_FENCE,
+        BIRCH_FENCE,
+        CRIMSON_FENCE,
+        DARK_OAK_FENCE,
+        JUNGLE_FENCE,
+        NETHER_BRICK_FENCE,
+        OAK_FENCE,
+        SPRUCE_FENCE,
+        WARPED_FENCE
+
+        -> false
 
         else -> isInteractable
     }
