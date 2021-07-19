@@ -47,7 +47,7 @@ data class BreakBlock(val radius: Int = 0, val depth: Int = 0) : Action {
                     if (!item.type.canMineBlock(other)) continue
                     Moromoro.plugin.blockManager.breakNaturally(
                         item,
-                        block,
+                        other,
                         player.gameMode != GameMode.CREATIVE
                     )
                 }
