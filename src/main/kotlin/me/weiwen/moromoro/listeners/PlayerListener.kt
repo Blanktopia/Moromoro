@@ -25,6 +25,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 import java.util.logging.Level
 
@@ -341,12 +342,20 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         val template = Moromoro.plugin.itemManager.templates[key]
         if (template != null) {
             val meta = item.itemMeta?.apply {
+                // Migrate custom model data
                 if (!hasCustomModelData() || customModelData != template.customModelData) {
                     setCustomModelData(template.customModelData)
+                }
+
+                // Migrate unbreakable
+                if (isUnbreakable != template.unbreakable && this is Damageable) {
+                    isUnbreakable = template.unbreakable
+                    damage = 0
                 }
             }
             item.itemMeta = meta
 
+            // Migrate material
             if (item.type !== template.material
                 && item.type !== Material.NETHERITE_PICKAXE
                 && item.type !== Material.NETHERITE_SHOVEL
