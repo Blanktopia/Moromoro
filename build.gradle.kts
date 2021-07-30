@@ -95,6 +95,11 @@ bukkit {
             usage = "/<command> reload"
             permission = "moromoro.admin"
         }
+        register("pack") {
+            description = "Sends the resource pack"
+            usage = "/<command>"
+            permission = "moromoro.pack"
+        }
     }
 }
 

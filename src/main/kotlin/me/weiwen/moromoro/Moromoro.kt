@@ -49,6 +49,17 @@ class Moromoro: JavaPlugin() {
         equippedItemsManager.enable()
         resourcePackManager.enable()
 
+        getCommand("pack")?.let {
+            it.setExecutor { sender, _, _, _ ->
+                if (sender is Player) {
+                    resourcePackManager.send(sender)
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+
         val command = getCommand("moromoro")
         command?.setExecutor { sender, _, _, args ->
             when (args[0]) {
