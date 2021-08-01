@@ -58,9 +58,6 @@ class Rotate(val reversed: Boolean = false) : Action {
     private fun forward(block: Block, face: BlockFace): Boolean {
         val data = block.blockData
         when (data) {
-            is Powerable -> {
-                data.isPowered = !data.isPowered
-            }
             is Directional -> {
                 val faces = data.faces.sorted()
                 val index = faces.indexOf(data.facing) + 1
@@ -108,6 +105,9 @@ class Rotate(val reversed: Boolean = false) : Action {
                 if (data.type == Slab.Type.DOUBLE) return false
                 data.type = if (data.type == Slab.Type.BOTTOM) Slab.Type.TOP else Slab.Type.BOTTOM
             }
+            is Powerable -> {
+                data.isPowered = !data.isPowered
+            }
             else -> return false
         }
 
@@ -119,6 +119,9 @@ class Rotate(val reversed: Boolean = false) : Action {
     private fun backward(block: Block, face: BlockFace): Boolean {
         val data = block.blockData
         when (data) {
+            is Powerable -> {
+                data.isPowered = !data.isPowered
+            }
             is Slab -> {
                 if (data.type == Slab.Type.DOUBLE) return false
                 data.type = if (data.type == Slab.Type.BOTTOM) Slab.Type.TOP else Slab.Type.BOTTOM
@@ -165,9 +168,6 @@ class Rotate(val reversed: Boolean = false) : Action {
                 val faces = data.faces.sorted()
                 val index = faces.size + faces.indexOf(data.facing) + 1
                 data.facing = faces[index % faces.size]
-            }
-            is Powerable -> {
-                data.isPowered = !data.isPowered
             }
             else -> return false
         }
