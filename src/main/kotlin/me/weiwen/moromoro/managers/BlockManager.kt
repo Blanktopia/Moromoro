@@ -295,6 +295,13 @@ var BlockState.customBlockState: Int?
         setBlockData(multipleFacing)
     }
 
+val Block.isCustomBlock: Boolean
+    get() {
+        return type == Material.BROWN_MUSHROOM_BLOCK
+                && type == Material.RED_MUSHROOM_BLOCK
+                && type == Material.MUSHROOM_STEM
+    }
+
 var Block.customBlockState: Int?
     get() {
         if (type != Material.BROWN_MUSHROOM_BLOCK

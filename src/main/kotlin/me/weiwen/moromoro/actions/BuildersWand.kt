@@ -4,6 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.*
+import me.weiwen.moromoro.managers.isCustomBlock
+import me.weiwen.moromoro.managers.isRestrictedCustomBlockState
 import org.bukkit.*
 import org.bukkit.block.Biome
 import org.bukkit.block.Block
@@ -24,7 +26,7 @@ data class BuildersWand(val range: Int = 1) : Action {
         val block = ctx.block ?: return false
         val face = ctx.blockFace ?: return false
 
-        if (block.type.isPartial || block.type.isShulker) {
+        if (block.type.isPartial || block.type.isShulker || block.isCustomBlock) {
             return false
         }
 

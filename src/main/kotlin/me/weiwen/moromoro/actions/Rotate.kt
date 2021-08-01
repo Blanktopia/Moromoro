@@ -6,6 +6,7 @@ import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.isPartial
 import me.weiwen.moromoro.extensions.playSoundAt
 import me.weiwen.moromoro.managers.customBlockState
+import me.weiwen.moromoro.managers.isCustomBlock
 import me.weiwen.moromoro.managers.isRestrictedCustomBlockState
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -35,10 +36,7 @@ class Rotate(val reversed: Boolean = false) : Action {
             return false
         }
 
-        if (block.type == Material.BROWN_MUSHROOM_BLOCK
-            || block.type == Material.RED_MUSHROOM_BLOCK
-            || block.type == Material.MUSHROOM_STEM
-        ) {
+        if (block.isCustomBlock) {
             return false
         }
 
