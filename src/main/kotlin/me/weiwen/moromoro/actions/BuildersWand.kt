@@ -80,6 +80,10 @@ data class BuildersWand(val range: Int = 1) : Action {
                 if (!canBuild) {
                     block.world.playSound(block.location, Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1.0f, 1.0f)
                 }
+                if (block.type.isItem) {
+                    val name = ItemStack(block.type).i18NDisplayName
+                    player.sendActionBar("${ChatColor.RED}Not enough ${name}.")
+                }
                 return false
             }
             if (player.location.block.location == location || player.location.add(
