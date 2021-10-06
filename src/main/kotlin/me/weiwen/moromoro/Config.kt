@@ -18,7 +18,7 @@ data class MoromoroConfig(
     @SerialName("tick-interval")
     val tickInterval: Long = 1,
     @SerialName("tick-slow-interval")
-    val tickSlowInterval: Long = 10,
+    val tickSlowInterval: Long = 5,
 
     @SerialName("resource-pack-url")
     val resourcePackUrl: String? = null,

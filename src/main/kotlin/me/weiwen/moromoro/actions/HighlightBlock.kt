@@ -10,7 +10,7 @@ import me.weiwen.moromoro.serializers.MaterialSerializer
 
 @Serializable
 @SerialName("highlight-block")
-data class HighlightBlock(val color: Long, val duration: Int = 500) : Action {
+data class HighlightBlock(val color: Long, val duration: Int = 250) : Action {
     private val colorUint = color.toUInt()
 
     override fun perform(ctx: Context): Boolean {

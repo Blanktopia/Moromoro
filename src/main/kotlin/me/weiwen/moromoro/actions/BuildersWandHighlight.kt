@@ -15,7 +15,7 @@ import org.bukkit.util.Vector
 
 @Serializable
 @SerialName("builders-wand-highlight")
-data class BuildersWandHighlight(val range: Int = 1, val color: Long, val duration: Int = 500) : Action {
+data class BuildersWandHighlight(val range: Int = 1, val color: Long, val duration: Int = 250) : Action {
     private val colorUint = color.toUInt()
 
     override fun perform(ctx: Context): Boolean {
