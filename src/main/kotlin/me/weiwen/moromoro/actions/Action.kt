@@ -56,6 +56,7 @@ val actionModule = SerializersModule {
         subclass(BuildersWandHighlight::class)
         subclass(CanBuild::class)
         subclass(Cancel::class)
+        subclass(ClearHighlight::class)
         subclass(ConsoleCommand::class)
         subclass(ConsumeHunger::class)
         subclass(Delay::class)
