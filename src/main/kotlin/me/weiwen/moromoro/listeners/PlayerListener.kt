@@ -1,10 +1,13 @@
 package me.weiwen.moromoro.listeners
 
+import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
+import com.destroystokyo.paper.event.player.PlayerJumpEvent
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
+import me.weiwen.moromoro.managers.EquippedItemsManager
 import me.weiwen.moromoro.managers.item
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -29,7 +32,43 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 import java.util.logging.Level
 
-class PlayerListener(val plugin: Moromoro) : Listener {
+class PlayerListener(val plugin: Moromoro, private val equippedItemsManager: EquippedItemsManager) : Listener {
+    private var tickTask: Int = 0
+    private var tickSlowTask: Int = 0
+
+    fun enable() {
+        plugin.server.pluginManager.registerEvents(this, plugin)
+        tickTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
+            plugin,
+            { ->
+                plugin.server.onlinePlayers.forEach {
+                    equippedItemsManager.runEquipTriggers(null, it, Trigger.TICK)
+                }
+            },
+            plugin.config.tickInterval,
+            plugin.config.tickInterval
+        )
+        tickSlowTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
+            plugin,
+            { ->
+                plugin.server.onlinePlayers.forEach {
+                    equippedItemsManager.runEquipTriggers(null, it, Trigger.TICK_SLOW)
+                }
+            },
+            plugin.config.tickSlowInterval,
+            plugin.config.tickSlowInterval
+        )
+    }
+
+    fun disable() {
+        if (tickTask != 0) {
+            plugin.server.scheduler.cancelTask(tickTask)
+        }
+        if (tickSlowTask != 0) {
+            plugin.server.scheduler.cancelTask(tickSlowTask)
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     fun onEntityShootBow(event: EntityShootBowEvent) {
         val item = event.bow ?: return
@@ -417,6 +456,66 @@ class PlayerListener(val plugin: Moromoro) : Listener {
         if (ctx.removeItem) {
             inventory.setItem(event.slot, removeOne(item))
         }
+    }
+
+    /* Equipment Triggers */
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerArmorChange(event: PlayerArmorChangeEvent) {
+        equippedItemsManager.onPlayerArmorChange(event)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerMove(event: PlayerMoveEvent) {
+        equippedItemsManager.runEquipTriggers(event, event.player, Trigger.MOVE)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerJump(event: PlayerJumpEvent) {
+        equippedItemsManager.runEquipTriggers(event, event.player, Trigger.JUMP)
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun onPlayerToggleSneak(event: PlayerToggleSneakEvent) {
+        val trigger = if (event.isSneaking) Trigger.SNEAK else Trigger.UNSNEAK
+        equippedItemsManager.runEquipTriggers(event, event.player, trigger)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerToggleSprint(event: PlayerToggleSprintEvent) {
+        val trigger = if (event.isSprinting) Trigger.SPRINT else Trigger.UNSPRINT
+        equippedItemsManager.runEquipTriggers(event, event.player, trigger)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerToggleFlight(event: PlayerToggleFlightEvent) {
+        val trigger = if (event.isFlying) Trigger.FLY else Trigger.UNFLY
+        equippedItemsManager.runEquipTriggers(event, event.player, trigger)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerToggleGlide(event: EntityToggleGlideEvent) {
+        val player = event.entity as? Player ?: return
+        val trigger = if (event.isGliding) Trigger.GLIDE else Trigger.UNGLIDE
+        equippedItemsManager.runEquipTriggers(event, player, trigger)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerToggleSwim(event: EntityToggleSwimEvent) {
+        val player = event.entity as? Player ?: return
+        val trigger = if (event.isSwimming) Trigger.SWIM else Trigger.UNSWIM
+        equippedItemsManager.runEquipTriggers(event, player, trigger)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerDamaged(event: EntityDamageEvent) {
+        val player = event.entity as? Player ?: return
+        equippedItemsManager.runEquipTriggers(event, player, Trigger.DAMAGED)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerQuit(event: PlayerQuitEvent) {
+        equippedItemsManager.cleanUp(event.player)
     }
 }
 

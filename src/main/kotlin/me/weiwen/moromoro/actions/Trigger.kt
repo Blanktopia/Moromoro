@@ -33,6 +33,9 @@ enum class Trigger {
 
     @SerialName("drop") DROP,
 
+    @SerialName("tick") TICK,
+    @SerialName("tick-slow") TICK_SLOW,
+
     @SerialName("move") MOVE,
     @SerialName("jump") JUMP,
     @SerialName("sneak") SNEAK,
@@ -72,6 +75,8 @@ enum class Trigger {
 }
 
 val EQUIPPED_TRIGGERS = setOf(
+    Trigger.TICK,
+    Trigger.TICK_SLOW,
     Trigger.MOVE,
     Trigger.JUMP,
     Trigger.SNEAK,

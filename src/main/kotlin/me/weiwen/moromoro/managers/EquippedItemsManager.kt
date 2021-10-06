@@ -11,21 +11,16 @@ import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.equipmentSlot
 import org.bukkit.entity.Player
 import org.bukkit.event.*
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.EntityToggleGlideEvent
-import org.bukkit.event.entity.EntityToggleSwimEvent
-import org.bukkit.event.player.*
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import java.util.*
 
-class EquippedItemsManager(private val plugin: Moromoro) : Listener {
+class EquippedItemsManager(private val plugin: Moromoro) {
     private val equippedItems: MutableMap<UUID,
             MutableMap<Trigger,
                     MutableMap<PlayerArmorChangeEvent.SlotType, Pair<ItemStack, List<Action>>>>> = mutableMapOf()
 
     fun enable() {
-        plugin.server.pluginManager.registerEvents(EquippedItemsManager(plugin), plugin)
         runEquipTriggers()
     }
 
@@ -83,7 +78,6 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerArmorChange(event: PlayerArmorChangeEvent) {
         if (event.newItem == event.oldItem) return
 
@@ -92,7 +86,7 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
 
             // Skip if in wrong slot
             val slots = plugin.itemManager.templates[key]?.slots ?: return
-            if (slots.isNotEmpty() && event.slotType.equipmentSlot in slots) {
+            if (slots.isNotEmpty() && event.slotType.equipmentSlot !in slots) {
                 return
             }
 
@@ -126,7 +120,7 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
 
             // Skip if in wrong slot
             val slots = plugin.itemManager.templates[key]?.slots ?: return
-            if (slots.isNotEmpty() && event.slotType.equipmentSlot in slots) {
+            if (slots.isNotEmpty() && event.slotType.equipmentSlot !in slots) {
                 return
             }
 
@@ -161,7 +155,7 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
         }
     }
 
-    private fun runEquipTriggers(event: Event, player: Player, trigger: Trigger) {
+    fun runEquipTriggers(event: Event?, player: Player, trigger: Trigger) {
         runTriggers(event, player, player.inventory.itemInMainHand, EquipmentSlot.HAND, trigger)
         runTriggers(event, player, player.inventory.itemInOffHand, EquipmentSlot.OFF_HAND, trigger)
 
@@ -176,7 +170,11 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
         }
     }
 
-    private fun runTriggers(event: Event, player: Player, item: ItemStack, slot: EquipmentSlot, trigger: Trigger) {
+    fun cleanUp(player: Player) {
+        equippedItems.remove(player.uniqueId)
+    }
+
+    private fun runTriggers(event: Event?, player: Player, item: ItemStack, slot: EquipmentSlot, trigger: Trigger) {
         val key = item.customItemKey ?: return
 
         // Skip if in wrong slot
@@ -196,57 +194,4 @@ class EquippedItemsManager(private val plugin: Moromoro) : Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerMove(event: PlayerMoveEvent) {
-        runEquipTriggers(event, event.player, Trigger.MOVE)
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerJump(event: PlayerJumpEvent) {
-        runEquipTriggers(event, event.player, Trigger.JUMP)
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    fun onPlayerToggleSneak(event: PlayerToggleSneakEvent) {
-        val trigger = if (event.isSneaking) Trigger.SNEAK else Trigger.UNSNEAK
-        runEquipTriggers(event, event.player, trigger)
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerToggleSprint(event: PlayerToggleSprintEvent) {
-        val trigger = if (event.isSprinting) Trigger.SPRINT else Trigger.UNSPRINT
-        runEquipTriggers(event, event.player, trigger)
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerToggleFlight(event: PlayerToggleFlightEvent) {
-        val trigger = if (event.isFlying) Trigger.FLY else Trigger.UNFLY
-        runEquipTriggers(event, event.player, trigger)
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerToggleGlide(event: EntityToggleGlideEvent) {
-        val player = event.entity as? Player ?: return
-        val trigger = if (event.isGliding) Trigger.GLIDE else Trigger.UNGLIDE
-        runEquipTriggers(event, player, trigger)
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerToggleSwim(event: EntityToggleSwimEvent) {
-        val player = event.entity as? Player ?: return
-        val trigger = if (event.isSwimming) Trigger.SWIM else Trigger.UNSWIM
-        runEquipTriggers(event, player, trigger)
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerDamaged(event: EntityDamageEvent) {
-        val player = event.entity as? Player ?: return
-        runEquipTriggers(event, player, Trigger.DAMAGED)
-    }
-
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerQuit(event: PlayerQuitEvent) {
-        // Cleanup
-        equippedItems.remove(event.player.uniqueId)
-    }
 }

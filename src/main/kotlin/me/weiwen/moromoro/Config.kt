@@ -15,6 +15,11 @@ data class MoromoroConfig(
     @SerialName("discover-all-recipes")
     val discoverAllRecipes: Boolean = true,
 
+    @SerialName("tick-interval")
+    val tickInterval: Long = 1,
+    @SerialName("tick-slow-interval")
+    val tickSlowInterval: Long = 10,
+
     @SerialName("resource-pack-url")
     val resourcePackUrl: String? = null,
     @SerialName("resource-pack-hash")

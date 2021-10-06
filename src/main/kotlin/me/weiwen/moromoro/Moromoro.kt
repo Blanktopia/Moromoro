@@ -19,7 +19,8 @@ class Moromoro: JavaPlugin() {
 
     val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this) }
     val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
-    val flyItemsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
+    val playerListener: PlayerListener by lazy { PlayerListener(this, equippedItemsManager) }
+    val flyInClaimsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
     val blockManager: BlockManager by lazy { BlockManager(this) }
     val itemManager: ItemManager by lazy { ItemManager(this, blockManager) }
     val recipeManager: RecipeManager by lazy { RecipeManager(this) }
@@ -33,7 +34,6 @@ class Moromoro: JavaPlugin() {
     }
 
     override fun onEnable() {
-        server.pluginManager.registerEvents(PlayerListener(this), this)
         server.pluginManager.registerEvents(RecipeListener(this), this)
         server.pluginManager.registerEvents(CustomBlockListener(this), this)
 
@@ -45,8 +45,9 @@ class Moromoro: JavaPlugin() {
         }
         experienceBoostManager.enable()
         permanentPotionEffectManager.enable()
-        flyItemsManager.enable()
+        flyInClaimsManager.enable()
         equippedItemsManager.enable()
+        playerListener.enable()
         resourcePackManager.enable()
 
         getCommand("pack")?.let {
@@ -71,7 +72,23 @@ class Moromoro: JavaPlugin() {
                         false
                     }
                 }
+                "debug" -> {
+                    if (args.size == 1) {
+                        sender.sendMessage(ChatColor.GOLD.toString() + "${itemManager.keys.size} items, ${recipeManager.recipes.size} recipes loaded.")
+                        true
+                    } else {
+                        val template = itemManager.templates[args[1]]
+                        if (template != null) {
+                            sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                            true
+                        } else {
+                            sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
+                            false
+                        }
+                    }
+                }
                 "reload" -> {
+                    equippedItemsManager.disable()
                     if (args.size == 1) {
                         config = parseConfig(this)
                         itemManager.load()
@@ -88,6 +105,7 @@ class Moromoro: JavaPlugin() {
                             }
                         }
                     }
+                    equippedItemsManager.enable()
                     sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
                     true
                 }
@@ -115,8 +133,9 @@ class Moromoro: JavaPlugin() {
         }
 
         resourcePackManager.disable()
+        playerListener.disable()
         equippedItemsManager.disable()
-        flyItemsManager.disable()
+        flyInClaimsManager.disable()
         permanentPotionEffectManager.disable()
         experienceBoostManager.disable()
         recipeManager.disable()
