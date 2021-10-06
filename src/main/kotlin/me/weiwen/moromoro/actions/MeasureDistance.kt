@@ -4,7 +4,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bukkit.ChatColor
 import org.bukkit.Location
+import org.bukkit.Particle
+import org.bukkit.Vibration
 import org.bukkit.util.Vector
+import java.lang.Math.abs
 import java.text.DecimalFormat
 import java.util.*
 
@@ -23,8 +26,11 @@ data class MeasureDistance(@SerialName("is-origin") val isOrigin: Boolean = fals
         if (!isOrigin && location != null) {
             val distance = DecimalFormat("#.#").format(location.distance(block.location) + 1)
             val d = location.toVector().subtract(block.location.toVector()).add(Vector(1, 1, 1))
-            player.sendActionBar("${ChatColor.GOLD}Distance: $distance blocks (x: ${d.x}, y: ${d.y}, z: ${d.z})")
 
+            player.sendActionBar("${ChatColor.GOLD}Distance: $distance blocks (x: ${d.blockX}, y: ${d.blockY}, z: ${d.blockZ}, volume: ${abs(d.blockX * d.blockY * d.blockZ)})")
+
+            val vibration = Vibration(block.location, Vibration.Destination.BlockDestination(location.block), 20)
+            player.spawnParticle(Particle.VIBRATION, block.location, 1, vibration)
         } else {
             player.sendActionBar("${ChatColor.GOLD}Right click another block to measure the distance.")
             locations[player.uniqueId] = block.location
