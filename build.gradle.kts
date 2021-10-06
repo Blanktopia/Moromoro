@@ -15,6 +15,7 @@ version = "1.0.0"
 
 repositories {
     jcenter()
+    mavenCentral()
 
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("https://papermc.io/repo/repository/maven-public") }
