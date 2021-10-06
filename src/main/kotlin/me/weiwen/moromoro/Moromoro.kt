@@ -18,6 +18,7 @@ class Moromoro: JavaPlugin() {
     var config: MoromoroConfig = parseConfig(this)
 
     val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this) }
+    val itemProjectileManager: ItemProjectileManager by lazy { ItemProjectileManager(this) }
     val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
     val playerListener: PlayerListener by lazy { PlayerListener(this, equippedItemsManager) }
     val flyInClaimsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
@@ -48,6 +49,7 @@ class Moromoro: JavaPlugin() {
         flyInClaimsManager.enable()
         equippedItemsManager.enable()
         playerListener.enable()
+        itemProjectileManager.enable()
         resourcePackManager.enable()
 
         getCommand("pack")?.let {
