@@ -7,13 +7,9 @@ import org.bukkit.Bukkit
 
 @Serializable
 @SerialName("remove-permission")
-data class RemovePermission(val command: String, val permissions: List<String>) : Action {
+data class RemovePermission(val permissions: List<String>) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
-
-        if (!Bukkit.getServer().pluginManager.isPluginEnabled("Vault")) {
-            return false
-        }
 
         val permissionsApi =
             Bukkit.getServer().servicesManager.getRegistration(Permission::class.java)?.provider ?: return false

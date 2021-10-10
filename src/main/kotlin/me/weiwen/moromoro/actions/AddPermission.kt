@@ -7,13 +7,9 @@ import org.bukkit.Bukkit
 
 @Serializable
 @SerialName("add-permission")
-data class AddPermission(val command: String, val permissions: List<String>) : Action {
+data class AddPermission(val permissions: List<String>) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
-
-        if (!Bukkit.getServer().pluginManager.isPluginEnabled("Vault")) {
-            return false
-        }
 
         val permissionsApi =
             Bukkit.getServer().servicesManager.getRegistration(Permission::class.java)?.provider ?: return false
