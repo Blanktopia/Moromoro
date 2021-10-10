@@ -2,10 +2,7 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.weiwen.moromoro.extensions.playSoundAt
 import org.bukkit.Particle
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
 import org.bukkit.util.Vector
 import kotlin.math.PI
 

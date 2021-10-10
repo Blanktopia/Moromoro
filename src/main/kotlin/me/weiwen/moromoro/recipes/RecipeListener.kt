@@ -1,7 +1,8 @@
-package me.weiwen.moromoro.listeners
+package me.weiwen.moromoro.recipes
 
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.customItemKey
+import me.weiwen.moromoro.managers.RecipeManager
 import org.bukkit.Keyed
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -9,13 +10,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ComplexRecipe
-import java.util.logging.Level
 
-class RecipeListener(val plugin: Moromoro) : Listener {
+class RecipeListener(val plugin: Moromoro, val recipeManager: RecipeManager) : Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onPlayerJoin(event: PlayerJoinEvent) {
         if (plugin.config.discoverAllRecipes) {
-            plugin.recipeManager.recipes.keys.forEach {
+            recipeManager.recipes.keys.forEach {
                 event.player.discoverRecipe(it)
             }
         }

@@ -4,13 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.pitch
-import me.weiwen.moromoro.extensions.playSoundAt
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
-import org.bukkit.entity.AbstractArrow
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.Item
-import org.bukkit.entity.Projectile
 
 @Serializable
 @SerialName("launch-item-projectile")

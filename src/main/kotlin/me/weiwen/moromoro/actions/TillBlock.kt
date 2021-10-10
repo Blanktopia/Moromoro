@@ -3,13 +3,10 @@ package me.weiwen.moromoro.actions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.extensions.canBuildAt
-import me.weiwen.moromoro.extensions.canMineBlock
 import me.weiwen.moromoro.extensions.playSoundAt
-import me.weiwen.moromoro.extensions.stripped
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
-import org.bukkit.block.data.Orientable
 import org.bukkit.util.Vector
 
 @Serializable

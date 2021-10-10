@@ -2,9 +2,9 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.canMineBlock
+import me.weiwen.moromoro.managers.CustomBlock
 import org.bukkit.GameMode
 import org.bukkit.util.Vector
 
@@ -45,11 +45,13 @@ data class BreakBlock(val radius: Int = 0, val depth: Int = 0) : Action {
                     val other = loc.block
                     if (other.type.hardness > hardness) continue
                     if (!item.type.canMineBlock(other)) continue
-                    Moromoro.plugin.blockManager.breakNaturally(
-                        item,
-                        other,
-                        player.gameMode != GameMode.CREATIVE
-                    )
+
+                    val customBlock = CustomBlock.fromBlock(other)
+                    if (customBlock != null) {
+                        customBlock.breakNaturally(item, player.gameMode != GameMode.CREATIVE)
+                    } else {
+                        other.breakNaturally(item)
+                    }
                 }
             }
         }

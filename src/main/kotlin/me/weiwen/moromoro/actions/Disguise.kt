@@ -16,7 +16,8 @@ sealed class DisguiseData {
 
 @Serializable
 @SerialName("mob")
-data class MobDisguiseData(val entity: EntityType, val baby: Boolean = false, override val burning: Boolean = false) : DisguiseData()
+data class MobDisguiseData(val entity: EntityType, val baby: Boolean = false, override val burning: Boolean = false) :
+    DisguiseData()
 
 @Serializable
 @SerialName("player")
@@ -24,11 +25,13 @@ data class PlayerDisguiseData(val player: String, override val burning: Boolean 
 
 @Serializable
 @SerialName("block")
-data class BlockDisguiseData(val material: Material, val data: Int = 0, override val burning: Boolean = false) : DisguiseData()
+data class BlockDisguiseData(val material: Material, val data: Int = 0, override val burning: Boolean = false) :
+    DisguiseData()
 
 @Serializable
 @SerialName("item")
-data class ItemDisguiseData(val material: Material, val amount: Int = 1, override val burning: Boolean = false) : DisguiseData()
+data class ItemDisguiseData(val material: Material, val amount: Int = 1, override val burning: Boolean = false) :
+    DisguiseData()
 
 val DisguiseData.disguise: Disguise
     get() = when (this) {

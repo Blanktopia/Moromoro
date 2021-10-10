@@ -1,4 +1,4 @@
-package me.weiwen.moromoro.listeners
+package me.weiwen.moromoro.items
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
 import com.destroystokyo.paper.event.player.PlayerJumpEvent
@@ -7,14 +7,12 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
-import me.weiwen.moromoro.managers.EquippedItemsManager
 import me.weiwen.moromoro.managers.item
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.entity.ThrowableProjectile
-import org.bukkit.entity.Trident
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -32,9 +30,9 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 import java.util.logging.Level
 
-class PlayerListener(val plugin: Moromoro, private val equippedItemsManager: EquippedItemsManager) : Listener {
-    private var tickTask: Int = 0
-    private var tickSlowTask: Int = 0
+class ItemListener(val plugin: Moromoro, private val equippedItemsManager: EquippedItemsManager) : Listener {
+    private var tickTask: Int = -1
+    private var tickSlowTask: Int = -1
 
     fun enable() {
         plugin.server.pluginManager.registerEvents(this, plugin)
@@ -61,10 +59,10 @@ class PlayerListener(val plugin: Moromoro, private val equippedItemsManager: Equ
     }
 
     fun disable() {
-        if (tickTask != 0) {
+        if (tickTask != -1) {
             plugin.server.scheduler.cancelTask(tickTask)
         }
-        if (tickSlowTask != 0) {
+        if (tickSlowTask != -1) {
             plugin.server.scheduler.cancelTask(tickSlowTask)
         }
     }

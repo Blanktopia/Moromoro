@@ -1,4 +1,4 @@
-package me.weiwen.moromoro.managers
+package me.weiwen.moromoro.resourcepack
 
 import me.weiwen.moromoro.Moromoro
 import org.bukkit.ChatColor

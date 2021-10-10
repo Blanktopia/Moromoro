@@ -2,9 +2,6 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.weiwen.moromoro.extensions.playSoundAt
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
 
 @Serializable
 @SerialName("heal")

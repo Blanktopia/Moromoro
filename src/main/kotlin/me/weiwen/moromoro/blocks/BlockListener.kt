@@ -1,4 +1,4 @@
-package me.weiwen.moromoro.listeners
+package me.weiwen.moromoro.blocks
 
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
@@ -9,9 +9,7 @@ import me.gsit.api.GSitAPI
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.*
-import me.weiwen.moromoro.managers.customBlockState
 import org.bukkit.*
-import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
@@ -30,10 +28,12 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
 import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction
+import me.weiwen.moromoro.managers.*
 import org.bukkit.SoundCategory
 
 
-class CustomBlockListener(val plugin: Moromoro) : Listener {
+class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager, val itemManager: ItemManager) :
+    Listener {
     val gSitApi: GSitAPI by lazy { GSitAPI() }
 
     init {
@@ -62,18 +62,11 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
                     }
 
                     // Break custom blocks
-                    if (entity.type == EntityType.ITEM_FRAME) {
-                        if (!entity.persistentDataContainer.has(
-                                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                                PersistentDataType.STRING
-                            )
-                        ) {
-                            return@scheduleSyncDelayedTask
-                        }
-                        (entity as ItemFrame).breakCustomBlock()
-                        e.isCancelled = true
-                    }
+                    val itemFrame = entity as? ItemFrame ?: return@scheduleSyncDelayedTask
+                    val customBlock = ItemFrameCustomBlock.fromItemFrame(itemFrame) ?: return@scheduleSyncDelayedTask
+                    customBlock.breakNaturally(null, true)
 
+                    e.isCancelled = true
                 }
             }
         })
@@ -99,30 +92,30 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
     fun onBlockBreak(event: BlockBreakEvent) {
         val block = event.block
 
-        if (block.customBlockState == null) {
-            return
+        // Mushroom Blocks
+        val customBlock = MushroomCustomBlock.fromBlock(block)
+        if (customBlock != null) {
+            event.isCancelled = true
+            customBlock.breakNaturally(
+                event.player.inventory.itemInMainHand,
+                event.player.gameMode != GameMode.CREATIVE
+            )
         }
-
-        event.isCancelled = true
-
-        plugin.blockManager.breakNaturally(
-            event.player.inventory.itemInMainHand,
-            block,
-            event.player.gameMode != GameMode.CREATIVE
-        )
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerInteract(event: PlayerInteractEvent) {
-        val block = event.clickedBlock
+        val block = event.clickedBlock ?: return
 
-        // Break custom blocks
+        // Item Frame Barrier Blocks
         if (event.action == Action.LEFT_CLICK_BLOCK) {
-            if (block?.type == Material.BARRIER) {
-                if (!event.player.canBuildAt(block.location)) {
-                    return
-                }
-                if (block.breakCustomBlock()) {
+            var customBlock = ItemFrameCustomBlock.fromBlock(block) ?: ItemFrameCustomBlock.fromBlock(
+                block.getRelative(
+                    event.blockFace
+                )
+            )
+            if (customBlock != null && event.player.canBuildAt(block.location)) {
+                if (customBlock.breakNaturally(event.player.inventory.itemInMainHand, true)) {
                     event.setUseItemInHand(Event.Result.DENY)
                     event.setUseInteractedBlock(Event.Result.DENY)
                     return
@@ -142,6 +135,40 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
             else -> return
         }
 
+        // Sit
+        if (event.hand == EquipmentSlot.HAND && event.action == Action.RIGHT_CLICK_BLOCK && item.type == Material.AIR) {
+            var customBlock = ItemFrameCustomBlock.fromBlock(
+                block.getRelative(
+                    event.blockFace
+                )
+            )
+
+            if (customBlock != null) {
+                val sitHeight = blockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
+
+                val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(customBlock.itemFrame.facing.direction)
+                val seatLocation = customBlock.itemFrame.location.block.location.apply {
+                    rotation = customBlock.itemFrame.rotation
+                }
+
+                gSitApi.setPlayerSeat(
+                    event.player,
+                    seatLocation,
+                    offset.x,
+                    offset.y,
+                    offset.z,
+                    seatLocation.yaw,
+                    seatLocation,
+                    false,
+                    true
+                )
+
+                event.setUseItemInHand(Event.Result.DENY)
+
+                return
+            }
+        }
+
         val key = item.customItemKey ?: return
 
         // Cancel if interacting with a block
@@ -153,11 +180,11 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
             }
         }
 
-        val blockTemplate = plugin.blockManager.blockTemplates[key] ?: return
+        val blockTemplate = blockManager.blockTemplates[key] ?: return
 
         event.setUseItemInHand(Event.Result.DENY)
 
-        if (event.action == Action.RIGHT_CLICK_BLOCK && block != null) {
+        if (event.action == Action.RIGHT_CLICK_BLOCK) {
             if (!event.player.canBuildAt(block.location)) {
                 return
             }
@@ -210,93 +237,48 @@ class CustomBlockListener(val plugin: Moromoro) : Listener {
             return
         }
 
-        val entity = event.rightClicked
+        val item = when (event.hand) {
+            EquipmentSlot.HAND -> event.player.inventory.itemInMainHand
+            EquipmentSlot.OFF_HAND -> event.player.inventory.itemInOffHand
+            else -> return
+        }
+        if (item.type != Material.AIR) {
+            return
+        }
+
+        val itemFrame = event.rightClicked as? ItemFrame ?: return
+        val customBlock = ItemFrameCustomBlock.fromItemFrame(itemFrame) ?: return
 
         // Sit
-        if (entity.type == EntityType.ITEM_FRAME && entity is ItemFrame) {
-            val key = entity.persistentDataContainer.get(
-                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                PersistentDataType.STRING
-            ) ?: return
+        val sitHeight = blockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
 
-            val sitHeight = plugin.blockManager.blockTemplates[key]?.sitHeight ?: return
-
-            val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(entity.facing.direction)
-            val seatLocation = entity.location.block.location.apply {
-                rotation = entity.rotation
-            }
-
-            gSitApi.setPlayerSeat(
-                event.player,
-                seatLocation,
-                offset.x,
-                offset.y,
-                offset.z,
-                seatLocation.yaw,
-                seatLocation,
-                false,
-                true
-            )
-
-            event.isCancelled = true
+        val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(itemFrame.facing.direction)
+        val seatLocation = itemFrame.location.block.location.apply {
+            rotation = itemFrame.rotation
         }
+
+        gSitApi.setPlayerSeat(
+            event.player,
+            seatLocation,
+            offset.x,
+            offset.y,
+            offset.z,
+            seatLocation.yaw,
+            seatLocation,
+            false,
+            true
+        )
+
+        event.isCancelled = true
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onItemFrameBreak(event: HangingBreakEvent) {
-        if (!event.entity.persistentDataContainer.has(
-                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                PersistentDataType.STRING
-            )
-        ) {
-            return
-        }
+        val itemFrame = event.entity as? ItemFrame ?: return
+        val customBlock = ItemFrameCustomBlock.fromItemFrame(itemFrame) ?: return
+
+        customBlock.breakNaturally(null, true)
 
         event.isCancelled = true
     }
 }
-
-fun Block.breakCustomBlock(): Boolean {
-    val location = location.add(0.5, 0.5, 0.5)
-
-    val itemFrames = world.getNearbyEntities(location, 0.5, 0.5, 0.5) {
-        it.type == EntityType.ITEM_FRAME &&
-                it.persistentDataContainer.has(
-                    NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                    PersistentDataType.STRING
-                )
-    }
-
-    if (itemFrames.isEmpty()) {
-        return false
-    }
-
-    val itemFrame = itemFrames.first() as? ItemFrame ?: return false
-
-    itemFrame.breakCustomBlock()
-
-    if (type == Material.BARRIER) {
-        type = Material.AIR
-    }
-
-    return true
-}
-
-fun ItemFrame.breakCustomBlock() {
-    persistentDataContainer.get(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING)
-        ?: return
-
-    val item = item
-    item.itemMeta = item.itemMeta?.apply {
-        val template = Moromoro.plugin.itemManager.templates[item.customItemKey] ?: return@apply
-        val name = template.name?.value ?: return@apply
-        setDisplayName(name)
-    }
-
-    remove()
-
-    world.dropItemNaturally(this.location.clone().subtract(Vector(0.5, 0.5, 0.5)), item)
-
-    playSoundAt(Sound.BLOCK_WOOD_BREAK, SoundCategory.BLOCKS, 1.0f, 1.0f)
-}
-

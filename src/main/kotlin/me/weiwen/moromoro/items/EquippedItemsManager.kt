@@ -1,7 +1,6 @@
-package me.weiwen.moromoro.managers
+package me.weiwen.moromoro.items
 
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
-import com.destroystokyo.paper.event.player.PlayerJumpEvent
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
@@ -10,7 +9,8 @@ import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.equipmentSlot
 import org.bukkit.entity.Player
-import org.bukkit.event.*
+import org.bukkit.event.Cancellable
+import org.bukkit.event.Event
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import java.util.*

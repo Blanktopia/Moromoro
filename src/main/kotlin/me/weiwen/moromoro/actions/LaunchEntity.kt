@@ -3,9 +3,6 @@ package me.weiwen.moromoro.actions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.extensions.pitch
-import me.weiwen.moromoro.extensions.playSoundAt
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
 import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Item

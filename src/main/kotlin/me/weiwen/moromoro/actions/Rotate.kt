@@ -5,10 +5,7 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.isPartial
 import me.weiwen.moromoro.extensions.playSoundAt
-import me.weiwen.moromoro.managers.customBlockState
 import me.weiwen.moromoro.managers.isCustomBlock
-import me.weiwen.moromoro.managers.isRestrictedCustomBlockState
-import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
 import org.bukkit.block.Block

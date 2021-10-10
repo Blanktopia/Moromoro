@@ -2,7 +2,6 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import me.weiwen.moromoro.Moromoro
 import org.bukkit.util.Vector
 
 @Serializable

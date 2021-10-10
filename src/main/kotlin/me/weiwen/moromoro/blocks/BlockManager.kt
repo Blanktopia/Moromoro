@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.blocks.BlockListener
 import me.weiwen.moromoro.extensions.*
 import me.weiwen.moromoro.serializers.*
 import org.bukkit.*
@@ -27,6 +28,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.util.Vector
 import kotlin.IllegalArgumentException
 import kotlin.math.max
 import kotlin.random.Random
@@ -56,7 +58,7 @@ class MushroomBlockTemplate(
     override fun place(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         val item = ctx.item ?: return false
-        
+
         val placedAgainst = ctx.block ?: return false
         val blockFace = ctx.blockFace ?: return false
         val placedBlock = placedAgainst.getRelative(blockFace)
@@ -158,7 +160,7 @@ class ItemBlockTemplate(
     }
 }
 
-class BlockManager(val plugin: Moromoro) {
+class BlockManager(val plugin: Moromoro, val itemManager: ItemManager) {
     var blockTemplates: MutableMap<String, BlockTemplate> = mutableMapOf()
         private set
     var brownMushroomStates: MutableMap<Int, String> = mutableMapOf()
@@ -168,9 +170,19 @@ class BlockManager(val plugin: Moromoro) {
     var mushroomStemStates: MutableMap<Int, String> = mutableMapOf()
         private set
 
-    fun enable() {}
+    fun enable() {
+        plugin.server.pluginManager.registerEvents(BlockListener(plugin, this, itemManager), plugin)
+        load()
+    }
 
     fun disable() {}
+
+    fun load() {
+        itemManager
+            .templates
+            .filterValues { it.block != null }
+            .forEach { (key, item) -> register(key, item.block as BlockTemplate) }
+    }
 
     fun register(key: String, blockTemplate: BlockTemplate) {
         blockTemplates.put(key, blockTemplate)
@@ -192,32 +204,47 @@ class BlockManager(val plugin: Moromoro) {
             }?.put(state, key)
         }
     }
+}
 
-    fun breakNaturally(tool: ItemStack, block: Block, dropItem: Boolean): Boolean {
-        val states = when (block.type) {
-            Material.BROWN_MUSHROOM_BLOCK -> brownMushroomStates
-            Material.RED_MUSHROOM_BLOCK -> redMushroomStates
-            Material.MUSHROOM_STEM -> mushroomStemStates
-            else -> return block.breakNaturally(tool)
+sealed interface CustomBlock {
+    companion object {
+        fun fromBlock(block: Block): CustomBlock? {
+            return MushroomCustomBlock.fromBlock(block) ?: ItemFrameCustomBlock.fromBlock(block)
         }
+    }
 
-        val state = block.customBlockState ?: return false
+    fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean
+}
 
-        val key = states[state] ?: return false
+class MushroomCustomBlock(val block: Block, val key: String) : CustomBlock {
+    companion object {
+        fun fromBlock(block: Block): MushroomCustomBlock? {
+            val states = when (block.type) {
+                Material.BROWN_MUSHROOM_BLOCK -> Moromoro.plugin.blockManager.brownMushroomStates
+                Material.RED_MUSHROOM_BLOCK -> Moromoro.plugin.blockManager.redMushroomStates
+                Material.MUSHROOM_STEM -> Moromoro.plugin.blockManager.mushroomStemStates
+                else -> return null
+            }
+            val state = block.customBlockState ?: return null
+            val key = states[state] ?: return null
+            return MushroomCustomBlock(block, key)
+        }
+    }
 
-        val template = plugin.itemManager.templates[key] ?: return false
+    override fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean {
+        val template = Moromoro.plugin.blockManager.itemManager.templates[key] ?: return false
 
         block.setType(Material.AIR, true)
 
         if (dropItem) {
-            val item = if (tool.enchantments.get(Enchantment.SILK_TOUCH) != null) {
-                template.item(key, 1)
-            } else {
+            val item = if (tool?.enchantments?.get(Enchantment.SILK_TOUCH) == null) {
                 template.block?.drops?.clone() ?: template.item(key, 1)
+            } else {
+                template.item(key, 1)
             }
 
             if (template.block?.canFortune == true) {
-                val fortune = tool.enchantments.get(Enchantment.LOOT_BONUS_BLOCKS) ?: 0
+                val fortune = tool?.enchantments?.get(Enchantment.LOOT_BONUS_BLOCKS) ?: 0
                 val multiplier = 1 + max(0, Random.nextInt(fortune + 2) - 2)
                 item.amount *= multiplier
             }
@@ -228,6 +255,93 @@ class BlockManager(val plugin: Moromoro) {
         block.playSoundAt(Sound.BLOCK_WOOD_BREAK, SoundCategory.BLOCKS, 1.0f, 1.0f)
 
         return true
+    }
+}
+
+open class ItemFrameCustomBlock(val block: Block, val itemFrame: ItemFrame, val key: String) : CustomBlock {
+    companion object {
+        fun fromItemFrame(itemFrame: ItemFrame): ItemFrameCustomBlock? {
+            val block = itemFrame.location.block
+            val key = itemFrame.persistentDataContainer.get(
+                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                PersistentDataType.STRING
+            ) ?: return null
+
+            return if (block.type == Material.BARRIER) {
+                ItemFrameBarrierCustomBlock(block, itemFrame, key)
+            } else {
+                ItemFrameCustomBlock(block, itemFrame, key)
+            }
+        }
+
+        fun fromBlock(block: Block): ItemFrameCustomBlock? {
+            val location = block.location.add(0.5, 0.5, 0.5)
+
+            val itemFrames = location.world.getNearbyEntities(location, 0.5, 0.5, 0.5) {
+                it.type == EntityType.ITEM_FRAME &&
+                        it.persistentDataContainer.has(
+                            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                            PersistentDataType.STRING
+                        )
+            }
+
+            if (itemFrames.isEmpty()) {
+                return null
+            }
+
+            val itemFrame = itemFrames.first() as? ItemFrame ?: return null
+
+            return if (block.type == Material.BARRIER) {
+                ItemFrameBarrierCustomBlock(
+                    block,
+                    itemFrame,
+                    itemFrame.persistentDataContainer.get(
+                        NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                        PersistentDataType.STRING
+                    ) ?: return null
+                )
+            } else {
+                ItemFrameCustomBlock(
+                    block,
+                    itemFrame,
+                    itemFrame.persistentDataContainer.get(
+                        NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                        PersistentDataType.STRING
+                    ) ?: return null
+                )
+            }
+        }
+    }
+
+    override fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean {
+        val item = itemFrame.item
+        item.itemMeta = item.itemMeta?.apply {
+            val template = Moromoro.plugin.blockManager.itemManager.templates[key] ?: return@apply
+            val name = template.name?.value ?: return@apply
+            setDisplayName(name)
+        }
+
+        itemFrame.remove()
+
+        if (dropItem) {
+            block.world.dropItemNaturally(block.location.clone().subtract(Vector(0.5, 0.5, 0.5)), item)
+        }
+
+        block.playSoundAt(Sound.BLOCK_WOOD_BREAK, SoundCategory.BLOCKS, 1.0f, 1.0f)
+
+        return true
+    }
+}
+
+class ItemFrameBarrierCustomBlock(block: Block, itemFrame: ItemFrame, key: String) :
+    ItemFrameCustomBlock(block, itemFrame, key) {
+
+    override fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean {
+        if (super.breakNaturally(tool, dropItem)) {
+            block.setType(Material.AIR, true)
+            return true
+        }
+        return false
     }
 }
 
@@ -306,7 +420,8 @@ var Block.customBlockState: Int?
     get() {
         if (type != Material.BROWN_MUSHROOM_BLOCK
             && type != Material.RED_MUSHROOM_BLOCK
-            && type != Material.MUSHROOM_STEM) {
+            && type != Material.MUSHROOM_STEM
+        ) {
             return null
         }
 
@@ -332,7 +447,8 @@ var Block.customBlockState: Int?
     set(state: Int?) {
         if (type != Material.BROWN_MUSHROOM_BLOCK
             && type != Material.RED_MUSHROOM_BLOCK
-            && type != Material.MUSHROOM_STEM) {
+            && type != Material.MUSHROOM_STEM
+        ) {
             return
         }
         val multipleFacing = blockData as? MultipleFacing ?: return

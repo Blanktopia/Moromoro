@@ -20,6 +20,8 @@ import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
 import me.weiwen.moromoro.extensions.*
+import me.weiwen.moromoro.items.EquippedItemsManager
+import me.weiwen.moromoro.items.ItemListener
 import me.weiwen.moromoro.serializers.*
 import org.bukkit.*
 import org.bukkit.attribute.Attribute
@@ -117,7 +119,7 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
 }
 
 
-class ItemManager(val plugin: Moromoro, val blockManager: BlockManager) {
+class ItemManager(val plugin: Moromoro, private val equippedItemsManager: EquippedItemsManager) {
     var keys: Set<String> = setOf()
         private set
     var templates: Map<String, ItemTemplate> = mapOf()
@@ -125,11 +127,18 @@ class ItemManager(val plugin: Moromoro, val blockManager: BlockManager) {
     var triggers: MutableMap<String, Map<Trigger, List<Action>>> = mutableMapOf()
         private set
 
+    val itemListener: ItemListener by lazy {
+        ItemListener(plugin, equippedItemsManager)
+    }
+
     fun enable() {
+        itemListener.enable()
         load()
     }
 
-    fun disable() {}
+    fun disable() {
+        itemListener.disable()
+    }
 
     fun load() {
         val directory = File(plugin.dataFolder, "items")
@@ -148,10 +157,6 @@ class ItemManager(val plugin: Moromoro, val blockManager: BlockManager) {
             .associate { it }
 
         keys = templates.keys
-
-        templates
-            .filterValues { it.block != null }
-            .forEach { (key, item) -> blockManager.register(key, item.block as BlockTemplate) }
     }
 
     private val json = Json {

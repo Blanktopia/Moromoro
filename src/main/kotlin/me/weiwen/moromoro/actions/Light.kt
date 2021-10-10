@@ -5,14 +5,10 @@ package me.weiwen.moromoro.actions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import me.weiwen.moromoro.extensions.isPartiallyEmpty
 import me.weiwen.moromoro.extensions.playSoundAt
 import me.weiwen.moromoro.extensions.spawnParticle
 import me.weiwen.moromoro.serializers.MaterialSerializer
 import org.bukkit.*
-import org.bukkit.block.Block
-import org.bukkit.block.BlockFace
-import org.bukkit.block.data.Directional
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 

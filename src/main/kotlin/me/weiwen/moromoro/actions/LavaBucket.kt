@@ -7,7 +7,6 @@ import me.weiwen.moromoro.extensions.isPartiallyEmpty
 import me.weiwen.moromoro.extensions.playSoundAt
 import org.bukkit.*
 import org.bukkit.block.data.Levelled
-import org.bukkit.block.data.Waterlogged
 
 @Serializable
 @SerialName("lava-bucket")

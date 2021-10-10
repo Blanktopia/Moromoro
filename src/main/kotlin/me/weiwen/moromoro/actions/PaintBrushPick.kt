@@ -3,7 +3,6 @@ package me.weiwen.moromoro.actions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.Moromoro
-import me.weiwen.moromoro.MoromoroConfig
 import me.weiwen.moromoro.extensions.color
 import me.weiwen.moromoro.extensions.playSoundAt
 import net.md_5.bungee.api.ChatColor

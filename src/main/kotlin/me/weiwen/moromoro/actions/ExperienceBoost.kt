@@ -7,8 +7,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.managers.addExperienceBoost
 import me.weiwen.moromoro.serializers.PotionEffectTypeSerializer
-import org.bukkit.potion.PotionEffect
-import org.bukkit.potion.PotionEffectType
 
 @Serializable
 @SerialName("experience-boost")

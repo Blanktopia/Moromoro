@@ -12,6 +12,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.actionModule
+import me.weiwen.moromoro.recipes.RecipeListener
 import me.weiwen.moromoro.serializers.ItemStackSerializer
 import me.weiwen.moromoro.serializers.RecipeChoiceSerializer
 import org.bukkit.NamespacedKey
@@ -137,6 +138,7 @@ class RecipeManager(val plugin: Moromoro) {
         private set
 
     fun enable() {
+        plugin.server.pluginManager.registerEvents(RecipeListener(plugin, this), plugin)
         load()
     }
 

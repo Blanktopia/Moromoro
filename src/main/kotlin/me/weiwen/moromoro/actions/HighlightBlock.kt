@@ -5,7 +5,7 @@ package me.weiwen.moromoro.actions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import me.weiwen.moromoro.extensions.*
+import me.weiwen.moromoro.extensions.highlightBlock
 import me.weiwen.moromoro.serializers.MaterialSerializer
 
 @Serializable

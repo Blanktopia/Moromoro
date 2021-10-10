@@ -27,7 +27,13 @@ data class MeasureDistance(@SerialName("is-origin") val isOrigin: Boolean = fals
             val distance = DecimalFormat("#.#").format(location.distance(block.location) + 1)
             val d = location.toVector().subtract(block.location.toVector()).add(Vector(1, 1, 1))
 
-            player.sendActionBar("${ChatColor.GOLD}Distance: $distance blocks (x: ${d.blockX}, y: ${d.blockY}, z: ${d.blockZ}, volume: ${abs(d.blockX * d.blockY * d.blockZ)})")
+            player.sendActionBar(
+                "${ChatColor.GOLD}Distance: $distance blocks (x: ${d.blockX}, y: ${d.blockY}, z: ${d.blockZ}, volume: ${
+                    abs(
+                        d.blockX * d.blockY * d.blockZ
+                    )
+                })"
+            )
 
             val vibration = Vibration(block.location, Vibration.Destination.BlockDestination(location.block), 20)
             player.spawnParticle(Particle.VIBRATION, block.location, 1, vibration)
