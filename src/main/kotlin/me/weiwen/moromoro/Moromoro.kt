@@ -2,9 +2,8 @@ package me.weiwen.moromoro
 
 import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.items.EquippedItemsManager
-import me.weiwen.moromoro.blocks.BlockListener
 import me.weiwen.moromoro.items.ItemListener
-import me.weiwen.moromoro.recipes.RecipeListener
+import me.weiwen.moromoro.items.TrinketManager
 import me.weiwen.moromoro.managers.*
 import me.weiwen.moromoro.projectiles.ItemProjectileManager
 import me.weiwen.moromoro.resourcepack.ResourcePackManager
@@ -20,36 +19,45 @@ class Moromoro : JavaPlugin() {
 
     var config: MoromoroConfig = parseConfig(this)
 
-    val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this) }
-    val itemProjectileManager: ItemProjectileManager by lazy { ItemProjectileManager(this) }
-    val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this) }
-    val itemManager: ItemManager by lazy { ItemManager(this, equippedItemsManager) }
+    private val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this) }
+    private val itemManager: ItemManager by lazy { ItemManager(this) }
+    private val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this, itemManager) }
+    private val trinketManager: TrinketManager by lazy { TrinketManager(this, itemManager) }
+    private val itemListener: ItemListener by lazy { ItemListener(plugin, itemManager, equippedItemsManager, trinketManager) }
     val blockManager: BlockManager by lazy { BlockManager(this, itemManager) }
-    val recipeManager: RecipeManager by lazy { RecipeManager(this) }
+    private val recipeManager: RecipeManager by lazy { RecipeManager(this, itemManager) }
 
-    val flyInClaimsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
-    val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
-    val experienceBoostManager: ExperienceBoostManager by lazy { ExperienceBoostManager(this) }
+    private val flyInClaimsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
+    private val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
+    private val experienceBoostManager: ExperienceBoostManager by lazy { ExperienceBoostManager(this) }
+    val itemProjectileManager: ItemProjectileManager by lazy { ItemProjectileManager(this) }
 
-    val essentialsHook: EssentialsHook by lazy { EssentialsHook(this) }
+    val essentialsHook: EssentialsHook by lazy { EssentialsHook(this, itemManager) }
 
     override fun onLoad() {
         plugin = this
     }
 
     override fun onEnable() {
-        equippedItemsManager.enable()
-        itemManager.enable()
-        blockManager.enable()
-        if (server.pluginManager.getPlugin("Essentials") != null) {
-            essentialsHook.register()
-            recipeManager.enable()
-        }
         experienceBoostManager.enable()
         permanentPotionEffectManager.enable()
         flyInClaimsManager.enable()
         itemProjectileManager.enable()
+
+        itemManager.enable()
+        equippedItemsManager.enable()
+        trinketManager.enable()
+        itemListener.enable()
+        blockManager.enable()
+        recipeManager.enable()
+
+        if (server.pluginManager.getPlugin("Essentials") != null) {
+            essentialsHook.register()
+        }
+
         resourcePackManager.enable()
+
+        val plugin = this
 
         getCommand("pack")?.let {
             it.setExecutor { sender, _, _, _ ->
@@ -62,63 +70,83 @@ class Moromoro : JavaPlugin() {
             }
         }
 
-        val command = getCommand("moromoro")
-        command?.setExecutor { sender, _, _, args ->
-            when (args[0]) {
-                "rp" -> {
-                    if (sender is Player) {
-                        resourcePackManager.send(sender)
-                        true
-                    } else {
-                        false
-                    }
+        getCommand("trinkets")?.apply {
+            setExecutor { sender, _, _, _ ->
+                if (sender is Player) {
+                    trinketManager.openTrinketInventory(sender)
+                    true
+                } else {
+                    false
                 }
-                "debug" -> {
-                    if (args.size == 1) {
-                        sender.sendMessage(ChatColor.GOLD.toString() + "${itemManager.keys.size} items, ${recipeManager.recipes.size} recipes loaded.")
-                        true
-                    } else {
-                        val template = itemManager.templates[args[1]]
-                        if (template != null) {
-                            sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+            }
+        }
+
+        getCommand("moromoro")?.apply {
+            setExecutor { sender, _, _, args ->
+                when (args[0]) {
+                    "trinkets" -> {
+                        if (sender is Player) {
+                            trinketManager.openTrinketInventory(sender)
                             true
                         } else {
-                            sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
                             false
                         }
                     }
-                }
-                "reload" -> {
-                    equippedItemsManager.disable()
-                    if (args.size == 1) {
-                        config = parseConfig(this)
-                        itemManager.load()
-                        blockManager.load()
-                        recipeManager.load()
-                    } else {
-                        when (args[1]) {
-                            "config" -> parseConfig(this)
-                            "items" -> itemManager.load()
-                            "blocks" -> blockManager.load()
-                            "recipes" -> recipeManager.load()
-                            else -> {
-                                config = parseConfig(this)
-                                itemManager.load()
-                                recipeManager.load()
+                    "rp" -> {
+                        if (sender is Player) {
+                            resourcePackManager.send(sender)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    "debug" -> {
+                        if (args.size == 1) {
+                            sender.sendMessage(ChatColor.GOLD.toString() + "${itemManager.keys.size} items, ${recipeManager.recipes.size} recipes loaded.")
+                            true
+                        } else {
+                            val template = itemManager.templates[args[1]]
+                            if (template != null) {
+                                sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                                true
+                            } else {
+                                sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
+                                false
                             }
                         }
                     }
-                    equippedItemsManager.enable()
-                    sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
-                    true
+                    "reload" -> {
+                        equippedItemsManager.disable()
+                        if (args.size == 1) {
+                            config = parseConfig(plugin)
+                            itemManager.load()
+                            blockManager.load()
+                            recipeManager.load()
+                        } else {
+                            when (args[1]) {
+                                "config" -> parseConfig(plugin)
+                                "items" -> itemManager.load()
+                                "blocks" -> blockManager.load()
+                                "recipes" -> recipeManager.load()
+                                else -> {
+                                    config = parseConfig(plugin)
+                                    itemManager.load()
+                                    recipeManager.load()
+                                }
+                            }
+                        }
+                        equippedItemsManager.enable()
+                        sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
+                        true
+                    }
+                    else -> false
                 }
-                else -> false
             }
-        }
-        command?.setTabCompleter { _, _, _, args ->
-            when (args.size) {
-                0 -> listOf("reload", "rp")
-                else -> listOf()
+            setTabCompleter { _, _, _, args ->
+                when (args.size) {
+                    0 -> listOf("reload", "rp", "trinkets")
+                    else -> listOf()
+                }
             }
         }
 
@@ -136,13 +164,17 @@ class Moromoro : JavaPlugin() {
         }
 
         resourcePackManager.disable()
-        flyInClaimsManager.disable()
-        permanentPotionEffectManager.disable()
-        experienceBoostManager.disable()
+        itemListener.disable()
         recipeManager.disable()
         blockManager.disable()
         itemManager.disable()
+        trinketManager.disable()
         equippedItemsManager.disable()
+
+        itemProjectileManager.disable()
+        flyInClaimsManager.disable()
+        permanentPotionEffectManager.disable()
+        experienceBoostManager.disable()
 
         logger.info("Moromoro is disabled")
     }

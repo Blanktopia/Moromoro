@@ -19,11 +19,16 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
-import me.weiwen.moromoro.extensions.*
+import me.weiwen.moromoro.extensions.setHeadUrl
+import me.weiwen.moromoro.extensions.toRomanNumerals
 import me.weiwen.moromoro.items.EquippedItemsManager
 import me.weiwen.moromoro.items.ItemListener
+import me.weiwen.moromoro.items.TrinketManager
 import me.weiwen.moromoro.serializers.*
-import org.bukkit.*
+import org.bukkit.ChatColor
+import org.bukkit.Color
+import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.EquipmentSlot
@@ -35,6 +40,31 @@ import org.bukkit.persistence.PersistentDataType
 import java.io.File
 import java.util.*
 import java.util.logging.Level
+
+enum class CustomEquipmentSlot {
+    HAND, OFF_HAND, FEET, LEGS, CHEST, HEAD, TRINKET
+}
+
+val EquipmentSlot.customEquipmentSlot: CustomEquipmentSlot
+    get() = when (this) {
+        EquipmentSlot.HAND -> CustomEquipmentSlot.HAND
+        EquipmentSlot.OFF_HAND -> CustomEquipmentSlot.OFF_HAND
+        EquipmentSlot.FEET -> CustomEquipmentSlot.FEET
+        EquipmentSlot.LEGS -> CustomEquipmentSlot.LEGS
+        EquipmentSlot.CHEST -> CustomEquipmentSlot.CHEST
+        EquipmentSlot.HEAD -> CustomEquipmentSlot.HEAD
+    }
+
+val CustomEquipmentSlot.equipmentSlot: EquipmentSlot?
+    get() = when (this) {
+        CustomEquipmentSlot.HAND -> EquipmentSlot.HAND
+        CustomEquipmentSlot.OFF_HAND -> EquipmentSlot.OFF_HAND
+        CustomEquipmentSlot.FEET -> EquipmentSlot.FEET
+        CustomEquipmentSlot.LEGS -> EquipmentSlot.LEGS
+        CustomEquipmentSlot.CHEST -> EquipmentSlot.CHEST
+        CustomEquipmentSlot.HEAD -> EquipmentSlot.HEAD
+        else -> null
+    }
 
 @Serializable
 data class ItemTemplate(
@@ -52,7 +82,7 @@ data class ItemTemplate(
     val dyeable: Boolean = false,
     val triggers: Map<Trigger, List<Action>> = mapOf(),
     val block: BlockTemplate? = null,
-    val slots: Set<EquipmentSlot>? = setOf(),
+    val slots: Set<CustomEquipmentSlot> = setOf(),
 )
 
 @Serializable
@@ -119,7 +149,7 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
 }
 
 
-class ItemManager(val plugin: Moromoro, private val equippedItemsManager: EquippedItemsManager) {
+class ItemManager(val plugin: Moromoro) {
     var keys: Set<String> = setOf()
         private set
     var templates: Map<String, ItemTemplate> = mapOf()
@@ -127,18 +157,11 @@ class ItemManager(val plugin: Moromoro, private val equippedItemsManager: Equipp
     var triggers: MutableMap<String, Map<Trigger, List<Action>>> = mutableMapOf()
         private set
 
-    val itemListener: ItemListener by lazy {
-        ItemListener(plugin, equippedItemsManager)
-    }
-
     fun enable() {
-        itemListener.enable()
         load()
     }
 
-    fun disable() {
-        itemListener.disable()
-    }
+    fun disable() {}
 
     fun load() {
         val directory = File(plugin.dataFolder, "items")

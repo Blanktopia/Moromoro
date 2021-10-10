@@ -7,9 +7,16 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
+import me.weiwen.moromoro.extensions.playSoundTo
+import me.weiwen.moromoro.managers.CustomEquipmentSlot
+import me.weiwen.moromoro.managers.ItemManager
 import me.weiwen.moromoro.managers.item
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.entity.ThrowableProjectile
@@ -30,41 +37,17 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 import java.util.logging.Level
 
-class ItemListener(val plugin: Moromoro, private val equippedItemsManager: EquippedItemsManager) : Listener {
-    private var tickTask: Int = -1
-    private var tickSlowTask: Int = -1
-
+class ItemListener(
+    val plugin: Moromoro,
+    private val itemManager: ItemManager,
+    private val equippedItemsManager: EquippedItemsManager,
+    private val trinketManager: TrinketManager
+) : Listener {
     fun enable() {
         plugin.server.pluginManager.registerEvents(this, plugin)
-        tickTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
-            plugin,
-            { ->
-                plugin.server.onlinePlayers.forEach {
-                    equippedItemsManager.runEquipTriggers(null, it, Trigger.TICK)
-                }
-            },
-            plugin.config.tickInterval,
-            plugin.config.tickInterval
-        )
-        tickSlowTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
-            plugin,
-            { ->
-                plugin.server.onlinePlayers.forEach {
-                    equippedItemsManager.runEquipTriggers(null, it, Trigger.TICK_SLOW)
-                }
-            },
-            plugin.config.tickSlowInterval,
-            plugin.config.tickSlowInterval
-        )
     }
 
     fun disable() {
-        if (tickTask != -1) {
-            plugin.server.scheduler.cancelTask(tickTask)
-        }
-        if (tickSlowTask != -1) {
-            plugin.server.scheduler.cancelTask(tickSlowTask)
-        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
@@ -75,7 +58,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val persistentData = event.projectile.persistentDataContainer
         persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
 
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -99,7 +82,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val persistentData = projectile.persistentDataContainer
         persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
 
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -118,7 +101,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
     fun onProjectileHit(event: ProjectileHitEvent) {
         val key = event.entity.customItemKey ?: return
 
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -171,7 +154,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
             event.blockFace
         )
 
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
         when (event.action) {
             Action.LEFT_CLICK_BLOCK -> {
                 triggers[Trigger.LEFT_CLICK_BLOCK]?.forEach { it.perform(ctx) }
@@ -210,7 +193,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         }
 
         val key = item.customItemKey ?: return
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -239,7 +222,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val item = player.inventory.itemInMainHand
 
         val key = item.customItemKey ?: return
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -264,7 +247,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val item = event.player.inventory.itemInMainHand
 
         val key = item.customItemKey ?: return
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -289,7 +272,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val item = event.player.inventory.itemInMainHand
 
         val key = item.customItemKey ?: return
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -314,7 +297,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val item = event.item
 
         val key = item.customItemKey ?: return
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -342,7 +325,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val item = event.itemDrop.itemStack
 
         val key = item.customItemKey ?: return
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -370,13 +353,14 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onInventoryClick(event: InventoryClickEvent) {
+        val player = event.whoClicked as? Player ?: return
         val inventory = event.clickedInventory ?: return
         val item = inventory.getItem(event.slot) ?: return
 
         val key = item.customItemKey ?: return
 
         // Migrate item data
-        val template = Moromoro.plugin.itemManager.templates[key]
+        val template = itemManager.templates[key]
         if (template != null) {
             val meta = item.itemMeta?.apply {
                 // Migrate custom model data
@@ -403,9 +387,28 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
             }
         }
 
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        // Equip trinket
+        if (event.click == ClickType.RIGHT || event.click == ClickType.SHIFT_RIGHT) {
+            val key = item.customItemKey
+            val template = itemManager.templates[key]
+            if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
+                if (trinketManager.equipTrinket(player, item)) {
+                    event.currentItem = null
+                } else {
+                    player.sendActionBar(
+                        Component.text("Your trinket bag is full.").color(TextColor.color(0xff5555))
+                    )
+                    player.playSoundTo(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 1.0f, 1.0f)
+                }
+                plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
+                    trinketManager.openTrinketInventory(player)
+                }, 1)
 
-        val player = event.whoClicked as? Player ?: return
+                event.isCancelled
+            }
+        }
+
+        val triggers = itemManager.triggers[key] ?: return
 
         val trigger = when (event.click) {
             ClickType.RIGHT -> Trigger.RIGHT_CLICK_INVENTORY
@@ -466,29 +469,34 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerMove(event: PlayerMoveEvent) {
         equippedItemsManager.runEquipTriggers(event, event.player, Trigger.MOVE)
+        trinketManager.runEquipTriggers(event, event.player, Trigger.MOVE)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerJump(event: PlayerJumpEvent) {
         equippedItemsManager.runEquipTriggers(event, event.player, Trigger.JUMP)
+        trinketManager.runEquipTriggers(event, event.player, Trigger.JUMP)
     }
 
     @EventHandler(ignoreCancelled = true)
     fun onPlayerToggleSneak(event: PlayerToggleSneakEvent) {
         val trigger = if (event.isSneaking) Trigger.SNEAK else Trigger.UNSNEAK
         equippedItemsManager.runEquipTriggers(event, event.player, trigger)
+        trinketManager.runEquipTriggers(event, event.player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerToggleSprint(event: PlayerToggleSprintEvent) {
         val trigger = if (event.isSprinting) Trigger.SPRINT else Trigger.UNSPRINT
         equippedItemsManager.runEquipTriggers(event, event.player, trigger)
+        trinketManager.runEquipTriggers(event, event.player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerToggleFlight(event: PlayerToggleFlightEvent) {
         val trigger = if (event.isFlying) Trigger.FLY else Trigger.UNFLY
         equippedItemsManager.runEquipTriggers(event, event.player, trigger)
+        trinketManager.runEquipTriggers(event, event.player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -496,6 +504,7 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val player = event.entity as? Player ?: return
         val trigger = if (event.isGliding) Trigger.GLIDE else Trigger.UNGLIDE
         equippedItemsManager.runEquipTriggers(event, player, trigger)
+        trinketManager.runEquipTriggers(event, player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -503,17 +512,20 @@ class ItemListener(val plugin: Moromoro, private val equippedItemsManager: Equip
         val player = event.entity as? Player ?: return
         val trigger = if (event.isSwimming) Trigger.SWIM else Trigger.UNSWIM
         equippedItemsManager.runEquipTriggers(event, player, trigger)
+        trinketManager.runEquipTriggers(event, player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerDamaged(event: EntityDamageEvent) {
         val player = event.entity as? Player ?: return
         equippedItemsManager.runEquipTriggers(event, player, Trigger.DAMAGED)
+        trinketManager.runEquipTriggers(event, player, Trigger.DAMAGED)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerQuit(event: PlayerQuitEvent) {
         equippedItemsManager.cleanUp(event.player)
+        trinketManager.cleanUp(event.player)
     }
 }
 

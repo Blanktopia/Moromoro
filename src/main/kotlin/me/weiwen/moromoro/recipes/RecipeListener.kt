@@ -2,6 +2,7 @@ package me.weiwen.moromoro.recipes
 
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.customItemKey
+import me.weiwen.moromoro.managers.ItemManager
 import me.weiwen.moromoro.managers.RecipeManager
 import org.bukkit.Keyed
 import org.bukkit.event.EventHandler
@@ -11,7 +12,7 @@ import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ComplexRecipe
 
-class RecipeListener(val plugin: Moromoro, val recipeManager: RecipeManager) : Listener {
+class RecipeListener(val plugin: Moromoro, val recipeManager: RecipeManager, val itemManager: ItemManager) : Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onPlayerJoin(event: PlayerJoinEvent) {
         if (plugin.config.discoverAllRecipes) {
@@ -28,7 +29,7 @@ class RecipeListener(val plugin: Moromoro, val recipeManager: RecipeManager) : L
         if (recipe is ComplexRecipe) {
             val key = event.inventory.result?.customItemKey
 
-            if (key != null && plugin.itemManager.templates[key]?.dyeable == true) {
+            if (key != null && itemManager.templates[key]?.dyeable == true) {
                 // Allow custom items to be dyed
                 return
             }

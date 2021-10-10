@@ -62,6 +62,9 @@ dependencies {
     // MineDown
     implementation("de.themoep", "minedown", "1.7.0-SNAPSHOT")
 
+    // InventoryFramework
+    implementation("com.github.stefvanschie.inventoryframework", "IF", "0.10.3")
+
     // EssentialsX
     compileOnly("net.ess3", "EssentialsX", "2.18.2")
 
@@ -100,6 +103,11 @@ bukkit {
             description = "Sends the resource pack"
             usage = "/<command>"
             permission = "moromoro.pack"
+        }
+        register("trinkets") {
+            description = "Opens the trinket bag"
+            usage = "/<command>"
+            permission = "moromoro.trinkets"
         }
     }
 }

@@ -133,12 +133,12 @@ class BlastingRecipeTemplate(
     )
 }
 
-class RecipeManager(val plugin: Moromoro) {
+class RecipeManager(val plugin: Moromoro, private val itemManager: ItemManager) {
     var recipes: Map<NamespacedKey, Recipe> = mapOf()
         private set
 
     fun enable() {
-        plugin.server.pluginManager.registerEvents(RecipeListener(plugin, this), plugin)
+        plugin.server.pluginManager.registerEvents(RecipeListener(plugin, this, itemManager), plugin)
         load()
     }
 

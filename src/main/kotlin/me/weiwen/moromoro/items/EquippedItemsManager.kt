@@ -8,6 +8,8 @@ import me.weiwen.moromoro.actions.EQUIPPED_TRIGGERS
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.equipmentSlot
+import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.managers.customEquipmentSlot
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
@@ -15,16 +17,47 @@ import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import java.util.*
 
-class EquippedItemsManager(private val plugin: Moromoro) {
+class EquippedItemsManager(private val plugin: Moromoro, private val itemManager: ItemManager) {
     private val equippedItems: MutableMap<UUID,
             MutableMap<Trigger,
                     MutableMap<PlayerArmorChangeEvent.SlotType, Pair<ItemStack, List<Action>>>>> = mutableMapOf()
 
+    private var tickTask: Int = -1
+    private var tickSlowTask: Int = -1
+
     fun enable() {
         runEquipTriggers()
+
+        tickTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
+            plugin,
+            { ->
+                plugin.server.onlinePlayers.forEach {
+                    runEquipTriggers(null, it, Trigger.TICK)
+                }
+            },
+            plugin.config.tickInterval,
+            plugin.config.tickInterval
+        )
+        tickSlowTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
+            plugin,
+            { ->
+                plugin.server.onlinePlayers.forEach {
+                    runEquipTriggers(null, it, Trigger.TICK_SLOW)
+                }
+            },
+            plugin.config.tickSlowInterval,
+            plugin.config.tickSlowInterval
+        )
     }
 
-    fun disable() {}
+    fun disable() {
+        if (tickTask != -1) {
+            plugin.server.scheduler.cancelTask(tickTask)
+        }
+        if (tickSlowTask != -1) {
+            plugin.server.scheduler.cancelTask(tickSlowTask)
+        }
+    }
 
     private fun runEquipTriggers() {
         equippedItems.clear()
@@ -35,24 +68,24 @@ class EquippedItemsManager(private val plugin: Moromoro) {
             player.inventory.leggings?.let { slots[PlayerArmorChangeEvent.SlotType.LEGS] = it }
             player.inventory.boots?.let { slots[PlayerArmorChangeEvent.SlotType.FEET] = it }
 
-            val triggersMap = plugin.itemManager.triggers
+            val triggersMap = itemManager.triggers
 
-            for ((slot, item) in slots.entries) {
-                val key = item.customItemKey ?: return
+            slots.forEach { (slot, item) ->
+                val key = item.customItemKey ?: return@forEach
 
                 // Skip if in wrong slot
-                val slots = plugin.itemManager.templates[key]?.slots ?: return
-                if (slots.isNotEmpty() && slot.equipmentSlot in slots) {
-                    return
+                val slots = itemManager.templates[key]?.slots ?: return@forEach
+                if (slots.isNotEmpty() && slot.equipmentSlot.customEquipmentSlot in slots) {
+                    return@forEach
                 }
 
-                val triggers = triggersMap[key] ?: return
+                val triggers = triggersMap[key] ?: return@forEach
 
                 triggers.forEach { (trigger, actions) ->
                     if (trigger in EQUIPPED_TRIGGERS) {
                         equippedItems
-                            .getOrPut(player.uniqueId, { mutableMapOf() })
-                            .getOrPut(trigger, { mutableMapOf() })[slot] = Pair(item, actions)
+                            .getOrPut(player.uniqueId) { mutableMapOf() }
+                            .getOrPut(trigger) { mutableMapOf() }[slot] = Pair(item, actions)
                     }
                 }
 
@@ -85,17 +118,17 @@ class EquippedItemsManager(private val plugin: Moromoro) {
             val key = item.customItemKey ?: return@let
 
             // Skip if in wrong slot
-            val slots = plugin.itemManager.templates[key]?.slots ?: return
-            if (slots.isNotEmpty() && event.slotType.equipmentSlot !in slots) {
+            val slots = itemManager.templates[key]?.slots ?: return
+            if (slots.isNotEmpty() && event.slotType.equipmentSlot.customEquipmentSlot !in slots) {
                 return
             }
 
-            val triggers = plugin.itemManager.triggers[key] ?: return@let
+            val triggers = itemManager.triggers[key] ?: return@let
 
             triggers.forEach { (triggerType, _) ->
                 if (triggerType in EQUIPPED_TRIGGERS) {
-                    val triggersByType = equippedItems.get(event.player.uniqueId) ?: return@forEach
-                    val triggers = triggersByType.get(triggerType) ?: return@forEach
+                    val triggersByType = equippedItems[event.player.uniqueId] ?: return@forEach
+                    val triggers = triggersByType[triggerType] ?: return@forEach
                     triggers.remove(event.slotType)
                     if (triggers.isEmpty()) {
                         triggersByType.remove(triggerType)
@@ -119,18 +152,18 @@ class EquippedItemsManager(private val plugin: Moromoro) {
             val key = item.customItemKey ?: return@let
 
             // Skip if in wrong slot
-            val slots = plugin.itemManager.templates[key]?.slots ?: return
-            if (slots.isNotEmpty() && event.slotType.equipmentSlot !in slots) {
+            val slots = itemManager.templates[key]?.slots ?: return
+            if (slots.isNotEmpty() && event.slotType.equipmentSlot.customEquipmentSlot !in slots) {
                 return
             }
 
-            val triggers = plugin.itemManager.triggers[key] ?: return@let
+            val triggers = itemManager.triggers[key] ?: return@let
 
             triggers.forEach { (triggerType, actions) ->
                 if (triggerType in EQUIPPED_TRIGGERS) {
                     equippedItems
-                        .getOrPut(event.player.uniqueId, { mutableMapOf() })
-                        .getOrPut(triggerType, { mutableMapOf() })[event.slotType] = Pair(item, actions)
+                        .getOrPut(event.player.uniqueId) { mutableMapOf() }
+                        .getOrPut(triggerType) { mutableMapOf() }[event.slotType] = Pair(item, actions)
                 }
             }
 
@@ -178,12 +211,12 @@ class EquippedItemsManager(private val plugin: Moromoro) {
         val key = item.customItemKey ?: return
 
         // Skip if in wrong slot
-        val slots = plugin.itemManager.templates[key]?.slots ?: return
-        if (slots.isNotEmpty() && slot !in slots) {
+        val slots = itemManager.templates[key]?.slots ?: return
+        if (slots.isNotEmpty() && slot.customEquipmentSlot !in slots) {
             return
         }
 
-        val triggers = plugin.itemManager.triggers[key] ?: return
+        val triggers = itemManager.triggers[key] ?: return
 
         val ctx = Context(event, player, item, null, null, null)
 

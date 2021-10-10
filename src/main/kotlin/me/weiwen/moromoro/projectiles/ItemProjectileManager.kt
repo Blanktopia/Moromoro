@@ -16,6 +16,8 @@ class ItemProjectileManager(val plugin: Moromoro) {
         projectiles.clear()
     }
 
+    fun disable() {}
+
     fun createProjectile(shooter: LivingEntity, vector: Vector, itemStack: ItemStack) {
         val location = shooter.eyeLocation.clone().add(0.0, -0.6, 0.0)
 
