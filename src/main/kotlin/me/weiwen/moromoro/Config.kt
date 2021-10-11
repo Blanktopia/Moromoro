@@ -26,6 +26,10 @@ data class MoromoroConfig(
     val resourcePackUrl: String? = null,
     @SerialName("resource-pack-hash")
     val resourcePackHash: String? = null,
+
+    // Debug
+    @SerialName("force-migration")
+    val forceMigration: Boolean = false,
 )
 
 fun parseConfig(plugin: JavaPlugin): MoromoroConfig {

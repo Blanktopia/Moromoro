@@ -73,6 +73,8 @@ val CustomEquipmentSlot.equipmentSlot: EquipmentSlot?
 
 @Serializable
 data class ItemTemplate(
+    val version: Int = 0,
+    val alias: String? = null,
     val material: Material,
     val name: FormattedString? = null,
     val lore: FormattedString? = null,
@@ -139,6 +141,7 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
 
     val persistentData = itemMeta.persistentDataContainer
     persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
+    persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "version"), PersistentDataType.INTEGER, version)
 
     color?.let {
         if (itemMeta !is LeatherArmorMeta) {

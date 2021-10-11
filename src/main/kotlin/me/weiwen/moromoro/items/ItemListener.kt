@@ -13,7 +13,6 @@ import me.weiwen.moromoro.managers.ItemManager
 import me.weiwen.moromoro.managers.item
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
-import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
@@ -33,7 +32,6 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.Damageable
 import org.bukkit.persistence.PersistentDataType
 import java.util.logging.Level
 
@@ -355,35 +353,27 @@ class ItemListener(
     fun onInventoryClick(event: InventoryClickEvent) {
         val player = event.whoClicked as? Player ?: return
         val inventory = event.clickedInventory ?: return
-        val item = inventory.getItem(event.slot) ?: return
+        var item = inventory.getItem(event.slot) ?: return
 
-        val key = item.customItemKey ?: return
+        var key = item.customItemKey ?: return
 
-        // Migrate item data
-        val template = itemManager.templates[key]
+        var template = itemManager.templates[key]
+
+        // Migrate aliased items
+        val alias = template?.alias
+        if (alias != null) {
+            key = alias
+            template = itemManager.templates[key]
+            item.customItemKey = alias
+            inventory.setItem(event.slot, item)
+        }
+
+        // Migrate version
         if (template != null) {
-            val meta = item.itemMeta?.apply {
-                // Migrate custom model data
-                if (!hasCustomModelData() || customModelData != template.customModelData) {
-                    setCustomModelData(template.customModelData)
-                }
-
-                // Migrate unbreakable
-                if (isUnbreakable != template.unbreakable && this is Damageable) {
-                    isUnbreakable = template.unbreakable
-                    damage = 0
-                }
-            }
-            item.itemMeta = meta
-
-            // Migrate material
-            if (item.type !== template.material
-                && item.type !== Material.NETHERITE_PICKAXE
-                && item.type !== Material.NETHERITE_SHOVEL
-            ) {
-                val replica = template.item(key, 1)
-                item.type = replica.type
-                item.itemMeta = replica.itemMeta
+            val version = item.itemMeta.persistentDataContainer.get(NamespacedKey(plugin.config.namespace, "version"), PersistentDataType.INTEGER) ?: 0
+            if (version != template.version || plugin.config.forceMigration) {
+                item = template.item(key, item.amount)
+                inventory.setItem(event.slot, item)
             }
         }
 
