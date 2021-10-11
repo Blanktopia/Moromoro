@@ -7,10 +7,18 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import java.util.*
 
-val ItemStack.customItemKey: String?
+var ItemStack.customItemKey: String?
     get() {
         val data = itemMeta?.persistentDataContainer ?: return null
         return data.get(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING)
+    }
+    set(key) {
+        val itemMeta = itemMeta
+        val data = itemMeta?.persistentDataContainer ?: return
+        if (key != null) {
+            data.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
+        }
+        this.itemMeta = itemMeta
     }
 
 fun ItemStack.setHeadHash(name: String, hash: String) {

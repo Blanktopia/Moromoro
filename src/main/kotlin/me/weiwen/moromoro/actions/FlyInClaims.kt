@@ -14,6 +14,7 @@ data class FlyInClaims(val fly: Boolean) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         player.canFlyInClaims = fly
+        player.setFlyingFallDamage(fly)
         return true
     }
 }

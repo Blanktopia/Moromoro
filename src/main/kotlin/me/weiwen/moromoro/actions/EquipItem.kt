@@ -11,7 +11,7 @@ data class EquipItem(val slot: EquipmentSlot) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         val item = ctx.item ?: return false
-        val equippedItem: ItemStack? = ctx.player.inventory.getItem(slot)
+        val equippedItem: ItemStack? = player.inventory.getItem(slot)
 
         if (equippedItem == item) {
             player.inventory.setItem(slot, null)

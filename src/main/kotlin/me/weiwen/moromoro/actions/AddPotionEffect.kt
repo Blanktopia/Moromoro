@@ -6,6 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.serializers.PotionEffectTypeSerializer
+import org.bukkit.entity.LivingEntity
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 
@@ -13,8 +14,8 @@ import org.bukkit.potion.PotionEffectType
 @SerialName("add-potion-effect")
 data class AddPotionEffect(val effect: PotionEffectType, val duration: Int, val level: Int) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player ?: return false
-        player.addPotionEffect(PotionEffect(effect, duration, level))
+        val entity = ctx.entity as? LivingEntity ?: ctx.player ?: return false
+        entity.addPotionEffect(PotionEffect(effect, duration, level))
         return true
     }
 }

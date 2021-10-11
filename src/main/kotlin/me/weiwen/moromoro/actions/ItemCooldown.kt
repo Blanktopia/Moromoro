@@ -10,7 +10,7 @@ data class ItemCooldown(val ticks: Int = 0) : Action {
         val player = ctx.player ?: return false
         val material = ctx.item?.type ?: return false
 
-        if (ctx.player.hasCooldown(material)) {
+        if (player.hasCooldown(material)) {
             return false
         }
 

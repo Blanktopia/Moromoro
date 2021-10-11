@@ -15,7 +15,7 @@ object Sleep : Action {
             return false
         }
         Moromoro.plugin.server.broadcastMessage(player.displayName + ChatColor.GRAY + " is going to bed. Sweet dreams!")
-        skipNight(ctx.player.world)
+        skipNight(player.world)
         return true
     }
 

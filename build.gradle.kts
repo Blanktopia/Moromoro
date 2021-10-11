@@ -19,6 +19,7 @@ repositories {
 
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("https://papermc.io/repo/repository/maven-public") }
+    maven { url = uri("https://repo.pl3x.net/") }
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
 
     // bStats
@@ -50,11 +51,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
     implementation("com.charleskorn.kaml:kaml:0.33.0")
 
+    // Purpur
+    compileOnly("net.pl3x.purpur", "purpur-api", "1.17.1-R0.1-SNAPSHOT")
+
     // Paper
-    compileOnly("io.papermc.paper", "paper-api", "1.17-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper", "paper-api", "1.17.1-R0.1-SNAPSHOT")
 
     // Spigot
-    compileOnly("org.spigotmc", "spigot", "1.17-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc", "spigot", "1.17.1-R0.1-SNAPSHOT")
 
     // bStats
     implementation("org.bstats", "bstats-bukkit", "1.8")

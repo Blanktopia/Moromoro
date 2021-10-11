@@ -16,12 +16,13 @@ import org.bukkit.inventory.meta.ItemMeta
 
 @Serializable
 @SerialName("toggle-enchantment")
-data class ToggleEnchantment(val enchantment: Enchantment, val level: Int, val name: String) : Action {
+data class ToggleEnchantment(val enchantment: Enchantment, val level: Int, val name: String, val toggled: Boolean? = null) : Action {
     override fun perform(ctx: Context): Boolean {
         val item = ctx.item ?: return false
         val player = ctx.player ?: return false
+        val toggled = toggled ?: item.enchantments.containsKey(enchantment)
 
-        if (item.enchantments.containsKey(enchantment)) {
+        if (!toggled && item.enchantments.containsKey(enchantment)) {
             item.removeEnchantment(enchantment)
 
             if (enchantment.key.namespace != "minecraft") {
@@ -36,7 +37,8 @@ data class ToggleEnchantment(val enchantment: Enchantment, val level: Int, val n
             }
 
             player.sendActionBar("${ChatColor.RED}Disabled ${name}.")
-        } else {
+
+        } else if (toggled && !item.enchantments.containsKey(enchantment)) {
             item.addEnchantment(enchantment, level)
 
             if (enchantment.key.namespace != "minecraft") {
@@ -58,8 +60,6 @@ data class ToggleEnchantment(val enchantment: Enchantment, val level: Int, val n
 
             player.sendActionBar("${ChatColor.GREEN}Enabled ${name}.")
         }
-
-        player.playSoundAt(Sound.ITEM_ARMOR_EQUIP_NETHERITE, SoundCategory.PLAYERS, 1.0f, 1.0f)
 
         return true
     }
