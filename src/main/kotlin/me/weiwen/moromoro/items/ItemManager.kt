@@ -10,6 +10,12 @@ package me.weiwen.moromoro.managers
 import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import com.github.stefvanschie.inventoryframework.gui.GuiItem
+import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
+import com.github.stefvanschie.inventoryframework.pane.OutlinePane
+import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
+import com.github.stefvanschie.inventoryframework.pane.Pane
+import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -19,11 +25,9 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
+import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.setHeadUrl
 import me.weiwen.moromoro.extensions.toRomanNumerals
-import me.weiwen.moromoro.items.EquippedItemsManager
-import me.weiwen.moromoro.items.ItemListener
-import me.weiwen.moromoro.items.TrinketManager
 import me.weiwen.moromoro.serializers.*
 import org.bukkit.ChatColor
 import org.bukkit.Color
@@ -31,6 +35,7 @@ import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
 import org.bukkit.enchantments.Enchantment
+import org.bukkit.entity.Player
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
@@ -213,5 +218,46 @@ class ItemManager(val plugin: Moromoro) {
         this.triggers[key] = template.triggers
 
         return template
+    }
+
+    fun creativeItemPicker(player: Player) {
+        val gui = ChestGui(6, "Moromoro")
+
+        val pages = PaginatedPane(0, 0, 8, 6)
+        pages.populateWithItemStacks(templates.entries.map { (key, template) -> template.item(key) })
+        pages.setOnClick {
+            it.isCancelled = true
+            val key = it.currentItem?.customItemKey ?: return@setOnClick
+            val template = templates[key] ?: return@setOnClick
+            player.inventory.addItem(template.item(key, if (it.isShiftClick) { 64 } else { 1 }))
+        }
+        gui.addPane(pages)
+
+        val background = OutlinePane(8, 0, 1, 6)
+        background.addItem(GuiItem(ItemStack(Material.BLACK_STAINED_GLASS_PANE)))
+        background.setRepeat(true)
+        background.priority = Pane.Priority.LOWEST
+        background.setOnClick { it.isCancelled = true }
+        gui.addPane(background)
+
+        val navigation = StaticPane(8, 4, 1, 2)
+        navigation.addItem(GuiItem(ItemStack(Material.RED_WOOL)) {
+            if (pages.page > 0) {
+                pages.page = pages.page - 1
+                gui.update()
+            }
+            it.isCancelled = true
+        }, 0, 0)
+        navigation.addItem(GuiItem(ItemStack(Material.GREEN_WOOL)) {
+            if (pages.page < pages.pages - 1) {
+                pages.page = pages.page + 1
+                gui.update()
+            }
+            it.isCancelled = true
+        }, 0, 1)
+        gui.addPane(navigation)
+
+
+        gui.show(player)
     }
 }

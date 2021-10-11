@@ -84,6 +84,14 @@ class Moromoro : JavaPlugin() {
         getCommand("moromoro")?.apply {
             setExecutor { sender, _, _, args ->
                 when (args[0]) {
+                    "items" -> {
+                        if (sender is Player) {
+                            itemManager.creativeItemPicker(sender)
+                            true
+                        } else {
+                            false
+                        }
+                    }
                     "trinkets" -> {
                         if (sender is Player) {
                             trinketManager.openTrinketInventory(sender)
@@ -144,7 +152,7 @@ class Moromoro : JavaPlugin() {
             }
             setTabCompleter { _, _, _, args ->
                 when (args.size) {
-                    0 -> listOf("reload", "rp", "trinkets")
+                    0 -> listOf("reload", "rp", "debug", "trinkets", "items")
                     else -> listOf()
                 }
             }
