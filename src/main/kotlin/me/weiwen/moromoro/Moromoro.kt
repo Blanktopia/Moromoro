@@ -23,7 +23,14 @@ class Moromoro : JavaPlugin() {
     private val itemManager: ItemManager by lazy { ItemManager(this) }
     private val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this, itemManager) }
     private val trinketManager: TrinketManager by lazy { TrinketManager(this, itemManager) }
-    private val itemListener: ItemListener by lazy { ItemListener(plugin, itemManager, equippedItemsManager, trinketManager) }
+    private val itemListener: ItemListener by lazy {
+        ItemListener(
+            plugin,
+            itemManager,
+            equippedItemsManager,
+            trinketManager
+        )
+    }
     val blockManager: BlockManager by lazy { BlockManager(this, itemManager) }
     private val recipeManager: RecipeManager by lazy { RecipeManager(this, itemManager) }
 
@@ -92,35 +99,46 @@ class Moromoro : JavaPlugin() {
                             false
                         }
                     }
-                    "trinkets" -> {
-                        if (sender is Player) {
-                            trinketManager.openTrinketInventory(sender)
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    "rp" -> {
-                        if (sender is Player) {
-                            resourcePackManager.send(sender)
-                            true
-                        } else {
-                            false
-                        }
-                    }
                     "debug" -> {
                         if (args.size == 1) {
-                            sender.sendMessage(ChatColor.GOLD.toString() + "${itemManager.keys.size} items, ${recipeManager.recipes.size} recipes loaded.")
+                            sender.sendMessage(ChatColor.GOLD.toString() + "${itemManager.keys.size} items, ${blockManager.blockTemplates.size} blocks, ${recipeManager.recipes.size} recipes loaded.")
                             true
-                        } else {
-                            val template = itemManager.templates[args[1]]
-                            if (template != null) {
-                                sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                        } else if (args.size == 2) {
+                            if (args[1] == "block") {
+                                val blocks = blockManager.blockTemplates.keys.joinToString(", ")
+                                sender.sendMessage(ChatColor.GOLD.toString() + "$blocks")
+                                true
+                            } else if (args[1] == "item") {
+                                val items = itemManager.templates.keys.joinToString(", ")
+                                sender.sendMessage(ChatColor.GOLD.toString() + "$items")
                                 true
                             } else {
-                                sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
                                 false
                             }
+                        } else if (args.size == 3) {
+                            if (args[1] == "block") {
+                                val template = blockManager.blockTemplates[args[1]]
+                                if (template != null) {
+                                    sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                                    true
+                                } else {
+                                    sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
+                                    false
+                                }
+                            } else if (args[1] == "item") {
+                                val template = itemManager.templates[args[1]]
+                                if (template != null) {
+                                    sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                                    true
+                                } else {
+                                    sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
+                                    false
+                                }
+                            } else {
+                                false
+                            }
+                        } else {
+                            false
                         }
                     }
                     "reload" -> {
@@ -152,7 +170,7 @@ class Moromoro : JavaPlugin() {
             }
             setTabCompleter { _, _, _, args ->
                 when (args.size) {
-                    0 -> listOf("reload", "rp", "debug", "trinkets", "items")
+                    0 -> listOf("reload", "debug", "items")
                     else -> listOf()
                 }
             }
@@ -162,6 +180,7 @@ class Moromoro : JavaPlugin() {
         config = parseConfig(this)
         itemManager.load()
         recipeManager.load()
+        blockManager.load()
 
         logger.info("Moromoro is enabled")
     }

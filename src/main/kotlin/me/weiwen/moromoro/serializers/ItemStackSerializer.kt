@@ -21,7 +21,7 @@ class ItemStackSerializer : KSerializer<ItemStack> {
         val item = Moromoro.plugin.essentialsHook.getItemStack(string)
 
         if (item == null) {
-            Moromoro.plugin.logger.log(Level.WARNING, "Unnknown item: $string")
+            Moromoro.plugin.logger.log(Level.WARNING, "Unknown item: $string")
         }
 
         return item ?: ItemStack(Material.STICK)
