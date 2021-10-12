@@ -43,6 +43,7 @@ import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.persistence.PersistentDataType
 import java.io.File
+import java.nio.ByteBuffer
 import java.util.*
 import java.util.logging.Level
 
@@ -80,6 +81,7 @@ data class ItemTemplate(
     val lore: FormattedString? = null,
     @SerialName("custom-model-data")
     val customModelData: Int? = null,
+    val unique: Boolean = false,
     val head: String? = null,
     val unbreakable: Boolean = false,
     val enchantments: Map<Enchantment, Int> = mapOf(),
@@ -99,7 +101,7 @@ data class AttributeModifier(
     val name: String,
     val amount: Double,
     val operation: org.bukkit.attribute.AttributeModifier.Operation,
-    val slot: EquipmentSlot,
+    val slot: EquipmentSlot? = null,
 )
 
 val AttributeModifier.modifier: org.bukkit.attribute.AttributeModifier
@@ -142,6 +144,18 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
     val persistentData = itemMeta.persistentDataContainer
     persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
     persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "version"), PersistentDataType.INTEGER, version)
+
+    if (unique) {
+        val uuid = UUID.randomUUID()
+        val bb = ByteBuffer.wrap(ByteArray(16))
+        bb.putLong(uuid.mostSignificantBits)
+        bb.putLong(uuid.leastSignificantBits)
+        persistentData.set(
+            NamespacedKey(Moromoro.plugin.config.namespace, "uuid"),
+            PersistentDataType.BYTE_ARRAY,
+            bb.array()
+        )
+    }
 
     color?.let {
         if (itemMeta !is LeatherArmorMeta) {
