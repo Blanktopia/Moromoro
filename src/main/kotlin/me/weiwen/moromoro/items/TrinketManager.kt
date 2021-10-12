@@ -27,7 +27,7 @@ import org.bukkit.persistence.PersistentDataType
 import java.util.*
 
 class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager) {
-    private val equippedTrinkets: MutableMap<UUID,
+    private val trinketTriggers: MutableMap<UUID,
             MutableMap<Trigger,
                     MutableMap<Int, Pair<ItemStack, List<Action>>>>> = mutableMapOf()
 
@@ -35,7 +35,10 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
     private var tickSlowTask: Int = -1
 
     fun enable() {
-        runEquipTriggers()
+        trinketTriggers.clear()
+        for (player in plugin.server.onlinePlayers) {
+            runEquipTriggers(player)
+        }
 
         tickTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
             plugin,
@@ -68,48 +71,45 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
         }
     }
 
-    private fun runEquipTriggers() {
-        equippedTrinkets.clear()
-        for (player in plugin.server.onlinePlayers) {
-            val trinkets = player.trinkets
+    fun runEquipTriggers(player: Player) {
+        val trinkets = player.trinkets
 
-            val triggersMap = itemManager.triggers
+        val triggersMap = itemManager.triggers
 
-            trinkets.forEachIndexed { slot, item ->
-                val key = item?.customItemKey ?: return@forEachIndexed
+        trinkets.forEachIndexed { slot, item ->
+            val key = item?.customItemKey ?: return@forEachIndexed
 
-                // Skip if in wrong slot
-                val slots = itemManager.templates[key]?.slots ?: return@forEachIndexed
-                if (!slots.contains(CustomEquipmentSlot.TRINKET)) {
-                    return
-                }
-
-                val triggers = triggersMap[key] ?: return@forEachIndexed
-
-                triggers.forEach { (trigger, actions) ->
-                    if (trigger in EQUIPPED_TRIGGERS) {
-                        equippedTrinkets
-                            .getOrPut(player.uniqueId, { mutableMapOf() })
-                            .getOrPut(trigger, { mutableMapOf() })[slot] = Pair(item, actions)
-                    }
-                }
-
-                val ctx = Context(
-                    null,
-                    player,
-                    item,
-                    null,
-                    null,
-                    null
-                )
-
-                triggers[Trigger.EQUIP_ARMOR]?.forEach { it.perform(ctx) }
+            // Skip if in wrong slot
+            val slots = itemManager.templates[key]?.slots ?: return@forEachIndexed
+            if (!slots.contains(CustomEquipmentSlot.TRINKET)) {
+                return
             }
+
+            val triggers = triggersMap[key] ?: return@forEachIndexed
+
+            triggers.forEach { (trigger, actions) ->
+                if (trigger in EQUIPPED_TRIGGERS) {
+                    trinketTriggers
+                        .getOrPut(player.uniqueId, { mutableMapOf() })
+                        .getOrPut(trigger, { mutableMapOf() })[slot] = Pair(item, actions)
+                }
+            }
+
+            val ctx = Context(
+                null,
+                player,
+                item,
+                null,
+                null,
+                null
+            )
+
+            triggers[Trigger.EQUIP_ARMOR]?.forEach { it.perform(ctx) }
         }
     }
 
     fun runEquipTriggers(event: Event?, player: Player, trigger: Trigger) {
-        equippedTrinkets[player.uniqueId]?.get(trigger)?.values?.forEach { (item, triggers) ->
+        trinketTriggers[player.uniqueId]?.get(trigger)?.values?.forEach { (item, triggers) ->
             val ctx = Context(event, player, item, null, null, null)
 
             triggers.forEach { it.perform(ctx) }
@@ -121,8 +121,14 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
     }
 
     fun equipTrinket(player: Player, item: ItemStack, slot: Int? = null): Boolean {
-        val slot = slot ?: player.trinkets.indexOfFirst { it == null }
+        val trinkets = player.trinkets
+        val slot = slot ?: trinkets.indexOfFirst { it == null }
         if (slot == -1) {
+            return false
+        }
+
+        val keys = trinkets.mapNotNull { it?.customItemKey }
+        if (keys.contains(item.customItemKey)) {
             return false
         }
 
@@ -143,7 +149,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
 
         triggers.forEach { (triggerType, actions) ->
             if (triggerType in EQUIPPED_TRIGGERS) {
-                equippedTrinkets
+                trinketTriggers
                     .getOrPut(player.uniqueId) { mutableMapOf() }
                     .getOrPut(triggerType) { mutableMapOf() }[slot] = Pair(item, actions)
             }
@@ -171,7 +177,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
 
         triggers.forEach { (triggerType, _) ->
             if (triggerType in EQUIPPED_TRIGGERS) {
-                val triggersByType = equippedTrinkets[player.uniqueId] ?: return@forEach
+                val triggersByType = trinketTriggers[player.uniqueId] ?: return@forEach
                 val triggers = triggersByType[triggerType] ?: return@forEach
                 triggers.remove(slot)
                 if (triggers.isEmpty()) {
@@ -191,9 +197,9 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
     }
 
     fun openTrinketInventory(player: Player) {
-        val gui = ChestGui(1, "Trinkets")
+        val gui = ChestGui(2, "Trinkets")
 
-        val trinketPane = OutlinePane(0, 0, 9, 1);
+        val trinketPane = OutlinePane(0, 0, 9, 2);
 
         val guiItems = player.trinkets.mapIndexed { i, item ->
             val guiItem = if (item != null) {
@@ -232,15 +238,14 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
 
                 val emptySlot = guiItems.indexOfFirst { it.item.type == Material.AIR }
                 if (emptySlot == -1) {
-                    player.sendActionBar(
-                        Component.text("Your trinket bag is full.").color(TextColor.color(0xff5555))
-                    )
-                    player.playSoundTo(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 1.0f, 1.0f)
                     event.isCancelled = true
                     return@setOnBottomClick
                 }
 
-                equipTrinket(player, newItem, emptySlot)
+                if (!equipTrinket(player, newItem, emptySlot)) {
+                    event.isCancelled = true
+                    return@setOnBottomClick
+                }
                 event.clickedInventory?.setItem(event.slot, null)
 
                 val newGuiItem = GuiItem(newItem)
@@ -274,7 +279,9 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
                 val oldGuiItem = guiItems[event.slot]
 
                 val oldItem = unequipTrinket(player, event.slot)
-                equipTrinket(player, newItem, event.slot)
+                if (!equipTrinket(player, newItem, event.slot)) {
+                    return@setOnClick
+                }
                 event.cursor = oldItem
 
                 guiItems[event.slot] = newGuiItem
@@ -306,7 +313,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
     }
 
     fun cleanUp(player: Player) {
-        equippedTrinkets.remove(player.uniqueId)
+        trinketTriggers.remove(player.uniqueId)
     }
 }
 
@@ -318,7 +325,7 @@ fun Player.trinket(i: Int): ItemStack? {
 }
 
 val Player.trinkets: List<ItemStack?>
-    get() = (0..8).map { i ->
+    get() = (0..17).map { i ->
         persistentDataContainer.get(
             NamespacedKey(Moromoro.plugin.config.namespace, "trinkets_$i"),
             PersistentDataType.BYTE_ARRAY

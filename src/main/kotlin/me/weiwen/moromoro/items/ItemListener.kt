@@ -7,15 +7,10 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
-import me.weiwen.moromoro.extensions.playSoundTo
 import me.weiwen.moromoro.managers.CustomEquipmentSlot
 import me.weiwen.moromoro.managers.ItemManager
 import me.weiwen.moromoro.managers.item
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextColor
 import org.bukkit.NamespacedKey
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.entity.ThrowableProjectile
@@ -123,6 +118,25 @@ class ItemListener(
         }
 
         val key = item.customItemKey ?: return
+
+        // Equip trinket
+        if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
+            val key = item.customItemKey
+            val template = itemManager.templates[key]
+            if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
+                if (trinketManager.equipTrinket(event.player, item)) {
+                    when (event.hand) {
+                        EquipmentSlot.HAND -> event.player.inventory.setItemInMainHand(null)
+                        EquipmentSlot.OFF_HAND -> event.player.inventory.setItemInOffHand(null)
+                    }
+                }
+                plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
+                    trinketManager.openTrinketInventory(event.player)
+                }, 1)
+
+                event.isCancelled
+            }
+        }
 
         // Cancel if interacting with a block
         if (event.useInteractedBlock() != Event.Result.DENY && event.action == Action.RIGHT_CLICK_BLOCK && !event.player.isSneaking) {
@@ -384,11 +398,6 @@ class ItemListener(
             if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
                 if (trinketManager.equipTrinket(player, item)) {
                     event.currentItem = null
-                } else {
-                    player.sendActionBar(
-                        Component.text("Your trinket bag is full.").color(TextColor.color(0xff5555))
-                    )
-                    player.playSoundTo(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 1.0f, 1.0f)
                 }
                 plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
                     trinketManager.openTrinketInventory(player)
@@ -510,6 +519,11 @@ class ItemListener(
         val player = event.entity as? Player ?: return
         equippedItemsManager.runEquipTriggers(event, player, Trigger.DAMAGED)
         trinketManager.runEquipTriggers(event, player, Trigger.DAMAGED)
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerJoin(event: PlayerQuitEvent) {
+        trinketManager.runEquipTriggers(event.player)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
