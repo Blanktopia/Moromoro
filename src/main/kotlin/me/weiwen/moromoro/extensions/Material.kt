@@ -1,9 +1,9 @@
 package me.weiwen.moromoro.extensions
 
 import org.bukkit.DyeColor
+import org.bukkit.DyeColor.*
 import org.bukkit.Material
 import org.bukkit.Material.*
-import org.bukkit.DyeColor.*
 import org.bukkit.block.Block
 
 fun Material.canMineBlock(block: Block): Boolean {
@@ -86,8 +86,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         BRICK_WALL,
         BROWN_CONCRETE,
         BROWN_GLAZED_TERRACOTTA,
-        BROWN_MUSHROOM,
-        BROWN_MUSHROOM_BLOCK,
         BROWN_SHULKER_BOX,
         BROWN_STAINED_GLASS,
         BROWN_STAINED_GLASS_PANE,
@@ -544,7 +542,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         OAK_WOOD,
         PUMPKIN,
         RED_MUSHROOM_BLOCK,
-        SHROOMLIGHT,
         SOUL_CAMPFIRE,
         SPRUCE_BUTTON,
         SPRUCE_DOOR,
@@ -598,20 +595,27 @@ fun Material.canMineBlock(block: Block): Boolean {
         MOSS_BLOCK,
         MOSS_CARPET,
         NETHER_WART_BLOCK,
+        SCULK_SENSOR,
+        SHROOMLIGHT,
+        TARGET,
         SPONGE,
         SPORE_BLOSSOM,
         WARPED_WART_BLOCK,
+        ACACIA_LEAVES,
+        AZALEA_LEAVES,
+        BIRCH_LEAVES,
+        DARK_OAK_LEAVES,
+        JUNGLE_LEAVES,
+        OAK_LEAVES,
+        SPRUCE_LEAVES,
         WET_SPONGE ->
             isHoe
 
-        ACACIA_LEAVES,
         ALLIUM,
         AZALEA,
-        AZALEA_LEAVES,
         AZURE_BLUET,
         BIG_DRIPLEAF,
         BIG_DRIPLEAF_STEM,
-        BIRCH_LEAVES,
         BLACK_CARPET,
         BLACK_WOOL,
         BLUE_CARPET,
@@ -626,7 +630,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         CYAN_CARPET,
         CYAN_WOOL,
         DANDELION,
-        DARK_OAK_LEAVES,
         DEAD_BUSH,
         FERN,
         GLOW_LICHEN,
@@ -636,7 +639,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         GREEN_CARPET,
         GREEN_WOOL,
         HANGING_ROOTS,
-        JUNGLE_LEAVES,
         LARGE_FERN,
         LIGHT_BLUE_CARPET,
         LIGHT_BLUE_WOOL,
@@ -650,7 +652,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         MAGENTA_CARPET,
         MAGENTA_WOOL,
         NETHER_SPROUTS,
-        OAK_LEAVES,
         ORANGE_CARPET,
         ORANGE_TULIP,
         ORANGE_WOOL,
@@ -668,7 +669,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         ROSE_BUSH,
         SEAGRASS,
         SMALL_DRIPLEAF,
-        SPRUCE_LEAVES,
         SUNFLOWER,
         TALL_GRASS,
         TRIPWIRE,
