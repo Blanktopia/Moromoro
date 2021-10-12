@@ -2,6 +2,7 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.managers.AttributeModifier
 import me.weiwen.moromoro.managers.modifier
 
@@ -14,7 +15,11 @@ data class AddAttributeModifier(
         val player = ctx.player ?: return false
 
         attributeModifiers.forEach {
-            player.getAttribute(it.attribute)?.addModifier(it.modifier)
+            try {
+                player.getAttribute(it.attribute)?.addModifier(it.modifier)
+            } catch (e: Exception) {
+                Moromoro.plugin.logger.warning("$e")
+            }
         }
 
         return true

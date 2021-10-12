@@ -123,6 +123,7 @@ val actionModule = SerializersModule {
         subclass(SetStarvationRate::class)
         subclass(SetUnsaturatedRegenRate::class)
         subclass(SetVelocity::class)
+        subclass(SetNoDamageTick::class)
         subclass(Sleep::class)
         subclass(SpawnParticle::class)
         subclass(StripBlock::class)
