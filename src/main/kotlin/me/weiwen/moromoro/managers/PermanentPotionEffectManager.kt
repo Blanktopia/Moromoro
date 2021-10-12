@@ -40,7 +40,8 @@ class PermanentPotionEffectManager(val plugin: JavaPlugin) {
                                 type,
                                 619,
                                 level,
-                                true
+                                true,
+                                false,
                             )
                         )
                     }
@@ -58,7 +59,8 @@ fun Player.addPermanentPotionEffects(key: String, effects: Map<PotionEffectType,
                 type,
                 619,
                 level,
-                true
+                true,
+                false,
             )
         )
     }
