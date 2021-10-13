@@ -6,6 +6,7 @@ import me.weiwen.moromoro.items.ItemListener
 import me.weiwen.moromoro.items.TrinketManager
 import me.weiwen.moromoro.managers.*
 import me.weiwen.moromoro.projectiles.ItemProjectileManager
+import me.weiwen.moromoro.projectiles.ProjectileManager
 import me.weiwen.moromoro.resourcepack.ResourcePackManager
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
@@ -28,7 +29,8 @@ class Moromoro : JavaPlugin() {
             plugin,
             itemManager,
             equippedItemsManager,
-            trinketManager
+            trinketManager,
+            projectileManager
         )
     }
     val blockManager: BlockManager by lazy { BlockManager(this, itemManager) }
@@ -38,6 +40,7 @@ class Moromoro : JavaPlugin() {
     private val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
     private val experienceBoostManager: ExperienceBoostManager by lazy { ExperienceBoostManager(this) }
     val itemProjectileManager: ItemProjectileManager by lazy { ItemProjectileManager(this) }
+    val projectileManager: ProjectileManager by lazy { ProjectileManager(this, itemManager) }
 
     val essentialsHook: EssentialsHook by lazy { EssentialsHook(this, itemManager) }
 
@@ -52,6 +55,7 @@ class Moromoro : JavaPlugin() {
         itemProjectileManager.enable()
 
         itemManager.enable()
+        projectileManager.enable()
         equippedItemsManager.enable()
         trinketManager.enable()
         itemListener.enable()
@@ -195,6 +199,7 @@ class Moromoro : JavaPlugin() {
         recipeManager.disable()
         blockManager.disable()
         itemManager.disable()
+        projectileManager.disable()
         trinketManager.disable()
         equippedItemsManager.disable()
 

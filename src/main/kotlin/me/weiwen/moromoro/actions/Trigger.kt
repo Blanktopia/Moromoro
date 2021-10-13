@@ -37,6 +37,21 @@ enum class Trigger {
     @SerialName("equip-feet")
     EQUIP_FEET,
 
+    @SerialName("fishing")
+    FISHING,
+    @SerialName("fish-caught-fish")
+    FISH_CAUGHT_FISH,
+    @SerialName("fish-caught-entity")
+    FISH_CAUGHT_ENTITY,
+    @SerialName("fish-in-ground")
+    FISH_IN_GROUND,
+    @SerialName("fish-failed-attempt")
+    FISH_FAILED_ATTEMPT,
+    @SerialName("fish-reel-in")
+    FISH_REEL_IN,
+    @SerialName("fish-bite")
+    FISH_BITE,
+
     @SerialName("consume")
     CONSUME,
 
@@ -49,9 +64,13 @@ enum class Trigger {
     PROJECTILE_LAUNCH,
     @SerialName("projectile-hit")
     PROJECTILE_HIT,
+    @SerialName("projectile-tick")
+    PROJECTILE_TICK,
 
     @SerialName("drop")
     DROP,
+    @SerialName("swap-hand")
+    SWAP_HAND,
 
     @SerialName("tick")
     TICK,
@@ -146,4 +165,6 @@ val EQUIPPED_TRIGGERS = setOf(
     Trigger.SWIM,
     Trigger.UNSWIM,
     Trigger.DAMAGED,
+    Trigger.DROP,
+    Trigger.SWAP_HAND,
 )

@@ -9,7 +9,7 @@ import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.managers.CustomEquipmentSlot
 import me.weiwen.moromoro.managers.ItemManager
-import me.weiwen.moromoro.managers.item
+import me.weiwen.moromoro.projectiles.ProjectileManager
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
@@ -34,7 +34,8 @@ class ItemListener(
     val plugin: Moromoro,
     private val itemManager: ItemManager,
     private val equippedItemsManager: EquippedItemsManager,
-    private val trinketManager: TrinketManager
+    private val trinketManager: TrinketManager,
+    private val projectileManager: ProjectileManager,
 ) : Listener {
     fun enable() {
         plugin.server.pluginManager.registerEvents(this, plugin)
@@ -64,6 +65,12 @@ class ItemListener(
         )
 
         triggers[Trigger.PROJECTILE_LAUNCH]?.forEach { it.perform(ctx) }
+
+        triggers[Trigger.PROJECTILE_TICK]?.let {
+            (event.projectile as? Projectile)?.let { projectile ->
+                projectileManager.register(projectile, (event.entity as? Player)?.uniqueId, key)
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
@@ -88,6 +95,10 @@ class ItemListener(
         )
 
         triggers[Trigger.PROJECTILE_LAUNCH]?.forEach { it.perform(ctx) }
+
+        triggers[Trigger.PROJECTILE_TICK]?.let {
+            projectileManager.register(projectile, (projectile.shooter as? Player)?.uniqueId, key)
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
@@ -135,6 +146,7 @@ class ItemListener(
                 }, 1)
 
                 event.isCancelled
+                return
             }
         }
 
@@ -305,6 +317,51 @@ class ItemListener(
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    fun onPlayerFish(event: PlayerFishEvent) {
+        val item = event.player.inventory.itemInMainHand
+
+        val key = item.customItemKey ?: return
+        val triggers = itemManager.triggers[key] ?: return
+
+        val ctx = Context(
+            event,
+            event.player,
+            item,
+            event.caught,
+            null,
+            null,
+            event.hook
+        )
+
+        val trigger = when (event.state) {
+            PlayerFishEvent.State.FISHING -> {
+                val persistentData = event.hook.persistentDataContainer
+                persistentData.set(
+                    NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                    PersistentDataType.STRING,
+                    key
+                )
+
+                Trigger.FISHING
+            }
+            PlayerFishEvent.State.CAUGHT_FISH -> Trigger.FISH_CAUGHT_FISH
+            PlayerFishEvent.State.CAUGHT_ENTITY -> Trigger.FISH_CAUGHT_ENTITY
+            PlayerFishEvent.State.IN_GROUND -> Trigger.FISH_IN_GROUND
+            PlayerFishEvent.State.FAILED_ATTEMPT -> Trigger.FISH_FAILED_ATTEMPT
+            PlayerFishEvent.State.REEL_IN -> Trigger.FISH_REEL_IN
+            PlayerFishEvent.State.BITE -> Trigger.FISH_BITE
+        }
+
+        triggers[trigger]?.forEach { it.perform(ctx) }
+
+        event.isCancelled = ctx.isCancelled
+
+        if (ctx.removeItem) {
+            event.player.inventory.setItemInMainHand(item.subtract(1))
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerItemConsume(event: PlayerItemConsumeEvent) {
         val item = event.item
 
@@ -364,6 +421,65 @@ class ItemListener(
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    fun onPlayerSwapHandItems(event: PlayerSwapHandItemsEvent) {
+        event.mainHandItem?.let { item ->
+            val key = item.customItemKey ?: return@let
+            val triggers = itemManager.triggers[key] ?: return@let
+
+            val ctx = Context(
+                event,
+                event.player,
+                item,
+                null,
+                null,
+                null
+            )
+
+            triggers[Trigger.SWAP_HAND]?.forEach { it.perform(ctx) }
+
+            event.isCancelled = ctx.isCancelled
+
+            if (ctx.removeItem) {
+                val itemAfterRemoving = removeOne(item)
+                if (ctx.isCancelled) {
+                    event.player.inventory.setItemInOffHand(itemAfterRemoving)
+                } else {
+                    event.mainHandItem = itemAfterRemoving
+                }
+            }
+        }
+
+        event.offHandItem?.let { item ->
+            val key = item.customItemKey ?: return@let
+            val triggers = itemManager.triggers[key] ?: return@let
+
+            val ctx = Context(
+                event,
+                event.player,
+                item,
+                null,
+                null,
+                null
+            )
+
+            triggers[Trigger.SWAP_HAND]?.forEach { it.perform(ctx) }
+
+            event.isCancelled = ctx.isCancelled
+
+            if (ctx.removeItem) {
+                val itemAfterRemoving = removeOne(item)
+                if (ctx.isCancelled) {
+                    event.player.inventory.setItemInMainHand(itemAfterRemoving)
+                } else {
+                    event.offHandItem = itemAfterRemoving
+                }
+            }
+        }
+
+        equippedItemsManager.runEquipTriggers(event, event.player, Trigger.SWAP_HAND)
+        trinketManager.runEquipTriggers(event, event.player, Trigger.SWAP_HAND)
+    }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onInventoryClick(event: InventoryClickEvent) {

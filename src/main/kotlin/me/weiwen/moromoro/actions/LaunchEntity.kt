@@ -2,11 +2,15 @@ package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.pitch
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Item
 import org.bukkit.entity.Projectile
+import org.bukkit.persistence.PersistentDataType
 
 @Serializable
 @SerialName("launch-entity")
@@ -20,6 +24,11 @@ data class LaunchEntity(
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         val entity = player.world.spawnEntity(player.eyeLocation, entity)
+
+        ctx.item?.customItemKey?.let { key ->
+            val persistentData = entity.persistentDataContainer
+            persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
+        }
 
         if (entity is Projectile) {
             entity.shooter = player
