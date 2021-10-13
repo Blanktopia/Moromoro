@@ -5,13 +5,14 @@ package me.weiwen.moromoro.actions
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import me.weiwen.moromoro.extensions.isPartial
 import me.weiwen.moromoro.extensions.spawnParticle
 import me.weiwen.moromoro.serializers.BiomeSerializer
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.block.BlockFace
-import org.bukkit.block.data.Bisected
-import org.bukkit.block.data.Orientable
+import org.bukkit.block.data.*
+import org.bukkit.block.data.type.Door
 
 val planks = listOf(
     Material.OAK_PLANKS,
@@ -22,6 +23,94 @@ val planks = listOf(
     Material.DARK_OAK_PLANKS,
     Material.CRIMSON_PLANKS,
     Material.WARPED_PLANKS,
+)
+
+val slabs = listOf(
+    Material.OAK_SLAB,
+    Material.SPRUCE_SLAB,
+    Material.BIRCH_SLAB,
+    Material.JUNGLE_SLAB,
+    Material.ACACIA_SLAB,
+    Material.DARK_OAK_SLAB,
+    Material.CRIMSON_SLAB,
+    Material.WARPED_SLAB,
+)
+
+val stairs = listOf(
+    Material.OAK_STAIRS,
+    Material.SPRUCE_STAIRS,
+    Material.BIRCH_STAIRS,
+    Material.JUNGLE_STAIRS,
+    Material.ACACIA_STAIRS,
+    Material.DARK_OAK_STAIRS,
+    Material.CRIMSON_STAIRS,
+    Material.WARPED_STAIRS,
+)
+
+val fences = listOf(
+    Material.OAK_FENCE,
+    Material.SPRUCE_FENCE,
+    Material.BIRCH_FENCE,
+    Material.JUNGLE_FENCE,
+    Material.ACACIA_FENCE,
+    Material.DARK_OAK_FENCE,
+    Material.CRIMSON_FENCE,
+    Material.WARPED_FENCE,
+)
+
+val fenceGates = listOf(
+    Material.OAK_FENCE_GATE,
+    Material.SPRUCE_FENCE_GATE,
+    Material.BIRCH_FENCE_GATE,
+    Material.JUNGLE_FENCE_GATE,
+    Material.ACACIA_FENCE_GATE,
+    Material.DARK_OAK_FENCE_GATE,
+    Material.CRIMSON_FENCE_GATE,
+    Material.WARPED_FENCE_GATE,
+)
+
+val pressurePlates = listOf(
+    Material.OAK_PRESSURE_PLATE,
+    Material.SPRUCE_PRESSURE_PLATE,
+    Material.BIRCH_PRESSURE_PLATE,
+    Material.JUNGLE_PRESSURE_PLATE,
+    Material.ACACIA_PRESSURE_PLATE,
+    Material.DARK_OAK_PRESSURE_PLATE,
+    Material.CRIMSON_PRESSURE_PLATE,
+    Material.WARPED_PRESSURE_PLATE,
+)
+
+val buttons = listOf(
+    Material.OAK_BUTTON,
+    Material.SPRUCE_BUTTON,
+    Material.BIRCH_BUTTON,
+    Material.JUNGLE_BUTTON,
+    Material.ACACIA_BUTTON,
+    Material.DARK_OAK_BUTTON,
+    Material.CRIMSON_BUTTON,
+    Material.WARPED_BUTTON,
+)
+
+val trapdoors = listOf(
+    Material.OAK_TRAPDOOR,
+    Material.SPRUCE_TRAPDOOR,
+    Material.BIRCH_TRAPDOOR,
+    Material.JUNGLE_TRAPDOOR,
+    Material.ACACIA_TRAPDOOR,
+    Material.DARK_OAK_TRAPDOOR,
+    Material.CRIMSON_TRAPDOOR,
+    Material.WARPED_TRAPDOOR,
+)
+
+val doors = listOf(
+    Material.OAK_DOOR,
+    Material.SPRUCE_DOOR,
+    Material.BIRCH_DOOR,
+    Material.JUNGLE_DOOR,
+    Material.ACACIA_DOOR,
+    Material.DARK_OAK_DOOR,
+    Material.CRIMSON_DOOR,
+    Material.WARPED_DOOR,
 )
 
 val logs = listOf(
@@ -144,6 +233,14 @@ data class CycleFlora(val reversed: Boolean = false) : Action {
 
         val newType = when (block.type) {
             in planks -> nextOf(planks, block.type, reversed)
+            in slabs -> nextOf(slabs, block.type, reversed)
+            in stairs -> nextOf(stairs, block.type, reversed)
+            in fences -> nextOf(fences, block.type, reversed)
+            in fenceGates -> nextOf(fenceGates, block.type, reversed)
+            in buttons -> nextOf(buttons, block.type, reversed)
+            in pressurePlates -> nextOf(pressurePlates, block.type, reversed)
+            in trapdoors -> nextOf(trapdoors, block.type, reversed)
+            in doors -> nextOf(doors, block.type, reversed)
             in logs -> nextOf(logs, block.type, reversed)
             in wood -> nextOf(wood, block.type, reversed)
             in strippedLogs -> nextOf(strippedLogs, block.type, reversed)
@@ -161,20 +258,37 @@ data class CycleFlora(val reversed: Boolean = false) : Action {
         block.setType(newType, false)
 
         block.blockData = block.blockData.apply {
-            when (this) {
-                is Orientable -> axis = (blockData as Orientable).axis
-                is Bisected -> {
-                    half = (blockData as Bisected).half
+            if (this is Orientable) {
+                axis = (blockData as Orientable).axis
+            }
+            if (this is MultipleFacing) {
+                (blockData as MultipleFacing).faces.forEach { setFace(it, true) }
+            }
+            if (this is Bisected) {
+                half = (blockData as Bisected).half
+                if (block.type.isPartial) {
                     if (half == Bisected.Half.BOTTOM) {
                         val top = block.getRelative(BlockFace.UP)
                         top.setType(newType, false)
-                        top.blockData = (top.blockData as Bisected).apply { half = Bisected.Half.TOP}
+                        top.blockData = (top.blockData as Bisected).apply { half = Bisected.Half.TOP }
                     } else {
                         val bottom = block.getRelative(BlockFace.DOWN)
                         bottom.setType(newType, false)
-                        bottom.blockData = (bottom.blockData as Bisected).apply { half = Bisected.Half.BOTTOM}
+                        bottom.blockData = (bottom.blockData as Bisected).apply { half = Bisected.Half.BOTTOM }
                     }
                 }
+            }
+            if (this is Door) {
+                hinge = (blockData as Door).hinge
+            }
+            if (this is Openable) {
+                isOpen = (blockData as Openable).isOpen
+            }
+            if (this is Directional) {
+                facing = (blockData as Directional).facing
+            }
+            if (this is Waterlogged) {
+                isWaterlogged = (blockData as Waterlogged).isWaterlogged
             }
         }
 
