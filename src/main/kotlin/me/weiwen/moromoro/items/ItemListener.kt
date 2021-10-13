@@ -349,6 +349,8 @@ class ItemListener(
         )
 
         triggers[Trigger.DROP]?.forEach { it.perform(ctx) }
+        equippedItemsManager.runEquipTriggers(event, event.player, Trigger.DROP)
+        trinketManager.runEquipTriggers(event, event.player, Trigger.DROP)
 
         event.isCancelled = ctx.isCancelled
 
@@ -371,24 +373,9 @@ class ItemListener(
 
         var key = item.customItemKey ?: return
 
-        var template = itemManager.templates[key]
-
-        // Migrate aliased items
-        val alias = template?.alias
-        if (alias != null) {
-            key = alias
-            template = itemManager.templates[key]
-            item.customItemKey = alias
-            inventory.setItem(event.slot, item)
-        }
-
-        // Migrate version
-        if (template != null) {
-            val version = item.itemMeta.persistentDataContainer.get(NamespacedKey(plugin.config.namespace, "version"), PersistentDataType.INTEGER) ?: 0
-            if (version != template.version || plugin.config.forceMigration) {
-                item = template.item(key, item.amount)
-                inventory.setItem(event.slot, item)
-            }
+        itemManager.migrateItem(item)?.let {
+            inventory.setItem(event.slot, it)
+            return
         }
 
         // Equip trinket
@@ -522,7 +509,19 @@ class ItemListener(
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    fun onPlayerJoin(event: PlayerQuitEvent) {
+    fun onPlayerJoin(event: PlayerJoinEvent) {
+        event.player.equipment.let { eq ->
+            eq.helmet?.let { itemManager.migrateItem(it)?.let { eq.helmet = it } }
+            eq.chestplate?.let { itemManager.migrateItem(it)?.let { eq.chestplate = it } }
+            eq.leggings?.let { itemManager.migrateItem(it)?.let { eq.leggings = it } }
+            eq.boots?.let { itemManager.migrateItem(it)?.let { eq.boots = it } }
+        }
+
+        val inventory = event.player.inventory
+        inventory.filterNotNull().forEachIndexed { slot, item ->
+            itemManager.migrateItem(item)?.let { inventory.setItem(slot, it) }
+        }
+
         trinketManager.runEquipTriggers(event.player)
     }
 

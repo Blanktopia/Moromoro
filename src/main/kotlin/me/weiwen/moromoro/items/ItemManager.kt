@@ -237,6 +237,25 @@ class ItemManager(val plugin: Moromoro) {
         return template
     }
 
+    fun migrateItem(item: ItemStack): ItemStack? {
+        val key = item.customItemKey ?: return null
+        val template = templates[key] ?: return null
+
+        // Migrate aliased items
+        val alias = template.alias
+        if (alias != null) {
+            return template.item(alias, item.amount)
+        }
+
+        // Migrate version
+        val version = item.itemMeta.persistentDataContainer.get(NamespacedKey(plugin.config.namespace, "version"), PersistentDataType.INTEGER) ?: 0
+        if (version != template.version || plugin.config.forceMigration) {
+            return template.item(key, item.amount)
+        }
+
+        return null
+    }
+
     fun creativeItemPicker(player: Player) {
         val gui = ChestGui(6, "Moromoro")
 
