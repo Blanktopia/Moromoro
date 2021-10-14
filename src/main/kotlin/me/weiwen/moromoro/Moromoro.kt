@@ -21,7 +21,7 @@ class Moromoro : JavaPlugin() {
     var config: MoromoroConfig = parseConfig(this)
 
     private val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this) }
-    private val itemManager: ItemManager by lazy { ItemManager(this) }
+    val itemManager: ItemManager by lazy { ItemManager(this) }
     private val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this, itemManager) }
     private val trinketManager: TrinketManager by lazy { TrinketManager(this, itemManager) }
     private val itemListener: ItemListener by lazy {
