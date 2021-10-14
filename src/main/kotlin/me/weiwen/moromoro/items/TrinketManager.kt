@@ -90,8 +90,8 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
             triggers.forEach { (trigger, actions) ->
                 if (trigger in EQUIPPED_TRIGGERS) {
                     trinketTriggers
-                        .getOrPut(player.uniqueId, { mutableMapOf() })
-                        .getOrPut(trigger, { mutableMapOf() })[slot] = Pair(item, actions)
+                        .getOrPut(player.uniqueId) { mutableMapOf() }
+                        .getOrPut(trigger) { mutableMapOf() }[slot] = Pair(item, actions)
                 }
             }
 

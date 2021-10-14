@@ -633,9 +633,14 @@ class ItemListener(
             eq.boots?.let { itemManager.migrateItem(it)?.let { eq.boots = it } }
         }
 
-        val inventory = event.player.inventory
-        inventory.filterNotNull().forEachIndexed { slot, item ->
-            itemManager.migrateItem(item)?.let { inventory.setItem(slot, it) }
+        event.player.inventory.storageContents.forEach { item ->
+            if (item != null) {
+                itemManager.migrateItem(item)?.let {
+                    if (event.player.inventory.removeItem(item).isEmpty()) {
+                        event.player.inventory.addItem(it)
+                    }
+                }
+            }
         }
 
         trinketManager.runEquipTriggers(event.player)

@@ -52,7 +52,7 @@ class PermanentPotionEffectManager(val plugin: JavaPlugin) {
 }
 
 fun Player.addPermanentPotionEffects(key: String, effects: Map<PotionEffectType, Int>) {
-    PermanentPotionEffectManager.manager.potionEffectGroups.getOrPut(uniqueId, { mutableMapOf() })[key] = effects
+    PermanentPotionEffectManager.manager.potionEffectGroups.getOrPut(uniqueId) { mutableMapOf() }[key] = effects
     for ((type, level) in effects.entries) {
         addPotionEffect(
             PotionEffect(
