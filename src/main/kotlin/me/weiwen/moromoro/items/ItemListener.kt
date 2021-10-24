@@ -130,26 +130,6 @@ class ItemListener(
 
         val key = item.customItemKey ?: return
 
-        // Equip trinket
-        if (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK) {
-            val key = item.customItemKey
-            val template = itemManager.templates[key]
-            if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
-                if (trinketManager.equipTrinket(event.player, item)) {
-                    when (event.hand) {
-                        EquipmentSlot.HAND -> event.player.inventory.setItemInMainHand(null)
-                        EquipmentSlot.OFF_HAND -> event.player.inventory.setItemInOffHand(null)
-                    }
-                }
-                plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
-                    trinketManager.openTrinketInventory(event.player)
-                }, 1)
-
-                event.isCancelled
-                return
-            }
-        }
-
         // Cancel if interacting with a block
         if (event.useInteractedBlock() != Event.Result.DENY && event.action == Action.RIGHT_CLICK_BLOCK && !event.player.isSneaking) {
             val blockType = event.clickedBlock?.type
@@ -178,23 +158,25 @@ class ItemListener(
             event.blockFace
         )
 
+        var didAction = false
+
         val triggers = itemManager.triggers[key] ?: return
         when (event.action) {
             Action.LEFT_CLICK_BLOCK -> {
-                triggers[Trigger.LEFT_CLICK_BLOCK]?.forEach { it.perform(ctx) }
-                triggers[Trigger.LEFT_CLICK]?.forEach { it.perform(ctx) }
+                triggers[Trigger.LEFT_CLICK_BLOCK]?.forEach { it.perform(ctx); didAction = true }
+                triggers[Trigger.LEFT_CLICK]?.forEach { it.perform(ctx); didAction = true }
             }
             Action.RIGHT_CLICK_BLOCK -> {
-                triggers[Trigger.RIGHT_CLICK_BLOCK]?.forEach { it.perform(ctx) }
-                triggers[Trigger.RIGHT_CLICK]?.forEach { it.perform(ctx) }
+                triggers[Trigger.RIGHT_CLICK_BLOCK]?.forEach { it.perform(ctx); didAction = true }
+                triggers[Trigger.RIGHT_CLICK]?.forEach { it.perform(ctx); didAction = true }
             }
             Action.LEFT_CLICK_AIR -> {
-                triggers[Trigger.LEFT_CLICK_AIR]?.forEach { it.perform(ctx) }
-                triggers[Trigger.LEFT_CLICK]?.forEach { it.perform(ctx) }
+                triggers[Trigger.LEFT_CLICK_AIR]?.forEach { it.perform(ctx); didAction = true }
+                triggers[Trigger.LEFT_CLICK]?.forEach { it.perform(ctx); didAction = true }
             }
             Action.RIGHT_CLICK_AIR -> {
-                triggers[Trigger.RIGHT_CLICK_AIR]?.forEach { it.perform(ctx) }
-                triggers[Trigger.RIGHT_CLICK]?.forEach { it.perform(ctx) }
+                triggers[Trigger.RIGHT_CLICK_AIR]?.forEach { it.perform(ctx); didAction = true }
+                triggers[Trigger.RIGHT_CLICK]?.forEach { it.perform(ctx); didAction = true }
             }
             Action.PHYSICAL -> return
         }
@@ -205,7 +187,29 @@ class ItemListener(
 
         if (ctx.removeItem) {
             event.hand?.let { removeOne(event.player, it) }
+            return
         }
+
+        // Equip trinket
+        if (!didAction && (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK)) {
+            val key = item.customItemKey
+            val template = itemManager.templates[key]
+            if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
+                if (trinketManager.equipTrinket(event.player, item)) {
+                    when (event.hand) {
+                        EquipmentSlot.HAND -> event.player.inventory.setItemInMainHand(null)
+                        EquipmentSlot.OFF_HAND -> event.player.inventory.setItemInOffHand(null)
+                    }
+                }
+                plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
+                    trinketManager.openTrinketInventory(event.player)
+                }, 1)
+
+                event.isCancelled
+                return
+            }
+        }
+
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
