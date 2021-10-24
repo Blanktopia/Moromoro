@@ -1,4 +1,4 @@
-package me.weiwen.moromoro.actions.projectile
+package me.weiwen.moromoro.actions.mechanic.grapple
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -15,7 +15,12 @@ import kotlin.math.sqrt
 
 @Serializable
 @SerialName("grapple-tick")
-data class GrappleTick(val acceleration: Double = 0.5, @SerialName("max-speed") val maxSpeed: Double = 1.0, val range: Double = 50.0, val particle: Particle = Particle.ELECTRIC_SPARK) :
+data class GrappleTick(
+    val acceleration: Double = 0.5,
+    @SerialName("max-speed") val maxSpeed: Double = 1.0,
+    val range: Double = 50.0,
+    val particle: Particle = Particle.ELECTRIC_SPARK
+) :
     Action {
     private val rangeSquared = range * range
 
@@ -28,7 +33,7 @@ data class GrappleTick(val acceleration: Double = 0.5, @SerialName("max-speed") 
             return false
         }
 
-        val distanceSquared = arrow.location.distanceSquared(player.location)
+        val distanceSquared = arrow.location.distanceSquared(player.location.clone().add(0.0, player.height/2, 0.0))
 
         if (!arrow.isOnGround) {
             if (distanceSquared > rangeSquared) {
@@ -58,14 +63,14 @@ data class GrappleTick(val acceleration: Double = 0.5, @SerialName("max-speed") 
 
         if (distanceSquared < 1.0 || player.isSneaking) {
             player.playSoundAt("entity.blaze.hurt", SoundCategory.PLAYERS, 0.5f, 2.0f)
-            player.velocity = player.velocity.add(Vector(0.0, 0.3, 0.0))
+            player.velocity = player.velocity.normalize().multiply(maxSpeed).add(Vector(0.0, 0.3, 0.0))
             arrow.remove()
             return true
         }
 
         if (Bukkit.getServer().currentTick.mod(2) == 0) {
             player.playSoundAt("entity.fishing_bobber.retrieve", SoundCategory.PLAYERS, 1.0f, 0.5f)
-            arrow.location.spawnParticleLine(player.eyeLocation, particle, 5, 0.8)
+            arrow.location.spawnParticleLine(player.eyeLocation, particle, 0.8)
         }
 
         return true

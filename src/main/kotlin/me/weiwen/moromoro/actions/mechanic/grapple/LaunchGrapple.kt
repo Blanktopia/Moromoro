@@ -1,6 +1,6 @@
 @file:UseSerializers(ColorSerializer::class)
 
-package me.weiwen.moromoro.actions.projectile
+package me.weiwen.moromoro.actions.mechanic.grapple
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

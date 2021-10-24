@@ -11,7 +11,9 @@ import me.weiwen.moromoro.actions.clock.Delay
 import me.weiwen.moromoro.actions.clock.Repeat
 import me.weiwen.moromoro.actions.command.*
 import me.weiwen.moromoro.actions.condition.*
+import me.weiwen.moromoro.actions.damage.DamageEntity
 import me.weiwen.moromoro.actions.damage.Immunity
+import me.weiwen.moromoro.actions.damage.Knockback
 import me.weiwen.moromoro.actions.damage.SetNoDamageTick
 import me.weiwen.moromoro.actions.disguise.Disguise
 import me.weiwen.moromoro.actions.disguise.Undisguise
@@ -26,6 +28,16 @@ import me.weiwen.moromoro.actions.logic.*
 import me.weiwen.moromoro.actions.logic.Any
 import me.weiwen.moromoro.actions.marker.*
 import me.weiwen.moromoro.actions.mechanic.*
+import me.weiwen.moromoro.actions.mechanic.blockzapper.ReplaceBlock
+import me.weiwen.moromoro.actions.mechanic.blockzapper.SelectMaterial
+import me.weiwen.moromoro.actions.mechanic.builderswand.BuildersWand
+import me.weiwen.moromoro.actions.mechanic.builderswand.BuildersWandHighlight
+import me.weiwen.moromoro.actions.mechanic.grapple.GrappleTick
+import me.weiwen.moromoro.actions.mechanic.grapple.LaunchGrapple
+import me.weiwen.moromoro.actions.mechanic.measuringtape.MeasureDistance
+import me.weiwen.moromoro.actions.mechanic.measuringtape.MeasureDistanceTick
+import me.weiwen.moromoro.actions.mechanic.paintbrush.PaintBrushPaint
+import me.weiwen.moromoro.actions.mechanic.paintbrush.PaintBrushPick
 import me.weiwen.moromoro.actions.messages.ActionBar
 import me.weiwen.moromoro.actions.messages.Message
 import me.weiwen.moromoro.actions.player.AddAttributeModifier
@@ -98,6 +110,7 @@ val actionModule = SerializersModule {
         subclass(ConsoleCommand::class)
         subclass(ConsumeHunger::class)
         subclass(CycleFlora::class)
+        subclass(DamageEntity::class)
         subclass(Delay::class)
         subclass(Disguise::class)
         subclass(EntityIs::class)
@@ -112,6 +125,7 @@ val actionModule = SerializersModule {
         subclass(If::class)
         subclass(Ignite::class)
         subclass(Immunity::class)
+        subclass(IsEntityDamageable::class)
         subclass(IsFlying::class)
         subclass(IsInWorld::class)
         subclass(IsOnGround::class)
@@ -119,6 +133,7 @@ val actionModule = SerializersModule {
         subclass(IsSprinting::class)
         subclass(ItemCooldown::class)
         subclass(ItemIs::class)
+        subclass(Knockback::class)
         subclass(LaunchEntity::class)
         subclass(LaunchFallingBlock::class)
         subclass(LaunchGrapple::class)
@@ -126,7 +141,9 @@ val actionModule = SerializersModule {
         subclass(LavaBucket::class)
         subclass(Light::class)
         subclass(Lightning::class)
+        subclass(LightningSword::class)
         subclass(MeasureDistance::class)
+        subclass(MeasureDistanceTick::class)
         subclass(Message::class)
         subclass(MultiTool::class)
         subclass(MultiplyVelocity::class)
@@ -139,6 +156,8 @@ val actionModule = SerializersModule {
         subclass(PathBlock::class)
         subclass(PlaceBlock::class)
         subclass(PlaceRandomBlock::class)
+        subclass(ReplaceBlock::class)
+        subclass(SelectMaterial::class)
         subclass(PlaySound::class)
         subclass(PlayerCommand::class)
         subclass(ProjectileGravity::class)

@@ -1,4 +1,4 @@
-package me.weiwen.moromoro.actions.mechanic
+package me.weiwen.moromoro.actions.mechanic.builderswand
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

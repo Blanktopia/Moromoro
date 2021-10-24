@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.actions.LocationSelector
 import org.bukkit.Particle
 import org.bukkit.util.Vector
 import kotlin.math.PI
@@ -11,6 +12,7 @@ import kotlin.math.PI
 @Serializable
 @SerialName("spawn-particle")
 data class SpawnParticle(
+    val location: LocationSelector = LocationSelector.PLAYER,
     val particle: Particle,
     val x: Double = 0.0,
     val y: Double = 0.0,
@@ -25,14 +27,14 @@ data class SpawnParticle(
     val extra: Double = 0.0,
 ) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player ?: return false
+        val entity = ctx.projectile ?: ctx.entity ?: ctx.player ?: return false
 
         val vec = Vector(x, y, z)
-        vec.rotateAroundY(-player.location.yaw.toDouble() * PI / 180)
+        vec.rotateAroundY(-entity.location.yaw.toDouble() * PI / 180)
 
-        val location = player.location.add(vec)
+        val location = entity.location.add(vec)
 
-        player.world.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra)
+        entity.world.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra)
         return true
     }
 }
