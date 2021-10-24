@@ -143,7 +143,13 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
 
     val persistentData = itemMeta.persistentDataContainer
     persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
-    persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "version"), PersistentDataType.INTEGER, version)
+    if (version != 0) {
+        persistentData.set(
+            NamespacedKey(Moromoro.plugin.config.namespace, "version"),
+            PersistentDataType.INTEGER,
+            version
+        )
+    }
 
     if (unique) {
         val uuid = UUID.randomUUID()
@@ -248,8 +254,11 @@ class ItemManager(val plugin: Moromoro) {
         }
 
         // Migrate version
-        val version = item.itemMeta.persistentDataContainer.get(NamespacedKey(plugin.config.namespace, "version"), PersistentDataType.INTEGER) ?: 0
-        if (version != template.version || plugin.config.forceMigration) {
+        val version = item.itemMeta.persistentDataContainer.get(
+            NamespacedKey(plugin.config.namespace, "version"),
+            PersistentDataType.INTEGER
+        )
+        if (version == 0 || (version ?: 0) != template.version || plugin.config.forceMigration) {
             return template.item(key, item.amount)
         }
 
@@ -265,7 +274,15 @@ class ItemManager(val plugin: Moromoro) {
             it.isCancelled = true
             val key = it.currentItem?.customItemKey ?: return@setOnClick
             val template = templates[key] ?: return@setOnClick
-            player.inventory.addItem(template.item(key, if (it.isShiftClick) { 64 } else { 1 }))
+            player.inventory.addItem(
+                template.item(
+                    key, if (it.isShiftClick) {
+                        64
+                    } else {
+                        1
+                    }
+                )
+            )
         }
         gui.addPane(pages)
 
