@@ -32,7 +32,14 @@ repositories {
     maven { url = uri("https://repo.essentialsx.net/releases/") }
 
     // GriefPrevention
+    // ProtectionLib
     maven { url = uri("https://jitpack.io") }
+
+    // ProtectionLib
+    maven { url = uri("https://rayzr.dev/repo/") }
+
+    // WorldGuard
+    maven { url = uri("https://maven.enginehub.org/repo") }
 
     // Lib's Disguises
     maven { url = uri("https://repo.md-5.net/content/groups/public/") }
@@ -81,6 +88,12 @@ dependencies {
     // GriefPrevention
     compileOnly("com.github.TechFortress:GriefPrevention:16.7.1")
 
+    // WorldGuard
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.6")
+
+    // ProtectionLib
+    compileOnly("com.gitlab.Ste3et_C0st.protectionlib", "Core", "1.4")
+
     // GSit
     compileOnly(files("vendor/GSit.jar"))
 }
@@ -94,7 +107,7 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Essentials", "ProtocolLib")
+    depend = listOf("Essentials", "ProtocolLib", "ProtectionLib")
     softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "GriefPrevention")
 
     commands {

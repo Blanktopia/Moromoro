@@ -1,30 +1,20 @@
 package me.weiwen.moromoro.extensions
 
+import de.Ste3et_C0st.ProtectionLib.main.ProtectionLib
 import me.ryanhamshire.GriefPrevention.GriefPrevention
+import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.Material
 import org.bukkit.entity.Player
 
-fun Player.isInOwnClaim(location: Location): Boolean {
-    val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return false
-    return claim.ownerID == uniqueId
-}
-
 fun Player.hasAccessTrust(location: Location): Boolean {
-    val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return false
-    return claim.allowAccess(this) == null
-}
+    if (Bukkit.getServer().pluginManager.isPluginEnabled("GriefPrevention")) {
+        val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return false
+        return claim.allowAccess(this) == null
+    }
 
-fun Player.hasContainerTrust(location: Location): Boolean {
-    val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return false
-    return claim.allowContainers(this) == null
-}
-
-fun Player.hasBuildTrust(location: Location, material: Material): Boolean {
-    val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return false
-    return claim.allowBuild(this, material) == null
+    return false
 }
 
 fun Player.canBuildAt(location: Location): Boolean {
-    return GriefPrevention.instance.allowBuild(this, location) == null
+    return ProtectionLib.getInstance().canBuild(location, this)
 }
