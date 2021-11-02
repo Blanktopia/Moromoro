@@ -5,13 +5,18 @@ import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.wrappers.EnumWrappers
+import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction
+import io.papermc.paper.event.block.BlockBreakBlockEvent
 import me.gsit.api.GSitAPI
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.*
-import org.bukkit.*
+import me.weiwen.moromoro.managers.*
+import org.bukkit.GameMode
+import org.bukkit.Material
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
 import org.bukkit.block.BlockFace
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
@@ -25,11 +30,7 @@ import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
-import org.bukkit.persistence.PersistentDataType
 import org.bukkit.util.Vector
-import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction
-import me.weiwen.moromoro.managers.*
-import org.bukkit.SoundCategory
 
 
 class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager, val itemManager: ItemManager) :
@@ -85,6 +86,18 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
         val block = event.block
         if (block.type == Material.BROWN_MUSHROOM_BLOCK || block.type == Material.RED_MUSHROOM_BLOCK || block.type == Material.MUSHROOM_STEM) {
             event.block.customBlockState = 0b111111
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    fun onBlockBreakBlock(event: BlockBreakBlockEvent) {
+        val block = event.block
+
+        // Mushroom Blocks
+        val customBlock = MushroomCustomBlock.fromBlock(block)
+        if (customBlock != null) {
+            event.drops.clear()
+            customBlock.breakNaturally(null, true)
         }
     }
 
