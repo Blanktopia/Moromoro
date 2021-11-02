@@ -18,6 +18,7 @@ import kotlin.math.sqrt
 data class GrappleTick(
     val acceleration: Double = 0.5,
     @SerialName("max-speed") val maxSpeed: Double = 1.0,
+    @SerialName("detach-speed") val detachSpeed: Double = 1.0,
     val range: Double = 50.0,
     val particle: Particle = Particle.ELECTRIC_SPARK
 ) :
@@ -40,6 +41,9 @@ data class GrappleTick(
                 player.playSoundAt("block.wool.break", SoundCategory.PLAYERS, 1.0f, 2.0f)
                 arrow.remove()
             }
+            if (player.isSneaking) {
+                arrow.remove()
+            }
             return true
         }
 
@@ -48,6 +52,8 @@ data class GrappleTick(
         val vec = player.velocity.add(
             arrow.location.toVector()
                 .subtract(player.location.toVector())
+                .normalize()
+                .add(player.location.direction.multiply(0.75))
                 .normalize()
                 .multiply(acceleration)
         )
@@ -63,7 +69,7 @@ data class GrappleTick(
 
         if (distanceSquared < 1.0 || player.isSneaking) {
             player.playSoundAt("entity.blaze.hurt", SoundCategory.PLAYERS, 0.5f, 2.0f)
-            player.velocity = player.velocity.normalize().multiply(maxSpeed).add(Vector(0.0, 0.3, 0.0))
+            player.velocity = player.location.direction.multiply(detachSpeed).add(Vector(0.0, 0.5, 0.0))
             arrow.remove()
             return true
         }
