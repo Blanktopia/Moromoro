@@ -199,7 +199,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
     fun openTrinketInventory(player: Player) {
         val gui = ChestGui(2, "Trinkets")
 
-        val trinketPane = OutlinePane(0, 0, 9, 2);
+        val trinketPane = OutlinePane(0, 0, 9, 2)
 
         val guiItems = player.trinkets.mapIndexed { i, item ->
             val guiItem = if (item != null) {
