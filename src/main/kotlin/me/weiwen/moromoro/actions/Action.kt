@@ -21,6 +21,7 @@ import me.weiwen.moromoro.actions.effect.*
 import me.weiwen.moromoro.actions.enchantment.ToggleEnchantment
 import me.weiwen.moromoro.actions.event.Cancel
 import me.weiwen.moromoro.actions.hunger.*
+import me.weiwen.moromoro.actions.item.AttackCooldown
 import me.weiwen.moromoro.actions.item.EquipItem
 import me.weiwen.moromoro.actions.item.ItemCooldown
 import me.weiwen.moromoro.actions.item.RemoveItem
@@ -49,6 +50,7 @@ import me.weiwen.moromoro.actions.potioneffect.RemovePermanentPotionEffect
 import me.weiwen.moromoro.actions.projectile.*
 import me.weiwen.moromoro.actions.selectors.*
 import me.weiwen.moromoro.actions.velocity.AddVelocity
+import me.weiwen.moromoro.actions.velocity.ClampVelocity
 import me.weiwen.moromoro.actions.velocity.MultiplyVelocity
 import me.weiwen.moromoro.actions.velocity.SetVelocity
 import me.weiwen.moromoro.serializers.EnchantmentSerializer
@@ -96,6 +98,7 @@ val actionModule = SerializersModule {
         subclass(All::class)
         subclass(AllPlayers::class)
         subclass(Any::class)
+        subclass(AttackCooldown::class)
         subclass(ProjectileGravity::class)
         subclass(ArrowColor::class)
         subclass(ArrowVolley::class)
@@ -105,6 +108,7 @@ val actionModule = SerializersModule {
         subclass(BuildersWand::class)
         subclass(BuildersWandHighlight::class)
         subclass(CanBuild::class)
+        subclass(ClampVelocity::class)
         subclass(Cancel::class)
         subclass(ClearHighlight::class)
         subclass(ConsoleCommand::class)
@@ -115,6 +119,7 @@ val actionModule = SerializersModule {
         subclass(Disguise::class)
         subclass(EntityIs::class)
         subclass(EquipItem::class)
+        subclass(EvokerFang::class)
         subclass(ExperienceBoost::class)
         subclass(Explode::class)
         subclass(Feed::class)
@@ -131,6 +136,7 @@ val actionModule = SerializersModule {
         subclass(IsOnGround::class)
         subclass(IsSneaking::class)
         subclass(IsSprinting::class)
+        subclass(IsGliding::class)
         subclass(ItemCooldown::class)
         subclass(ItemIs::class)
         subclass(Knockback::class)

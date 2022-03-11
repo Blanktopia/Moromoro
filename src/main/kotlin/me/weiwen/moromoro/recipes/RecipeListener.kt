@@ -40,7 +40,7 @@ class RecipeListener(val plugin: Moromoro, val recipeManager: RecipeManager, val
             return
         }
 
-        if (event.inventory.matrix.filterNotNull().any { it.customItemKey != null }) {
+        if (event.inventory.matrix?.filterNotNull()?.any { it.customItemKey != null } == true) {
             event.inventory.result = null
         }
     }

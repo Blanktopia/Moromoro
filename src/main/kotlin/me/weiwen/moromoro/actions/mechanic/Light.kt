@@ -7,10 +7,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
-import me.weiwen.moromoro.extensions.playSoundAt
-import me.weiwen.moromoro.extensions.spawnParticle
 import me.weiwen.moromoro.serializers.MaterialSerializer
-import org.bukkit.*
+import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.Particle
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 
@@ -53,8 +53,18 @@ object Light : Action {
 
         state.update(true)
 
-        replacedBlock.spawnParticle(Particle.LIGHT, 1, 0.0)
-        replacedBlock.playSoundAt(Sound.BLOCK_AMETHYST_BLOCK_STEP, SoundCategory.BLOCKS, 1.0f, 1.0f)
+        replacedBlock.world.spawnParticle(
+            Particle.BLOCK_MARKER,
+            block.x + 0.5,
+            block.y + 0.5,
+            block.z + 0.5,
+            1,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            Bukkit.getServer().createBlockData(Material.LIGHT)
+        )
 
         return true
     }

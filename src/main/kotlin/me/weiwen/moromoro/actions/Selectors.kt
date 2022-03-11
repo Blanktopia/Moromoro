@@ -32,3 +32,12 @@ fun LocationSelector.center(ctx: Context): Location? {
     }
 }
 
+fun LocationSelector.location(ctx: Context): Location? {
+    return when (this) {
+        LocationSelector.PLAYER -> ctx.player?.let { it.location }
+        LocationSelector.ENTITY -> ctx.entity?.let { it.location }
+        LocationSelector.BLOCK -> ctx.block?.let { it.location.clone().add(0.5, 0.0, 0.5) }
+        LocationSelector.PROJECTILE -> ctx.projectile?.let { it.location }
+        LocationSelector.RAYCAST -> ctx.player?.let { it.rayTraceBlocks(5.0)?.hitPosition?.toLocation(it.world) }
+    }
+}

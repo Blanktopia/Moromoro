@@ -18,7 +18,7 @@ import kotlin.math.sqrt
 data class GrappleTick(
     val acceleration: Double = 0.5,
     @SerialName("max-speed") val maxSpeed: Double = 1.0,
-    @SerialName("detach-speed") val detachSpeed: Double = 1.0,
+    @SerialName("detach-speed") val detachSpeed: Double = 0.5,
     val range: Double = 50.0,
     val particle: Particle = Particle.ELECTRIC_SPARK
 ) :

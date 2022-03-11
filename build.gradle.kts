@@ -4,8 +4,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.0"
-    kotlin("plugin.serialization") version "1.5.0"
+    kotlin("jvm") version "1.6.0"
+    kotlin("plugin.serialization") version "1.6.0"
     id("net.minecrell.plugin-yml.bukkit")
     id("com.github.johnrengelman.shadow")
 }
@@ -19,7 +19,7 @@ repositories {
 
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("https://papermc.io/repo/repository/maven-public") }
-    maven { url = uri("https://repo.pl3x.net/") }
+    maven { url = uri("https://repo.purpurmc.org/snapshots") }
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
 
     // bStats
@@ -55,20 +55,20 @@ repositories {
 
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", "1.5.0"))
+    implementation(kotlin("stdlib", "1.6.0"))
 
     // Deserialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
     implementation("com.charleskorn.kaml:kaml:0.33.0")
 
     // Purpur
-    compileOnly("net.pl3x.purpur", "purpur-api", "1.17.1-R0.1-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur", "purpur-api", "1.18.1-R0.1-SNAPSHOT")
 
     // Paper
-    compileOnly("io.papermc.paper", "paper-api", "1.17.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper", "paper-api", "1.18.1-R0.1-SNAPSHOT")
 
     // Spigot
-    compileOnly("org.spigotmc", "spigot", "1.17.1-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc", "spigot", "1.18.1-R0.1-SNAPSHOT")
 
     // Cloud
     implementation("cloud.commandframework", "cloud-paper", "1.5.0")
@@ -102,11 +102,12 @@ dependencies {
     compileOnly("com.gitlab.Ste3et_C0st.protectionlib", "Core", "1.4")
 
     // GSit
-    compileOnly(files("vendor/GSit.jar"))
+    compileOnly(files("vendor/GSit-1.0.4.jar"))
 }
 
 bukkit {
     main = "me.weiwen.moromoro.Moromoro"
+    apiVersion = "1.13"
     name = "Moromoro"
     version = "1.0.0"
     description = "Easily build custom items for your Minecraft server"
@@ -119,8 +120,8 @@ bukkit {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.languageVersion = "1.5"
+    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.languageVersion = "1.6"
     kotlinOptions.freeCompilerArgs = listOf(
         "-Xopt-in=kotlin.RequiresOptIn",
         "-Xuse-experimental=org.jetbrains.kotlinx.serialization.ExperimentalSerializationApi"

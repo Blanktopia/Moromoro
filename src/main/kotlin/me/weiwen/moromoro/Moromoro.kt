@@ -194,7 +194,6 @@ class Moromoro : JavaPlugin() {
                         }
                     }
 
-
                 manager.command(builder.literal("reload").handler {
                     equippedItemsManager.disable()
                     config = parseConfig(plugin)

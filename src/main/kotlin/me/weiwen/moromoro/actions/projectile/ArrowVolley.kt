@@ -10,6 +10,7 @@ import me.weiwen.moromoro.extensions.playSoundAt
 import org.bukkit.NamespacedKey
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
+import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.Arrow
 import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.persistence.PersistentDataType
@@ -28,7 +29,7 @@ data class ArrowVolley(val count: Int, val delay: Long) : Action {
         (1 until count).forEach { i ->
             Moromoro.plugin.server.scheduler.scheduleSyncDelayedTask(Moromoro.plugin, {
                 val projectile = player.launchProjectile(Arrow::class.java, player.location.direction.multiply(speed)).apply {
-                    pickupStatus = arrow.pickupStatus
+                    pickupStatus = AbstractArrow.PickupStatus.DISALLOWED
                     isCritical = arrow.isCritical
                 }
 

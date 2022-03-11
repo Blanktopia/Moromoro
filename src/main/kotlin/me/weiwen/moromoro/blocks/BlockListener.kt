@@ -6,16 +6,21 @@ import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.wrappers.EnumWrappers
 import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction
+import dev.geco.gsit.api.GSitAPI
 import io.papermc.paper.event.block.BlockBreakBlockEvent
-import me.gsit.api.GSitAPI
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Context
-import me.weiwen.moromoro.extensions.*
-import me.weiwen.moromoro.managers.*
+import me.weiwen.moromoro.extensions.canBuildAt
+import me.weiwen.moromoro.extensions.customItemKey
+import me.weiwen.moromoro.extensions.isReallyInteractable
+import me.weiwen.moromoro.extensions.rotation
+import me.weiwen.moromoro.managers.BlockManager
+import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.managers.customBlockState
+import me.weiwen.moromoro.packets.WrapperPlayClientBlockDig
+import me.weiwen.moromoro.packets.blockFace
 import org.bukkit.GameMode
 import org.bukkit.Material
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.Event
@@ -35,10 +40,11 @@ import org.bukkit.util.Vector
 
 class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager, val itemManager: ItemManager) :
     Listener {
-    val gSitApi: GSitAPI by lazy { GSitAPI() }
 
     init {
         val manager = ProtocolLibrary.getProtocolManager()
+
+        manager.removePacketListeners(plugin)
 
         manager.addPacketListener(object : PacketAdapter(plugin, PacketType.Play.Client.USE_ENTITY) {
             override fun onPacketReceiving(e: PacketEvent) {
@@ -71,6 +77,28 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
                 }
             }
         })
+
+        manager.addPacketListener(object : PacketAdapter(plugin, PacketType.Play.Client.BLOCK_DIG) {
+            override fun onPacketReceiving(e: PacketEvent) {
+                val packet = WrapperPlayClientBlockDig(e.packet)
+
+                plugin.server.scheduler.scheduleSyncDelayedTask(plugin) {
+                    val location = packet.location?.toLocation(e.player.world) ?: return@scheduleSyncDelayedTask
+                    val customBlock = CustomBlock.fromBlock(location.block) ?: return@scheduleSyncDelayedTask
+                    val direction = packet.direction ?: return@scheduleSyncDelayedTask
+                    e.isCancelled = true
+
+                    when (packet.status) {
+                        EnumWrappers.PlayerDigType.START_DESTROY_BLOCK -> blockManager.startDigging(
+                            e.player,
+                            customBlock,
+                            direction.blockFace
+                        )
+                        EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK -> blockManager.cancelDigging(e.player)
+                    }
+                }
+            }
+        })
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -96,6 +124,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
         // Mushroom Blocks
         val customBlock = MushroomCustomBlock.fromBlock(block)
         if (customBlock != null) {
+            return
             event.drops.clear()
             customBlock.breakNaturally(null, true)
         }
@@ -109,6 +138,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
         val customBlock = MushroomCustomBlock.fromBlock(block)
         if (customBlock != null) {
             event.isCancelled = true
+            return
             customBlock.breakNaturally(
                 event.player.inventory.itemInMainHand,
                 event.player.gameMode != GameMode.CREATIVE
@@ -164,15 +194,14 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
                     rotation = customBlock.itemFrame.rotation
                 }
 
-                gSitApi.setPlayerSeat(
+                GSitAPI.createSeat(
+                    seatLocation.block,
                     event.player,
-                    seatLocation,
+                    false,
                     offset.x,
                     offset.y,
                     offset.z,
                     seatLocation.yaw,
-                    seatLocation,
-                    false,
                     true
                 )
 
@@ -204,13 +233,16 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
 
             val blockFace = event.blockFace
 
-            val (placedAgainst, targetFace) = when (block.type) {
-                Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Pair(
-                    block.getRelative(BlockFace.DOWN), BlockFace.UP
-                )
-                else -> Pair(block, blockFace)
+            val (placedAgainst, targetFace) = if (block.isReplaceable) {
+                Pair(block.getRelative(BlockFace.DOWN), BlockFace.UP)
+            } else {
+                Pair(block, blockFace)
             }
             val placedBlock = placedAgainst.getRelative(targetFace)
+
+            if (!placedBlock.isReplaceable) {
+                return
+            }
 
             if (event.player.location.block.location == placedBlock.location
                 || event.player.location.add(0.0, 1.0, 0.0).block.location == placedBlock.location
@@ -232,7 +264,6 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
                 if (event.player.gameMode != GameMode.CREATIVE) {
                     item.amount -= 1
                 }
-                block.playSoundAt(Sound.BLOCK_WOOD_PLACE, SoundCategory.BLOCKS, 1.0f, 1.0f)
                 when (event.hand) {
                     EquipmentSlot.HAND -> event.player.swingMainHand()
                     EquipmentSlot.OFF_HAND -> event.player.swingOffHand()
@@ -270,17 +301,17 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
             rotation = itemFrame.rotation
         }
 
-        gSitApi.setPlayerSeat(
+        GSitAPI.createSeat(
+            seatLocation.block,
             event.player,
-            seatLocation,
+            false,
             offset.x,
             offset.y,
             offset.z,
             seatLocation.yaw,
-            seatLocation,
-            false,
             true
         )
+
 
         event.isCancelled = true
     }

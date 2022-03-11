@@ -44,7 +44,8 @@ data class LaunchGrapple(val speed: Double = 1.0) : Action {
         }
 
         entity.shooter = player
-        entity.pickupStatus = AbstractArrow.PickupStatus.CREATIVE_ONLY
+        entity.pickupStatus = AbstractArrow.PickupStatus.DISALLOWED
+        entity.damage = 0.0
 
         val v = player.location.direction
 

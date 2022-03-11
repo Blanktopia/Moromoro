@@ -86,6 +86,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         BRICK_WALL,
         BROWN_CONCRETE,
         BROWN_GLAZED_TERRACOTTA,
+        BROWN_MUSHROOM_BLOCK,
         BROWN_SHULKER_BOX,
         BROWN_STAINED_GLASS,
         BROWN_STAINED_GLASS_PANE,
@@ -285,6 +286,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         MOSSY_STONE_BRICK_SLAB,
         MOSSY_STONE_BRICK_STAIRS,
         MOSSY_STONE_BRICK_WALL,
+        MUSHROOM_STEM,
         NETHERRACK,
         NETHER_BRICKS,
         NETHER_BRICK_FENCE,
@@ -364,6 +366,7 @@ fun Material.canMineBlock(block: Block): Boolean {
         REDSTONE_ORE,
         RED_CONCRETE,
         RED_GLAZED_TERRACOTTA,
+        RED_MUSHROOM_BLOCK,
         RED_NETHER_BRICKS,
         RED_NETHER_BRICK_SLAB,
         RED_NETHER_BRICK_STAIRS,
@@ -463,7 +466,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         BIRCH_WALL_SIGN,
         BIRCH_WOOD,
         BOOKSHELF,
-        BROWN_MUSHROOM_BLOCK,
         CACTUS,
         CAMPFIRE,
         CARTOGRAPHY_TABLE,
@@ -525,7 +527,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         LECTERN,
         LOOM,
         MELON,
-        MUSHROOM_STEM,
         NOTE_BLOCK,
         OAK_BUTTON,
         OAK_DOOR,
@@ -541,7 +542,6 @@ fun Material.canMineBlock(block: Block): Boolean {
         OAK_WALL_SIGN,
         OAK_WOOD,
         PUMPKIN,
-        RED_MUSHROOM_BLOCK,
         SOUL_CAMPFIRE,
         SPRUCE_BUTTON,
         SPRUCE_DOOR,
@@ -1064,3 +1064,81 @@ val Material.isReallyInteractable
 
         else -> isInteractable
     }
+
+val netheriteTools: Set<Material> = setOf(
+    Material.NETHERITE_PICKAXE,
+    Material.NETHERITE_AXE,
+    Material.NETHERITE_SHOVEL,
+    Material.NETHERITE_HOE,
+)
+
+val goldTools: Set<Material> = setOf(
+    Material.GOLDEN_PICKAXE,
+    Material.GOLDEN_AXE,
+    Material.GOLDEN_SHOVEL,
+    Material.GOLDEN_HOE,
+)
+
+val diamondTools: Set<Material> = setOf(
+    Material.DIAMOND_PICKAXE,
+    Material.DIAMOND_AXE,
+    Material.DIAMOND_SHOVEL,
+    Material.DIAMOND_HOE,
+)
+
+val ironTools: Set<Material> = setOf(
+    Material.IRON_PICKAXE,
+    Material.IRON_AXE,
+    Material.IRON_SHOVEL,
+    Material.IRON_HOE,
+)
+
+val stoneTools: Set<Material> = setOf(
+    Material.STONE_PICKAXE,
+    Material.STONE_AXE,
+    Material.STONE_SHOVEL,
+    Material.STONE_HOE,
+)
+
+val woodenTools: Set<Material> = setOf(
+    Material.WOODEN_PICKAXE,
+    Material.WOODEN_AXE,
+    Material.WOODEN_SHOVEL,
+    Material.WOODEN_HOE,
+)
+
+val pickaxes: Set<Material> = setOf(
+    Material.DIAMOND_PICKAXE,
+    Material.GOLDEN_PICKAXE,
+    Material.IRON_PICKAXE,
+    Material.STONE_PICKAXE,
+    Material.WOODEN_PICKAXE,
+    Material.NETHERITE_PICKAXE
+)
+
+val axes: Set<Material> = setOf(
+    Material.DIAMOND_AXE,
+    Material.GOLDEN_AXE,
+    Material.IRON_AXE,
+    Material.STONE_AXE,
+    Material.WOODEN_AXE,
+    Material.NETHERITE_AXE
+)
+
+val shovels: Set<Material> = setOf(
+    Material.DIAMOND_SHOVEL,
+    Material.GOLDEN_SHOVEL,
+    Material.IRON_SHOVEL,
+    Material.STONE_SHOVEL,
+    Material.WOODEN_SHOVEL,
+    Material.NETHERITE_SHOVEL
+)
+
+val hoes: Set<Material> = setOf(
+    Material.DIAMOND_HOE,
+    Material.GOLDEN_HOE,
+    Material.IRON_HOE,
+    Material.STONE_HOE,
+    Material.WOODEN_HOE,
+    Material.NETHERITE_HOE
+)

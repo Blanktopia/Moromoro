@@ -4,9 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.blocks.CustomBlock
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.canMineBlock
-import me.weiwen.moromoro.managers.CustomBlock
 import org.bukkit.GameMode
 import org.bukkit.util.Vector
 

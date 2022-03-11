@@ -25,6 +25,7 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
+import me.weiwen.moromoro.blocks.BlockTemplate
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.setHeadUrl
 import me.weiwen.moromoro.extensions.toRomanNumerals

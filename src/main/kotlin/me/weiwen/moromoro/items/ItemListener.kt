@@ -637,7 +637,7 @@ class ItemListener(
             eq.boots?.let { itemManager.migrateItem(it)?.let { eq.boots = it } }
         }
 
-        event.player.inventory.storageContents.forEach { item ->
+        event.player.inventory.storageContents?.forEach { item ->
             if (item != null) {
                 itemManager.migrateItem(item)?.let {
                     if (event.player.inventory.removeItem(item).isEmpty()) {

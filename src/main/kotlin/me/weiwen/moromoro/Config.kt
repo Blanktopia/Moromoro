@@ -27,6 +27,11 @@ data class MoromoroConfig(
     @SerialName("resource-pack-hash")
     val resourcePackHash: String? = null,
 
+    @SerialName("render-distance")
+    val renderDistance: Double = 32.0,
+    @SerialName("render-interval")
+    val renderInterval: Int = 3,
+
     // Debug
     @SerialName("force-migration")
     val forceMigration: Boolean = false,

@@ -9,14 +9,35 @@ import kotlin.math.PI
 
 @Serializable
 @SerialName("add-velocity")
-data class AddVelocity(val x: Double, val y: Double, val z: Double) : Action {
+data class AddVelocity(
+    val x: Double = 0.0,
+    val y: Double = 0.0,
+    val z: Double = 0.0,
+    val max: Double?,
+    @SerialName("rotate-yaw")
+    val rotateYaw: Boolean = true,
+    @SerialName("rotate-pitch")
+    val rotatePitch: Boolean = false
+) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
 
         val vec = Vector(x, y, z)
-        vec.rotateAroundY(-player.location.yaw.toDouble() * PI / 180)
 
-        player.velocity = player.velocity.add(vec)
+        if (rotateYaw) {
+            vec.rotateAroundY(-player.location.yaw.toDouble() * PI / 180)
+        }
+        if (rotatePitch) {
+            vec.rotateAroundAxis(player.location.direction.crossProduct(Vector(0, 1, 0)), -player.location.pitch.toDouble() * PI / 180)
+        }
+
+        if (max != null) {
+            if (player.velocity.lengthSquared() <= max * max) {
+                player.velocity = player.velocity.add(vec).normalize().multiply(max)
+            }
+        } else {
+            player.velocity = player.velocity.add(vec)
+        }
 
         return true
     }
