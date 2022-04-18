@@ -25,9 +25,6 @@ repositories {
     // bStats
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
 
-    // Cloud
-    maven { url = uri("https://repo.incendo.org/content/repositories/snapshots") }
-
     // MineDown
     maven { url = uri("https://repo.minebench.de/") }
 
@@ -73,10 +70,6 @@ dependencies {
     // Vault
     compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
 
-    // Cloud
-    implementation("cloud.commandframework", "cloud-paper", "1.5.0")
-    implementation("cloud.commandframework", "cloud-kotlin-extensions", "1.5.0")
-
     // bStats
     implementation("org.bstats", "bstats-bukkit", "1.8")
 
@@ -117,6 +110,24 @@ bukkit {
 
     depend = listOf("Essentials", "ProtocolLib")
     softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "WorldGuard", "GriefPrevention")
+
+    commands {
+        register("moromoro") {
+            description = "Manages the Moromoro plugin"
+            usage = "/<command> reload"
+            permission = "moromoro.admin"
+        }
+        register("pack") {
+            description = "Sends the resource pack"
+            usage = "/<command>"
+            permission = "moromoro.pack"
+        }
+        register("trinkets") {
+            description = "Opens the trinket bag"
+            usage = "/<command>"
+            permission = "moromoro.trinkets"
+        }
+    }
 }
 
 tasks.withType<KotlinCompile> {
@@ -130,9 +141,4 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<ShadowJar> {
     classifier = null
-
-    relocate("org.bstats", "me.weiwen.moromoro.bstats")
-    relocate("de.themoep.minedown", "me.weiwen.moromoro.minedown")
-    relocate("cloud.commandframework", "me.weiwen.moromoro.cloud")
-    relocate("com.github.stefvanschie.inventoryframework", "me.weiwen.moromoro.inventoryframework")
 }
