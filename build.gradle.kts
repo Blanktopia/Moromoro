@@ -70,6 +70,9 @@ dependencies {
     // Spigot
     compileOnly("org.spigotmc", "spigot", "1.18.1-R0.1-SNAPSHOT")
 
+    // Vault
+    compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
+
     // Cloud
     implementation("cloud.commandframework", "cloud-paper", "1.5.0")
     implementation("cloud.commandframework", "cloud-kotlin-extensions", "1.5.0")
@@ -93,16 +96,13 @@ dependencies {
     compileOnly("com.comphenix.protocol", "ProtocolLib", "4.7.0-SNAPSHOT")
 
     // GriefPrevention
-    compileOnly("com.github.TechFortress:GriefPrevention:16.7.1")
+    compileOnly("com.github.TechFortress:GriefPrevention:16.18")
 
     // WorldGuard
-    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.6")
-
-    // ProtectionLib
-    compileOnly("com.gitlab.Ste3et_C0st.protectionlib", "Core", "1.4")
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.7")
 
     // GSit
-    compileOnly(files("vendor/GSit-1.0.4.jar"))
+    compileOnly(files("vendor/GSit-1.0.7.jar"))
 }
 
 bukkit {
@@ -115,8 +115,8 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Essentials", "ProtocolLib", "ProtectionLib")
-    softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "GriefPrevention")
+    depend = listOf("Essentials", "ProtocolLib")
+    softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "WorldGuard", "GriefPrevention")
 }
 
 tasks.withType<KotlinCompile> {
