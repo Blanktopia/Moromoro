@@ -74,7 +74,7 @@ dependencies {
     implementation("org.bstats", "bstats-bukkit", "1.8")
 
     // MineDown
-    implementation("de.themoep", "minedown", "1.7.0-SNAPSHOT")
+    implementation("de.themoep", "minedown", "1.7.1-SNAPSHOT")
 
     // InventoryFramework
     implementation("com.github.stefvanschie.inventoryframework", "IF", "0.10.3")

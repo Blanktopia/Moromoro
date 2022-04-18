@@ -192,7 +192,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
                 val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(customBlock.itemFrame.facing.direction)
                 val seatLocation = customBlock.itemFrame.location.block.location.apply {
                     rotation = customBlock.itemFrame.rotation
-                }
+                }.add(0.0, -1.0, 0.0)
 
                 GSitAPI.createSeat(
                     seatLocation.block,
@@ -299,7 +299,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
         val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(itemFrame.facing.direction)
         val seatLocation = itemFrame.location.block.location.apply {
             rotation = itemFrame.rotation
-        }
+        }.add(0.0, -1.0, 0.0)
 
         GSitAPI.createSeat(
             seatLocation.block,
