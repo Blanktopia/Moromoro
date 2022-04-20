@@ -26,11 +26,9 @@ fun Player.canBuildAt(location: Location): Boolean {
         val loc = BukkitAdapter.adapt(location)
         val container = WorldGuard.getInstance().platform.regionContainer
         val query = container.createQuery()
-        if (!query.testState(loc, player, Flags.BUILD)) {
-            return false
-        }
-
-        if (!WorldGuard.getInstance().platform.sessionManager.hasBypass(player, BukkitAdapter.adapt(location.world))) {
+        if (!WorldGuard.getInstance().platform.sessionManager.hasBypass(player, BukkitAdapter.adapt(location.world)) &&
+            !query.testState(loc, player, Flags.BUILD)
+        ) {
             return false
         }
     }
