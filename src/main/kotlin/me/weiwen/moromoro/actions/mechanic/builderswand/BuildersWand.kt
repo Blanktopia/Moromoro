@@ -74,7 +74,7 @@ data class BuildersWand(val range: Int = 1) : Action {
             )
 
             state.blockData = blockData
-            if (player.gameMode != GameMode.CREATIVE && !player.inventory.containsAtLeast(cost, 1)) {
+            if (player.gameMode != GameMode.CREATIVE && !player.hasAtLeastInInventoryOrShulkerBoxes(cost)) {
                 if (!canBuild) {
                     block.world.playSound(block.location, Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 1.0f, 1.0f)
                 }
@@ -107,7 +107,7 @@ data class BuildersWand(val range: Int = 1) : Action {
                 continue
             }
 
-            if (player.gameMode != GameMode.CREATIVE) player.inventory.removeItem(cost)
+            if (player.gameMode != GameMode.CREATIVE) player.removeItemFromInventoryOrShulkerBoxes(cost)
 
             state.update(true)
             canBuild = true

@@ -4,10 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
-import me.weiwen.moromoro.extensions.canBuildAt
-import me.weiwen.moromoro.extensions.isPartial
-import me.weiwen.moromoro.extensions.playSoundAt
-import me.weiwen.moromoro.extensions.playSoundTo
+import me.weiwen.moromoro.extensions.*
 import me.weiwen.moromoro.managers.isCustomBlock
 import org.bukkit.*
 import org.bukkit.block.Block
@@ -59,8 +56,12 @@ object ReplaceBlock : Action {
 
         val cost = ItemStack(material, 1)
         if (player.gameMode != GameMode.CREATIVE) {
-            if (!player.inventory.containsAtLeast(cost, 1)) {
+            if (!player.hasAtLeastInInventoryOrShulkerBoxes(cost)) {
                 player.playSoundTo(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 1.0f, 1.0f)
+                if (block.type.isItem) {
+                    val name = ItemStack(block.type).i18NDisplayName
+                    player.sendActionBar("${ChatColor.RED}Not enough ${name}.")
+                }
                 return false
             }
         }
@@ -83,9 +84,13 @@ object ReplaceBlock : Action {
         }
 
         if (player.gameMode != GameMode.CREATIVE) {
-            val couldntRemove = player.inventory.removeItem(cost)
-            if (couldntRemove.isNotEmpty()) {
+            val couldntRemove = player.removeItemFromInventoryOrShulkerBoxes(cost)
+            if (couldntRemove != null) {
                 player.playSoundTo(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 1.0f, 1.0f)
+                if (block.type.isItem) {
+                    val name = ItemStack(block.type).i18NDisplayName
+                    player.sendActionBar("${ChatColor.RED}Not enough ${name}.")
+                }
                 return false
             }
         }

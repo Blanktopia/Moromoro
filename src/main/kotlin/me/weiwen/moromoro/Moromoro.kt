@@ -1,6 +1,7 @@
 package me.weiwen.moromoro
 
 import me.weiwen.moromoro.hooks.EssentialsHook
+import me.weiwen.moromoro.hooks.ShulkerPacksHook
 import me.weiwen.moromoro.items.EquippedItemsManager
 import me.weiwen.moromoro.items.ItemListener
 import me.weiwen.moromoro.items.TrinketManager
@@ -44,6 +45,13 @@ class Moromoro : JavaPlugin() {
     val projectileManager: ProjectileManager by lazy { ProjectileManager(this, itemManager) }
 
     val essentialsHook: EssentialsHook by lazy { EssentialsHook(this, itemManager) }
+    val shulkerPacksHook: ShulkerPacksHook? by lazy {
+        if (server.pluginManager.getPlugin("ShulkerPacks") != null) {
+            ShulkerPacksHook()
+        } else {
+            null
+        }
+    }
 
     override fun onLoad() {
         plugin = this
@@ -109,7 +117,12 @@ class Moromoro : JavaPlugin() {
                             val key = args[1]
                             val template = itemManager.templates[key] ?: return@setExecutor false
                             val item = template.item(key, args[2].toInt())
-                            val location = Location(server.getWorld(args[3]), args[4].toDouble(), args[5].toDouble(), args[6].toDouble())
+                            val location = Location(
+                                server.getWorld(args[3]),
+                                args[4].toDouble(),
+                                args[5].toDouble(),
+                                args[6].toDouble()
+                            )
                             location.world.dropItemNaturally(location, item)
                             true
                         } else {

@@ -4,6 +4,7 @@ import org.bukkit.DyeColor
 import org.bukkit.DyeColor.*
 import org.bukkit.Material
 import org.bukkit.Material.*
+import org.bukkit.Tag
 import org.bukkit.block.Block
 
 fun Material.canMineBlock(block: Block): Boolean {
@@ -1142,3 +1143,7 @@ val hoes: Set<Material> = setOf(
     Material.WOODEN_HOE,
     Material.NETHERITE_HOE
 )
+
+val shulkerBoxes: Set<Material> by lazy {
+    Tag.SHULKER_BOXES.values
+}

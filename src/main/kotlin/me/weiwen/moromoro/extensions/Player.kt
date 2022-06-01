@@ -5,9 +5,14 @@ import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin
 import com.sk89q.worldguard.protection.flags.Flags
 import me.ryanhamshire.GriefPrevention.GriefPrevention
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.BlockStateMeta
 
 
 fun Player.hasAccessTrust(location: Location): Boolean {
@@ -41,4 +46,103 @@ fun Player.canBuildAt(location: Location): Boolean {
     }
 
     return true
+}
+
+fun Player.hasAtLeastInInventoryOrShulkerBoxes(itemStack: ItemStack): Boolean {
+    var remainder = itemStack.amount
+
+    if (inventory.containsAtLeast(itemStack, itemStack.amount)) {
+        return true
+    }
+
+    val contents = inventory.storageContents ?: return false
+    for (i in contents.indices) {
+        val item = contents[i] ?: continue
+        if (item.type !in shulkerBoxes) {
+            continue
+        }
+        val blockStateMeta = item.itemMeta as? BlockStateMeta ?: continue
+        val shulkerBox = blockStateMeta.blockState as? ShulkerBox ?: continue
+
+        if (plugin.shulkerPacksHook?.isShulkerBoxOpen(item) == true) {
+            continue
+        }
+
+        if (!shulkerBox.inventory.filterNotNull().any { it.type == itemStack.type }) {
+            continue
+        }
+
+        shulkerBox.inventory.filterNotNull().forEach {
+            remainder -= it.amount
+            if (remainder <= 0) {
+                return true
+            }
+        }
+    }
+
+    return false
+}
+
+fun Player.removeItemFromInventoryOrShulkerBoxes(
+    itemStack: ItemStack,
+    removeFromShulkerBoxesFirst: Boolean = true
+): ItemStack? {
+    var remainder = itemStack.amount
+
+    if (!removeFromShulkerBoxesFirst) {
+        val remainingItemStacks = inventory.removeItem(itemStack)
+        if (remainingItemStacks.isEmpty()) {
+            return null
+        } else {
+            remainder = remainingItemStacks.get(0)?.amount ?: 0
+        }
+    }
+
+    val contents = inventory.storageContents ?: return itemStack
+    for (i in contents.indices) {
+        val item = contents[i] ?: continue
+        if (item.type !in shulkerBoxes) {
+            continue
+        }
+        val blockStateMeta = item.itemMeta as? BlockStateMeta ?: continue
+        val shulkerBox = blockStateMeta.blockState as? ShulkerBox ?: continue
+
+        if (plugin.shulkerPacksHook?.isShulkerBoxOpen(item) == true) {
+            continue
+        }
+
+        if (!shulkerBox.inventory.filterNotNull().any { it.type == itemStack.type }) {
+            continue
+        }
+
+        val toRemove = itemStack.clone().apply {
+            amount = remainder
+        }
+        val shulkerBoxCouldntRemove = shulkerBox.inventory.removeItem(itemStack)[0]
+        blockStateMeta.blockState = shulkerBox
+        item.itemMeta = blockStateMeta
+        contents[i] = item
+
+        remainder = shulkerBoxCouldntRemove?.let {
+            it.amount
+        } ?: 0
+
+        if (remainder == 0) {
+            return null
+        }
+    }
+
+    if (removeFromShulkerBoxesFirst) {
+        val remainingItemStacks = inventory.removeItem(itemStack.clone().apply { amount = remainder })
+        if (remainingItemStacks.isEmpty()) {
+            return null
+        } else {
+            remainder = remainingItemStacks.get(0)?.amount ?: 0
+        }
+    }
+
+    val remainderItemStack = itemStack.clone().apply {
+        amount = remainder
+    }
+    return remainderItemStack
 }
