@@ -232,8 +232,8 @@ var BlockState.customBlockState: Int?
 val Block.isCustomBlock: Boolean
     get() {
         return type == Material.BROWN_MUSHROOM_BLOCK
-                && type == Material.RED_MUSHROOM_BLOCK
-                && type == Material.MUSHROOM_STEM
+                || type == Material.RED_MUSHROOM_BLOCK
+                || type == Material.MUSHROOM_STEM
     }
 
 var Block.customBlockState: Int?
