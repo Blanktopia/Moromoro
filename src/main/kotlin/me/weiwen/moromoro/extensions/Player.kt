@@ -30,17 +30,16 @@ fun Player.canBuildAt(location: Location): Boolean {
 
         val loc = BukkitAdapter.adapt(location)
         val container = WorldGuard.getInstance().platform.regionContainer
-        val query = container.createQuery()
         if (!WorldGuard.getInstance().platform.sessionManager.hasBypass(player, BukkitAdapter.adapt(location.world)) &&
-            !query.testState(loc, player, Flags.BUILD)
+            !container.createQuery().testBuild(loc, player, Flags.BLOCK_PLACE)
         ) {
             return false
         }
     }
 
     if (Bukkit.getServer().pluginManager.isPluginEnabled("GriefPrevention")) {
-        val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return false
-        if (claim.allowAccess(this) != null) {
+        val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return true
+        if (claim.allowBuild(this, Material.STONE) != null) {
             return false
         }
     }
