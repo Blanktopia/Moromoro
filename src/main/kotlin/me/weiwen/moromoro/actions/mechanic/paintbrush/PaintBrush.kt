@@ -8,13 +8,16 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.playSoundAt
 import org.bukkit.*
+import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Directional
 import org.bukkit.block.data.MultipleFacing
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.util.Vector
 
 @Serializable
 @SerialName("paint-brush-paint")
-object PaintBrushPaint : Action {
+class PaintBrushPaint(val range: Int = 0) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         val item = ctx.item ?: return false
@@ -45,44 +48,81 @@ object PaintBrushPaint : Action {
             else -> return false
         }
 
-        if (block.type in WOOL && WOOL_MAP[colour] != null) {
-            block.type = WOOL_MAP[colour]!!
-        } else if (block.type in STAINED_GLASS && STAINED_GLASS_MAP[colour] != null) {
-            block.type = STAINED_GLASS_MAP[colour]!!
-        } else if (block.type in STAINED_GLASS_PANE && STAINED_GLASS_PANE_MAP[colour] != null) {
-            val replacedBlockData = block.blockData as MultipleFacing
+        val face = ctx.blockFace ?: return false
+        val locations = sameBlocks(block, face, range)
 
-            block.type = STAINED_GLASS_PANE_MAP[colour]!!
+        for (block in locations) {
+            if (block.type in WOOL && WOOL_MAP[colour] != null) {
+                block.type = WOOL_MAP[colour]!!
+            } else if (block.type in STAINED_GLASS && STAINED_GLASS_MAP[colour] != null) {
+                block.type = STAINED_GLASS_MAP[colour]!!
+            } else if (block.type in STAINED_GLASS_PANE && STAINED_GLASS_PANE_MAP[colour] != null) {
+                val replacedBlockData = block.blockData as MultipleFacing
 
-            val blockData = block.blockData as MultipleFacing
-            replacedBlockData.faces.forEach { blockData.setFace(it, true) }
+                block.type = STAINED_GLASS_PANE_MAP[colour]!!
 
-            block.blockData = blockData
-        } else if (block.type in TERRACOTTA && TERRACOTTA_MAP[colour] != null) {
-            block.type = TERRACOTTA_MAP[colour]!!
-        } else if (block.type in GLAZED_TERRACOTTA && GLAZED_TERRACOTTA_MAP[colour] != null) {
-            val replacedBlockData = block.blockData as Directional
+                val blockData = block.blockData as MultipleFacing
+                replacedBlockData.faces.forEach { blockData.setFace(it, true) }
 
-            block.type = GLAZED_TERRACOTTA_MAP[colour]!!
+                block.blockData = blockData
+            } else if (block.type in TERRACOTTA && TERRACOTTA_MAP[colour] != null) {
+                block.type = TERRACOTTA_MAP[colour]!!
+            } else if (block.type in GLAZED_TERRACOTTA && GLAZED_TERRACOTTA_MAP[colour] != null) {
+                val replacedBlockData = block.blockData as Directional
 
-            val blockData = block.blockData as Directional
-            blockData.facing = replacedBlockData.facing
+                block.type = GLAZED_TERRACOTTA_MAP[colour]!!
 
-            block.blockData = blockData
-        } else if (block.type in CONCRETE && CONCRETE_MAP[colour] != null) {
-            block.type = CONCRETE_MAP[colour]!!
-        } else if (block.type in CONCRETE_POWDER && CONCRETE_POWDER_MAP[colour] != null) {
-            block.type = CONCRETE_POWDER_MAP[colour]!!
-        } else if (block.type in CARPET && CARPET_MAP[colour] != null) {
-            block.type = CARPET_MAP[colour]!!
-        } else {
-            return false
+                val blockData = block.blockData as Directional
+                blockData.facing = replacedBlockData.facing
+
+                block.blockData = blockData
+            } else if (block.type in CONCRETE && CONCRETE_MAP[colour] != null) {
+                block.type = CONCRETE_MAP[colour]!!
+            } else if (block.type in CONCRETE_POWDER && CONCRETE_POWDER_MAP[colour] != null) {
+                block.type = CONCRETE_POWDER_MAP[colour]!!
+            } else if (block.type in CARPET && CARPET_MAP[colour] != null) {
+                block.type = CARPET_MAP[colour]!!
+            } else {
+                return false
+            }
         }
 
         player.playSoundAt(Sound.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS, 1.0f, 0.5f)
 
         return true
     }
+
+    private fun sameBlocks(block: Block, face: BlockFace, range: Int): MutableList<Block> {
+        val material = block.type
+        val blocks: MutableList<Block> = mutableListOf()
+        for (other in locationsInRange(block.location, face, range)) {
+            if (other.block.type != material) continue
+            blocks.add(other.block)
+        }
+        return blocks
+    }
+
+    private fun locationsInRange(origin: Location, face: BlockFace, range: Int): MutableList<Location> {
+        val (xOffset, yOffset) = if (face.modX != 0) {
+            Pair(Vector(0, 1, 0), Vector(0, 0, 1))
+        } else if (face.modY != 0) {
+            Pair(Vector(1, 0, 0), Vector(0, 0, 1))
+        } else {
+            Pair(Vector(1, 0, 0), Vector(0, 1, 0))
+        }
+        val locations: MutableList<Location> = mutableListOf()
+        for (x in -range..range) {
+            for (y in -range..range) {
+                locations.add(
+                    origin.clone()
+                        .add(xOffset.clone().multiply(x))
+                        .add(yOffset.clone().multiply(y))
+                )
+            }
+        }
+        return locations
+    }
+
 }
 
 val WOOL: List<Material> = listOf(

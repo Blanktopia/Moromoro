@@ -59,13 +59,13 @@ dependencies {
     implementation("com.charleskorn.kaml:kaml:0.33.0")
 
     // Purpur
-    compileOnly("org.purpurmc.purpur", "purpur-api", "1.18.1-R0.1-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur", "purpur-api", "1.19-R0.1-SNAPSHOT")
 
     // Paper
-    compileOnly("io.papermc.paper", "paper-api", "1.18.1-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper", "paper-api", "1.19-R0.1-SNAPSHOT")
 
     // Spigot
-    compileOnly("org.spigotmc", "spigot", "1.18.1-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc", "spigot", "1.19-R0.1-SNAPSHOT")
 
     // Vault
     compileOnly("com.github.MilkBowl", "VaultAPI", "1.7")
