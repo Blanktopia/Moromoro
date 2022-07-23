@@ -94,6 +94,9 @@ dependencies {
     // WorldGuard
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.7")
 
+    // WorldEdit
+    compileOnly("com.sk89q.worldedit:worldedit-core:7.2.0-SNAPSHOT")
+
     // GSit
     compileOnly(files("vendor/GSit-1.0.7.jar"))
 }
@@ -108,7 +111,7 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Essentials", "ProtocolLib")
+    depend = listOf("Essentials", "ProtocolLib", "WorldEdit")
     softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "WorldGuard", "GriefPrevention")
 
     commands {
