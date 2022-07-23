@@ -86,7 +86,6 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
                     val location = packet.location?.toLocation(e.player.world) ?: return@scheduleSyncDelayedTask
                     val customBlock = CustomBlock.fromBlock(location.block) ?: return@scheduleSyncDelayedTask
                     val direction = packet.direction ?: return@scheduleSyncDelayedTask
-                    e.isCancelled = true
 
                     when (packet.status) {
                         EnumWrappers.PlayerDigType.START_DESTROY_BLOCK -> blockManager.startDigging(
