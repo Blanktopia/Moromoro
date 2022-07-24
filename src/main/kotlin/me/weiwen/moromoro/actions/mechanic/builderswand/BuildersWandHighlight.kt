@@ -20,9 +20,7 @@ import org.bukkit.util.Vector
 
 @Serializable
 @SerialName("builders-wand-highlight")
-data class BuildersWandHighlight(val range: Int = 1, val color: Long, val duration: Int = 250) : Action {
-    private val colorUint = color.toUInt()
-
+data class BuildersWandHighlight(val range: Int = 1, val color: Int, val duration: Int = 50) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         val block = ctx.block ?: return false
@@ -35,7 +33,7 @@ data class BuildersWandHighlight(val range: Int = 1, val color: Long, val durati
         val locations = buildersWandLocations(block, face, range)
 
         locations.forEach { (_, location) ->
-            player.highlightBlock(location, colorUint, duration)
+            player.highlightBlock(location, color, duration)
         }
 
         return true

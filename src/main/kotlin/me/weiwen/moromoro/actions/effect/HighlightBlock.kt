@@ -12,9 +12,7 @@ import me.weiwen.moromoro.serializers.MaterialSerializer
 
 @Serializable
 @SerialName("highlight-block")
-data class HighlightBlock(val color: Long, val duration: Int = 250) : Action {
-    private val colorUint = color.toUInt()
-
+data class HighlightBlock(val color: Int, val duration: Int = 250) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         val block = ctx.block ?: return false
@@ -22,7 +20,7 @@ data class HighlightBlock(val color: Long, val duration: Int = 250) : Action {
 
         val location = block.getRelative(face).location
 
-        player.highlightBlock(location, colorUint, duration)
+        player.highlightBlock(location, color, duration)
 
         return true
     }

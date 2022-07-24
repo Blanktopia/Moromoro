@@ -14,10 +14,10 @@ import org.bukkit.entity.Player
 import java.lang.reflect.InvocationTargetException
 import java.nio.charset.StandardCharsets
 
-fun Player.highlightBlock(location: Location, color: UInt, duration: Int) {
+fun Player.highlightBlock(location: Location, color: Int, duration: Int) {
     val packet = Unpooled.buffer()
     packet.writeLong(blockPosToLong(location.blockX, location.blockY, location.blockZ))
-    packet.writeInt(color.toInt())
+    packet.writeInt(color)
     writeString(packet, "")
     packet.writeInt(duration)
     sendPayload(this!!, "debug/game_test_add_marker", packet)
