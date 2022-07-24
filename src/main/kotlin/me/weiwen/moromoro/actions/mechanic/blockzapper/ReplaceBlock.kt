@@ -7,7 +7,6 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.*
 import me.weiwen.moromoro.managers.isCustomBlock
 import org.bukkit.*
-import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.*
 import org.bukkit.block.data.type.Slab
@@ -24,7 +23,6 @@ object ReplaceBlock : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         val block = ctx.block ?: return false
-        val placedAgainst = ctx.blockFace?.let { block.getRelative(it.oppositeFace) } ?: return false
 
         val material = SelectMaterial.materials[player.uniqueId] ?: return false
 
@@ -42,14 +40,21 @@ object ReplaceBlock : Action {
             return false
         }
 
-        replaceBlock(ctx, material, placedAgainst)
+        replaceBlock(ctx, material)
 
         return true
     }
 
-    private fun replaceBlock(ctx: Context, material: Material, placedAgainst: Block): Boolean {
-        val block = ctx.block ?: return false
+    private fun replaceBlock(ctx: Context, material: Material): Boolean {
         val player = ctx.player ?: return false
+        val baseBlock = ctx.block ?: return false
+        val blockFace = ctx.blockFace ?: return false
+
+        val (block, placedAgainst) = if(player.isSneaking) {
+            Pair(baseBlock.getRelative(blockFace), baseBlock)
+        } else {
+            Pair(baseBlock, blockFace.let { baseBlock.getRelative(it.oppositeFace) })
+        }
 
         val state = block.state
         state.type = material
@@ -88,7 +93,7 @@ object ReplaceBlock : Action {
             if (couldntRemove != null) {
                 player.playSoundTo(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 1.0f, 1.0f)
                 if (block.type.isItem) {
-                    val name = ItemStack(block.type).i18NDisplayName
+                    val name = ItemStack(material).i18NDisplayName
                     player.sendActionBar("${ChatColor.RED}Not enough ${name}.")
                 }
                 return false

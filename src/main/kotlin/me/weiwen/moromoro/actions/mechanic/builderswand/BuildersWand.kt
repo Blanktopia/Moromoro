@@ -28,7 +28,7 @@ data class BuildersWand(val range: Int = 1) : Action {
             return false
         }
 
-        val locations = buildersWandLocations(block, face, range)
+        val locations = sameBlockLocations(block, face, range)
 
         var canBuild = false
 
@@ -122,7 +122,7 @@ data class BuildersWand(val range: Int = 1) : Action {
         }
     }
 
-    private fun buildersWandLocations(block: Block, face: BlockFace, range: Int): MutableList<Pair<Block, Location>> {
+    private fun sameBlockLocations(block: Block, face: BlockFace, range: Int): MutableList<Pair<Block, Location>> {
         val material = block.type
         val locations: MutableList<Pair<Block, Location>> = mutableListOf()
         for (base in locationsInRange(block.location, face, range)) {

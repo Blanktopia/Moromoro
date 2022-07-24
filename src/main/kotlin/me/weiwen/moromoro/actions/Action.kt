@@ -37,6 +37,7 @@ import me.weiwen.moromoro.actions.mechanic.grapple.GrappleTick
 import me.weiwen.moromoro.actions.mechanic.grapple.LaunchGrapple
 import me.weiwen.moromoro.actions.mechanic.measuringtape.MeasureDistance
 import me.weiwen.moromoro.actions.mechanic.measuringtape.MeasureDistanceTick
+import me.weiwen.moromoro.actions.mechanic.paintbrush.PaintBrushHighlight
 import me.weiwen.moromoro.actions.mechanic.paintbrush.PaintBrushPaint
 import me.weiwen.moromoro.actions.mechanic.paintbrush.PaintBrushPick
 import me.weiwen.moromoro.actions.messages.ActionBar
@@ -103,6 +104,7 @@ val actionModule = SerializersModule {
         subclass(ArrowColor::class)
         subclass(ArrowVolley::class)
         subclass(BiomeWand::class)
+        subclass(BiomeWandPick::class)
         subclass(BlockIs::class)
         subclass(BreakBlock::class)
         subclass(BuildersWand::class)
@@ -159,6 +161,7 @@ val actionModule = SerializersModule {
         subclass(NullPlayer::class)
         subclass(PaintBrushPaint::class)
         subclass(PaintBrushPick::class)
+        subclass(PaintBrushHighlight::class)
         subclass(PathBlock::class)
         subclass(PlaceBlock::class)
         subclass(PlaceRandomBlock::class)
