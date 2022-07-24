@@ -6,7 +6,7 @@ import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.blocks.CustomBlock
 import me.weiwen.moromoro.extensions.canBuildAt
-import me.weiwen.moromoro.extensions.canMineBlock
+import me.weiwen.moromoro.extensions.isRightTool
 import org.bukkit.GameMode
 import org.bukkit.util.Vector
 
@@ -19,7 +19,7 @@ data class BreakBlock(val radius: Int = 0, val depth: Int = 0) : Action {
         val blockFace = ctx.blockFace ?: player.rayTraceBlocks(6.0)?.hitBlockFace ?: return false
         val item = ctx.item ?: return false
 
-        if (!item.type.canMineBlock(block)) return false
+        if (!block.isRightTool(item)) return false
 
         val hardness = block.type.hardness
 
@@ -46,7 +46,7 @@ data class BreakBlock(val radius: Int = 0, val depth: Int = 0) : Action {
                     if (!player.canBuildAt(loc)) continue
                     val other = loc.block
                     if (other.type.hardness > hardness) continue
-                    if (!item.type.canMineBlock(other)) continue
+                    if (!other.isRightTool(item)) continue
 
                     val customBlock = CustomBlock.fromBlock(other)
                     if (customBlock != null) {
