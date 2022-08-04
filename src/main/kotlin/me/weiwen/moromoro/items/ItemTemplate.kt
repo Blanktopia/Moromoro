@@ -15,6 +15,7 @@ import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.blocks.BlockTemplate
 import me.weiwen.moromoro.extensions.setHeadUrl
 import me.weiwen.moromoro.extensions.toRomanNumerals
+import me.weiwen.moromoro.resourcepack.Model
 import me.weiwen.moromoro.serializers.ColorSerializer
 import me.weiwen.moromoro.serializers.EnchantmentSerializer
 import me.weiwen.moromoro.serializers.FormattedString
@@ -46,6 +47,7 @@ data class ItemTemplate(
     @SerialName("custom-model-data")
     val customModelData: Int? = null,
     val model: String? = null,
+    val models: List<Model> = listOf(),
     val unique: Boolean = false,
     val head: String? = null,
     val unbreakable: Boolean = false,

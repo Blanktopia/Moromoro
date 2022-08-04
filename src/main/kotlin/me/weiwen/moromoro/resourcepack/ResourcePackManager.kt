@@ -8,13 +8,14 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerResourcePackStatusEvent
 
-class ResourcePackManager(val plugin: Moromoro) : Listener {
+class ResourcePackManager(private val plugin: Moromoro, private val resourcePackGenerator: ResourcePackGenerator) : Listener {
     companion object {
         lateinit var manager: ResourcePackManager
     }
 
     fun enable() {
         manager = this
+        resourcePackGenerator.generate()
         plugin.server.pluginManager.registerEvents(this, plugin)
     }
 

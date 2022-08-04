@@ -2,13 +2,11 @@ package me.weiwen.moromoro
 
 import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.hooks.ShulkerPacksHook
-import me.weiwen.moromoro.items.EquippedItemsManager
-import me.weiwen.moromoro.items.ItemListener
-import me.weiwen.moromoro.items.ItemManager
-import me.weiwen.moromoro.items.TrinketManager
+import me.weiwen.moromoro.items.*
 import me.weiwen.moromoro.managers.*
 import me.weiwen.moromoro.projectiles.ItemProjectileManager
 import me.weiwen.moromoro.projectiles.ProjectileManager
+import me.weiwen.moromoro.resourcepack.ResourcePackGenerator
 import me.weiwen.moromoro.resourcepack.ResourcePackManager
 import org.bukkit.ChatColor
 import org.bukkit.Location
@@ -23,7 +21,8 @@ class Moromoro : JavaPlugin() {
 
     var config: MoromoroConfig = parseConfig(this)
 
-    private val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this) }
+    private val resourcePackGenerator: ResourcePackGenerator by lazy { ResourcePackGenerator(this, itemManager) }
+    private val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this, resourcePackGenerator) }
     val itemManager: ItemManager by lazy { ItemManager(this) }
     private val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this, itemManager) }
     private val trinketManager: TrinketManager by lazy { TrinketManager(this, itemManager) }
