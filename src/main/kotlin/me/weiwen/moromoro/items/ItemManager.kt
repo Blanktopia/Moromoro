@@ -25,7 +25,6 @@ import org.bukkit.persistence.PersistentDataType
 import java.io.File
 import java.util.logging.Level
 
-
 class ItemManager(val plugin: Moromoro) {
     var keys: Set<String> = setOf()
         private set
@@ -119,7 +118,12 @@ class ItemManager(val plugin: Moromoro) {
         val gui = ChestGui(6, "Moromoro")
 
         val pages = PaginatedPane(0, 0, 8, 6)
-        pages.populateWithItemStacks(templates.entries.map { (key, template) -> template.item(key) })
+        pages.populateWithItemStacks(
+            templates
+                .entries
+                .filter { (_, template) -> template.alias == null }
+                .map { (key, template) -> template.item(key) }
+        )
         pages.setOnClick {
             it.isCancelled = true
             val key = it.currentItem?.customItemKey ?: return@setOnClick
@@ -159,7 +163,6 @@ class ItemManager(val plugin: Moromoro) {
             it.isCancelled = true
         }, 0, 1)
         gui.addPane(navigation)
-
 
         gui.show(player)
     }
