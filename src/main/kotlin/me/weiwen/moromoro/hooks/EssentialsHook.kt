@@ -2,7 +2,7 @@ package me.weiwen.moromoro.hooks
 
 import com.earth2me.essentials.Essentials
 import me.weiwen.moromoro.Moromoro
-import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.managers.item
 import net.ess3.api.IItemDb
 import org.bukkit.inventory.ItemStack

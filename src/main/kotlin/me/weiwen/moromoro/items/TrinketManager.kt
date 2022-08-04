@@ -10,8 +10,7 @@ import me.weiwen.moromoro.actions.EQUIPPED_TRIGGERS
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.playSoundTo
-import me.weiwen.moromoro.managers.CustomEquipmentSlot
-import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.types.CustomEquipmentSlot
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.Material

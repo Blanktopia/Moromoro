@@ -15,7 +15,7 @@ import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.extensions.rotation
 import me.weiwen.moromoro.managers.BlockManager
-import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.managers.customBlockState
 import me.weiwen.moromoro.packets.WrapperPlayClientBlockDig
 import me.weiwen.moromoro.packets.blockFace

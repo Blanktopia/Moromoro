@@ -4,6 +4,7 @@ import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.hooks.ShulkerPacksHook
 import me.weiwen.moromoro.items.EquippedItemsManager
 import me.weiwen.moromoro.items.ItemListener
+import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.items.TrinketManager
 import me.weiwen.moromoro.managers.*
 import me.weiwen.moromoro.projectiles.ItemProjectileManager

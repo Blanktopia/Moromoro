@@ -7,9 +7,8 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
-import me.weiwen.moromoro.managers.CustomEquipmentSlot
-import me.weiwen.moromoro.managers.ItemManager
 import me.weiwen.moromoro.projectiles.ProjectileManager
+import me.weiwen.moromoro.types.CustomEquipmentSlot
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile

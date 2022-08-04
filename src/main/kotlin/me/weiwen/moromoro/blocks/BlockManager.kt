@@ -7,6 +7,7 @@ import me.weiwen.moromoro.blocks.CustomBlock
 import me.weiwen.moromoro.blocks.MushroomBlockTemplate
 import me.weiwen.moromoro.extensions.playSoundAt
 import me.weiwen.moromoro.extensions.sendBlockDamage
+import me.weiwen.moromoro.items.ItemManager
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.Particle

@@ -8,8 +8,8 @@ import me.weiwen.moromoro.actions.EQUIPPED_TRIGGERS
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.equipmentSlot
-import me.weiwen.moromoro.managers.ItemManager
 import me.weiwen.moromoro.managers.customEquipmentSlot
+import me.weiwen.moromoro.types.customEquipmentSlot
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event

@@ -2,7 +2,7 @@ package me.weiwen.moromoro.blocks
 
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.*
-import me.weiwen.moromoro.managers.ItemTemplate
+import me.weiwen.moromoro.items.ItemTemplate
 import me.weiwen.moromoro.managers.customBlockState
 import me.weiwen.moromoro.managers.item
 import org.bukkit.Material

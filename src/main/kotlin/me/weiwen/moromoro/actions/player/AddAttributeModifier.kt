@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
-import me.weiwen.moromoro.managers.AttributeModifier
+import me.weiwen.moromoro.types.AttributeModifier
 import me.weiwen.moromoro.managers.modifier
 
 @Serializable

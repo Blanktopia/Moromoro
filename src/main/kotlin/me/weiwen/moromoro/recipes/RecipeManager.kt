@@ -12,6 +12,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.actionModule
+import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.recipes.RecipeListener
 import me.weiwen.moromoro.serializers.ItemStackSerializer
 import me.weiwen.moromoro.serializers.RecipeChoiceSerializer

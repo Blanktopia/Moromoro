@@ -2,7 +2,7 @@ package me.weiwen.moromoro.recipes
 
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.customItemKey
-import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.managers.RecipeManager
 import org.bukkit.Keyed
 import org.bukkit.event.EventHandler

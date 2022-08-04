@@ -4,7 +4,7 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
-import me.weiwen.moromoro.managers.ItemManager
+import me.weiwen.moromoro.items.ItemManager
 import org.bukkit.entity.Projectile
 import java.util.*
 
