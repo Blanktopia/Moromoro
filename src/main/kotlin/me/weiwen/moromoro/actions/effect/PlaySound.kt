@@ -5,13 +5,14 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.LocationSelector
+import me.weiwen.moromoro.actions.PlayerLocationSelector
 import me.weiwen.moromoro.extensions.playSoundAt
 import org.bukkit.SoundCategory
 
 @Serializable
 @SerialName("play-sound")
 data class PlaySound(
-    val location: LocationSelector = LocationSelector.PLAYER,
+    val location: LocationSelector = PlayerLocationSelector,
     val sound: String,
     val category: SoundCategory = SoundCategory.BLOCKS,
     val pitch: Float = 1.0f,

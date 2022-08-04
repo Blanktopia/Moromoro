@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.LocationSelector
+import me.weiwen.moromoro.actions.PlayerLocationSelector
 import org.bukkit.Particle
 import org.bukkit.util.Vector
 import kotlin.math.PI
@@ -12,7 +13,7 @@ import kotlin.math.PI
 @Serializable
 @SerialName("spawn-particle")
 data class SpawnParticle(
-    val location: LocationSelector = LocationSelector.PLAYER,
+    val location: LocationSelector = PlayerLocationSelector,
     val particle: Particle,
     val x: Double = 0.0,
     val y: Double = 0.0,

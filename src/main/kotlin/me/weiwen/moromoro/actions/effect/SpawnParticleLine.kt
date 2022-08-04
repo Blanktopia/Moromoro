@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.LocationSelector
-import me.weiwen.moromoro.actions.center
+import me.weiwen.moromoro.actions.PlayerLocationSelector
 import me.weiwen.moromoro.extensions.spawnParticleLine
 import org.bukkit.Particle
 
 @Serializable
 @SerialName("spawn-particle-line")
 data class SpawnParticleLine(
-    val from: LocationSelector,
+    val from: LocationSelector = PlayerLocationSelector,
     val to: LocationSelector,
     val particle: Particle,
     val interval: Double = 0.2,

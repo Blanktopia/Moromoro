@@ -12,7 +12,7 @@ data class Lightning(
     val location: LocationSelector,
 ) : Action {
     override fun perform(ctx: Context): Boolean {
-        val location = ctx.entity?.location ?: ctx.block?.location ?: return false
+        val location = location.location(ctx) ?: return false
 
         location.world.strikeLightning(location)
 
