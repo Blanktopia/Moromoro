@@ -9,6 +9,7 @@ import me.weiwen.moromoro.managers.isCustomBlock
 import org.bukkit.*
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.*
+import org.bukkit.block.data.type.Leaves
 import org.bukkit.block.data.type.Slab
 import org.bukkit.block.data.type.Wall
 import org.bukkit.enchantments.Enchantment
@@ -50,7 +51,7 @@ object ReplaceBlock : Action {
         val baseBlock = ctx.block ?: return false
         val blockFace = ctx.blockFace ?: return false
 
-        val (block, placedAgainst) = if(player.isSneaking) {
+        val (block, placedAgainst) = if (player.isSneaking) {
             Pair(baseBlock.getRelative(blockFace), baseBlock)
         } else {
             Pair(baseBlock, blockFace.let { baseBlock.getRelative(it.oppositeFace) })
@@ -113,33 +114,27 @@ object ReplaceBlock : Action {
         if (buildEvent.isCancelled) return false
 
         state.blockData = state.blockData.apply {
-            when (this) {
-                is Orientable -> (blockData as? Orientable)?.let { axis = it.axis }
-                is Directional -> (blockData as? Directional)?.let { facing = it.facing }
-                is MultipleFacing -> (blockData as? MultipleFacing)?.let {
-                    allowedFaces.forEach { face ->
-                        setFace(face, it.hasFace(face))
-                    }
+            if (this is Leaves) (blockData as? Leaves)?.let { isPersistent = true }
+            if (this is Orientable) (blockData as? Orientable)?.let { axis = it.axis }
+            if (this is Directional) (blockData as? Directional)?.let { facing = it.facing }
+            if (this is MultipleFacing) (blockData as? MultipleFacing)?.let {
+                it.faces.forEach { face -> setFace(face, true) }
+            }
+            if (this is Wall) (blockData as? Wall)?.let {
+                listOf(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST).forEach { face ->
+                    setHeight(face, it.getHeight(face))
                 }
-                is Wall -> (blockData as? Wall)?.let {
-                    listOf(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST).forEach { face ->
-                        setHeight(face, it.getHeight(face))
-                    }
-                }
-                is Rotatable -> (blockData as? Rotatable)?.let {
-                    rotation = it.rotation
-                }
-                is Bisected -> (blockData as? Bisected)?.let {
-                    half = half
-                }
-                is Slab -> (blockData as? Slab)?.let {
-                    if (it.type == Slab.Type.DOUBLE) return@apply
-                    type = it.type
-                }
+            }
+            if (this is Openable) (blockData as? Openable)?.let { isOpen = it.isOpen }
+            if (this is Rotatable) (blockData as? Rotatable)?.let { rotation = it.rotation }
+            if (this is Bisected) (blockData as? Bisected)?.let { half = half }
+            if (this is Slab) (blockData as? Slab)?.let {
+                if (it.type == Slab.Type.DOUBLE) return@apply
+                type = it.type
             }
         }
 
-        state.update(true)
+        state.update(true, false)
 
         block.playSoundAt(block.soundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 1.0f)
 
