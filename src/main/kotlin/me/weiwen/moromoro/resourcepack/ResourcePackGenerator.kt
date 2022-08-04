@@ -44,7 +44,7 @@ class ResourcePackGenerator(private val plugin: Moromoro, private val itemManage
 
         for (item in itemManager.templates.values) {
             item.models.forEach {
-                val modelOverrides = overrides.getOrPut(modelPath(it.material)) { mutableListOf() }
+                val modelOverrides = overrides.getOrPut(itemModelPath(it.material)) { mutableListOf() }
                 modelOverrides.add(
                     ModelOverride(
                         model = it.model,
@@ -58,7 +58,7 @@ class ResourcePackGenerator(private val plugin: Moromoro, private val itemManage
 
             when (item.material) {
                 Material.BOW -> {
-                    val modelOverrides = overrides.getOrPut(modelPath(item.material)) { mutableListOf() }
+                    val modelOverrides = overrides.getOrPut(itemModelPath(item.material)) { mutableListOf() }
                     modelOverrides.addAll(
                         sequenceOf(
                             ModelOverride(
@@ -81,7 +81,7 @@ class ResourcePackGenerator(private val plugin: Moromoro, private val itemManage
                     )
                 }
                 Material.CROSSBOW -> {
-                    val modelOverrides = overrides.getOrPut(modelPath(item.material)) { mutableListOf() }
+                    val modelOverrides = overrides.getOrPut(itemModelPath(item.material)) { mutableListOf() }
                     modelOverrides.addAll(
                         sequenceOf(
                             ModelOverride(
@@ -120,7 +120,7 @@ class ResourcePackGenerator(private val plugin: Moromoro, private val itemManage
                         model = model,
                         predicate = Predicate(custom_model_data = customModelData)
                     )
-                    overrides.getOrPut(modelPath(item.material)) { mutableListOf() }.add(override)
+                    overrides.getOrPut(itemModelPath(item.material)) { mutableListOf() }.add(override)
                 }
             }
         }
@@ -144,13 +144,8 @@ class ResourcePackGenerator(private val plugin: Moromoro, private val itemManage
         bundleResourcePack()
     }
 
-    private fun modelPath(material: Material): String {
-        return if (material.isBlock) {
-            "block/${material.name.lowercase()}.json"
-        } else {
-            "item/${material.name.lowercase()}.json"
-        }
-    }
+    private fun blockModelPath(material: Material): String = "block/${material.name.lowercase()}.json"
+    private fun itemModelPath(material: Material): String = "item/${material.name.lowercase()}.json"
 
     private fun defaultModel(path: String): JsonObject {
         val inputStream = plugin.getResource("default/models/$path")
