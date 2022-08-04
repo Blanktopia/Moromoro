@@ -98,7 +98,7 @@ dependencies {
     compileOnly("com.sk89q.worldedit:worldedit-core:7.2.0-SNAPSHOT")
 
     // GSit
-    compileOnly(files("vendor/GSit-1.0.7.jar"))
+    compileOnly(files("vendor/GSit-1.2.1.jar"))
 }
 
 bukkit {
