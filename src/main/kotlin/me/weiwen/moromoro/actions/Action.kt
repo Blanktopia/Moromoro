@@ -189,6 +189,7 @@ val actionModule = SerializersModule {
         subclass(SetNoDamageTick::class)
         subclass(Sleep::class)
         subclass(SpawnParticle::class)
+        subclass(SpawnParticleLine::class)
         subclass(StripBlock::class)
         subclass(SudoCommand::class)
         subclass(TillBlock::class)
