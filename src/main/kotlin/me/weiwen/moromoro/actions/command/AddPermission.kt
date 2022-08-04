@@ -16,7 +16,7 @@ data class AddPermission(val permissions: List<String>) : Action {
         val permissionsApi =
             Bukkit.getServer().servicesManager.getRegistration(Permission::class.java)?.provider ?: return false
         permissions.forEach {
-            permissionsApi.playerAdd(player, it)
+            permissionsApi.playerAddTransient(player, it)
         }
 
         return true
