@@ -28,7 +28,7 @@ import java.util.logging.Level
 class ItemManager(val plugin: Moromoro) {
     var keys: Set<String> = setOf()
         private set
-    var templates: Map<String, ItemTemplate> = mapOf()
+    var templates: MutableMap<String, ItemTemplate> = mutableMapOf()
         private set
     var triggers: MutableMap<String, Map<Trigger, List<Action>>> = mutableMapOf()
         private set
@@ -46,14 +46,18 @@ class ItemManager(val plugin: Moromoro) {
             directory.mkdirs()
         }
 
-        // We walk bottom up so that the files closer to the root are processed last, and will take priority.
-        val files = directory.walkBottomUp().filter { file -> file.extension in setOf("json", "yml", "yaml") }
-
         triggers.clear()
+        templates.clear()
 
-        templates = files
-            .mapNotNull { file -> parse(file)?.let { Pair(file.nameWithoutExtension, it) } }
-            .associate { it }
+        // We process files closer to the root first, so we can resolve dependency issues with nesting
+        val files = directory
+            .walkBottomUp()
+            .filter { file -> file.extension in setOf("json", "yml", "yaml") }
+            .sortedBy { it.toPath().nameCount }
+        for (file in files) {
+            val template = parse(file) ?: continue
+            templates[file.nameWithoutExtension] = template
+        }
 
         keys = templates.keys
     }
@@ -99,7 +103,8 @@ class ItemManager(val plugin: Moromoro) {
         // Migrate aliased items
         val alias = template.alias
         if (alias != null) {
-            return template.item(alias, item.amount)
+            val item = Moromoro.plugin.essentialsHook.getItemStack(alias)
+            return item ?: ItemStack(Material.STICK)
         }
 
         // Migrate version

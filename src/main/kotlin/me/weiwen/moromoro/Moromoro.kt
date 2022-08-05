@@ -69,17 +69,18 @@ class Moromoro : JavaPlugin() {
         flyInClaimsManager.enable()
         itemProjectileManager.enable()
 
+        if (server.pluginManager.getPlugin("Essentials") != null) {
+            essentialsHook.register()
+        }
+
         itemManager.enable()
+        recipeManager.enable()
+        blockManager.enable()
+
         projectileManager.enable()
         equippedItemsManager.enable()
         trinketManager.enable()
         itemListener.enable()
-        blockManager.enable()
-        recipeManager.enable()
-
-        if (server.pluginManager.getPlugin("Essentials") != null) {
-            essentialsHook.register()
-        }
 
         resourcePackManager.enable()
 
@@ -197,12 +198,6 @@ class Moromoro : JavaPlugin() {
                 }
             }
         }
-
-        // Hotfix: reload to allow recursive
-        config = parseConfig(this)
-        itemManager.load()
-        recipeManager.load()
-        blockManager.load()
 
         logger.info("Moromoro is enabled")
     }
