@@ -65,7 +65,7 @@ object ReplaceBlock : Action {
             if (!player.hasAtLeastInInventoryOrShulkerBoxes(cost)) {
                 player.playSoundTo(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 1.0f, 1.0f)
                 if (block.type.isItem) {
-                    val name = ItemStack(block.type).i18NDisplayName
+                    val name = ItemStack(material).i18NDisplayName
                     player.sendActionBar("${ChatColor.RED}Not enough ${name}.")
                 }
                 return false
