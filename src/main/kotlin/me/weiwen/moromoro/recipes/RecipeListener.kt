@@ -8,7 +8,10 @@ import org.bukkit.Keyed
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
-import org.bukkit.event.inventory.*
+import org.bukkit.event.inventory.FurnaceBurnEvent
+import org.bukkit.event.inventory.PrepareAnvilEvent
+import org.bukkit.event.inventory.PrepareItemCraftEvent
+import org.bukkit.event.inventory.PrepareSmithingEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ComplexRecipe
 

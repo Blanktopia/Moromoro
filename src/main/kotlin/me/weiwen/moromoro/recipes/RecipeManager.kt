@@ -2,11 +2,11 @@
 
 package me.weiwen.moromoro.managers
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -131,6 +131,35 @@ class BlastingRecipeTemplate(
         RecipeChoice.ExactChoice(input),
         experience,
         cookingTime
+    )
+}
+
+@Serializable
+@SerialName("stonecutter")
+class StonecutterRecipeTemplate(
+    private val result: ItemStack,
+    private val input: ItemStack,
+) : RecipeTemplate() {
+    override fun recipe(key: String): Recipe = StonecuttingRecipe(
+        NamespacedKey(Moromoro.plugin.config.namespace, key),
+        result,
+        RecipeChoice.ExactChoice(input),
+    )
+}
+
+@Serializable
+@SerialName("smithing")
+class SmithingRecipeTemplate(
+    private val result: ItemStack,
+    private val input: List<ItemStack>,
+    private val copyNbt: Boolean,
+) : RecipeTemplate() {
+    override fun recipe(key: String): Recipe = SmithingRecipe(
+        NamespacedKey(Moromoro.plugin.config.namespace, key),
+        result,
+        RecipeChoice.ExactChoice(input[0]),
+        RecipeChoice.ExactChoice(input[1]),
+        copyNbt
     )
 }
 
