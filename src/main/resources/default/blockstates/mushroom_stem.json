@@ -1,0 +1,48 @@
+{
+	"multipart": [
+		{
+			"apply": {
+				"model": "blanktopia:block/default/mushroom_stem_survival_true"
+			}
+		},
+		{
+			"when": {
+				"down": false,
+				"east": false,
+				"north": false,
+				"south": false,
+				"up": false,
+				"west": false
+			},
+			"apply": {
+				"model": "blanktopia:block/default/mushroom_stem_survival_false"
+			}
+		},
+		{
+			"when": {
+				"down": false,
+				"east": true,
+				"north": true,
+				"south": true,
+				"up": false,
+				"west": true
+			},
+			"apply": {
+				"model": "blanktopia:block/default/mushroom_stem_survival"
+			}
+		},
+		{
+			"when": {
+				"down": true,
+				"east": true,
+				"north": true,
+				"south": true,
+				"up": true,
+				"west": true
+			},
+			"apply": {
+				"model": "blanktopia:block/default/mushroom_stem_survival_true"
+			}
+		}
+	]
+}

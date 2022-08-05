@@ -36,10 +36,13 @@ sealed class BlockTemplate {
 
     abstract val drops: List<ItemStack>?
     abstract val experience: Int
+
+    @SerialName("can-fortune")
     abstract val canFortune: Boolean
 
     abstract val hardness: Double
     abstract val tools: List<ItemStack>?
+
     abstract val sounds: SoundGroup
 }
 
@@ -64,14 +67,19 @@ data class Sound(
 class MushroomBlockTemplate(
     val state: Int,
     val material: Material = Material.BROWN_MUSHROOM_BLOCK,
+    val model: String,
+
     @SerialName("sit-height")
     override val sitHeight: Double? = null,
+
     override val drops: List<ItemStack>? = null,
     override val experience: Int = 0,
     @SerialName("can-fortune")
     override val canFortune: Boolean = false,
+
     override val hardness: Double = 1.0,
     override val tools: List<ItemStack>? = null,
+
     override val sounds: SoundGroup = SoundGroup(),
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {
@@ -122,15 +130,19 @@ class MushroomBlockTemplate(
 @SerialName("item")
 /* Placed using invisible item frames */
 class ItemBlockTemplate(
-    val collision: Boolean,
+    private val collision: Boolean = false,
+
     @SerialName("sit-height")
     override val sitHeight: Double? = null,
+
     override val drops: List<ItemStack>? = null,
     override val experience: Int = 0,
     @SerialName("can-fortune")
     override val canFortune: Boolean = false,
+
     override val hardness: Double = 1.0,
     override val tools: List<ItemStack>? = null,
+
     override val sounds: SoundGroup = SoundGroup(),
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {

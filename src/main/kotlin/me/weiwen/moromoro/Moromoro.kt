@@ -21,7 +21,13 @@ class Moromoro : JavaPlugin() {
 
     var config: MoromoroConfig = parseConfig(this)
 
-    private val resourcePackGenerator: ResourcePackGenerator by lazy { ResourcePackGenerator(this, itemManager) }
+    private val resourcePackGenerator: ResourcePackGenerator by lazy {
+        ResourcePackGenerator(
+            this,
+            itemManager,
+            blockManager
+        )
+    }
     private val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this, resourcePackGenerator) }
     val itemManager: ItemManager by lazy { ItemManager(this) }
     private val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this, itemManager) }

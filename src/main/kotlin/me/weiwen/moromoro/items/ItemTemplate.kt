@@ -15,7 +15,7 @@ import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.blocks.BlockTemplate
 import me.weiwen.moromoro.extensions.setHeadUrl
 import me.weiwen.moromoro.extensions.toRomanNumerals
-import me.weiwen.moromoro.resourcepack.Model
+import me.weiwen.moromoro.resourcepack.ItemModel
 import me.weiwen.moromoro.serializers.ColorSerializer
 import me.weiwen.moromoro.serializers.EnchantmentSerializer
 import me.weiwen.moromoro.serializers.FormattedString
@@ -41,24 +41,32 @@ import java.util.logging.Level
 data class ItemTemplate(
     val version: Int = 0,
     val alias: String? = null,
-    val material: Material,
+
     val name: FormattedString? = null,
     val lore: FormattedString? = null,
+
+    val material: Material,
     @SerialName("custom-model-data")
     val customModelData: Int? = null,
-    val model: String? = null,
-    val models: List<Model> = listOf(),
-    val unique: Boolean = false,
     val head: String? = null,
+
+    val model: String? = null,
+    val models: List<ItemModel> = listOf(),
+
+    val unique: Boolean = false,
     val unbreakable: Boolean = false,
+
     val enchantments: Map<Enchantment, Int> = mapOf(),
     val attributes: List<AttributeModifier> = listOf(),
     val flags: List<ItemFlag> = listOf(),
+
     val color: Color? = null,
     val dyeable: Boolean = false,
+
     val triggers: Map<Trigger, List<Action>> = mapOf(),
-    val block: BlockTemplate? = null,
     val slots: Set<CustomEquipmentSlot> = setOf(),
+
+    val block: BlockTemplate? = null,
 )
 
 fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
