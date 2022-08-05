@@ -223,9 +223,9 @@ open class ItemFrameCustomBlock(override val block: Block, val itemFrame: ItemFr
                     }
                 }
 
-                template.block?.drops?.map { it.clone() } ?: listOf(itemFrame.item)
+                template.block?.drops?.map { it.clone() } ?: listOf(template.item(key, 1))
             } else {
-                listOf(itemFrame.item)
+                listOf(template.item(key, 1))
             }
 
             if (template.block?.canFortune == true) {
