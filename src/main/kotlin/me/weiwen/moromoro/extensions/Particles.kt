@@ -19,17 +19,17 @@ fun Location.spawnParticle(particle: Particle, count: Int, speed: Double) {
     spawnParticle(particle, count, 0.4, speed)
 }
 
-fun Location.spawnParticleLine(to: Location, particle: Particle, offset: Double, speed: Double, count: Int, interval: Double) {
+fun Location.spawnParticleLine(to: Location, particle: Particle, offset: Double, speed: Double, count: Int, interval: Double, data: Any? = null) {
     val vec = to.toVector().subtract(this.toVector())
     val delta = vec.clone().normalize().multiply(interval)
     val total = (vec.length() / delta.length()).toInt()
     (0..total).forEach { i ->
-        world.spawnParticle(particle, this.clone().add(delta.clone().multiply(i)), count, offset, offset, offset, speed)
+        world.spawnParticle(particle, this.clone().add(delta.clone().multiply(i)), count, offset, offset, offset, speed, data)
     }
 }
 
-fun Location.spawnParticleLine(to: Location, particle: Particle, interval: Double) {
-    spawnParticleLine(to, particle, 0.0, 0.0, 1, interval)
+fun Location.spawnParticleLine(to: Location, particle: Particle, interval: Double, data: Any? = null) {
+    spawnParticleLine(to, particle, 0.0, 0.0, 1, interval, data)
 }
 
 fun Block.spawnParticleCuboid(to: Block, particle: Particle, interval: Double) {
