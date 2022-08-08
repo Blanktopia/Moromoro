@@ -93,6 +93,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
                             direction.blockFace
                         )
                         EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK -> blockManager.cancelDigging(e.player)
+                        else -> {}
                     }
                 }
             }
@@ -186,6 +187,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
 
             if (customBlock != null) {
                 val sitHeight = blockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
+                val sitRotate = blockManager.blockTemplates[customBlock.key]?.sitRotate
 
                 val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(customBlock.itemFrame.facing.direction)
                 val seatLocation = customBlock.itemFrame.location.block.location.apply {
@@ -195,7 +197,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
                 GSitAPI.createSeat(
                     seatLocation.block,
                     event.player,
-                    false,
+                    sitRotate ?: false,
                     offset.x,
                     offset.y,
                     offset.z,

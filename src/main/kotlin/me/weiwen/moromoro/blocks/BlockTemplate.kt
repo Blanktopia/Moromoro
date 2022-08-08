@@ -33,6 +33,8 @@ sealed class BlockTemplate {
 
     @SerialName("sit-height")
     abstract val sitHeight: Double?
+    @SerialName("sit-rotate")
+    abstract val sitRotate: Boolean?
 
     abstract val drops: List<ItemStack>?
     abstract val experience: Int
@@ -71,6 +73,8 @@ class MushroomBlockTemplate(
 
     @SerialName("sit-height")
     override val sitHeight: Double? = null,
+    @SerialName("sit-rotate")
+    override val sitRotate: Boolean? = null,
 
     override val drops: List<ItemStack>? = null,
     override val experience: Int = 0,
@@ -134,6 +138,8 @@ class ItemBlockTemplate(
 
     @SerialName("sit-height")
     override val sitHeight: Double? = null,
+    @SerialName("sit-rotate")
+    override val sitRotate: Boolean? = null,
 
     override val drops: List<ItemStack>? = null,
     override val experience: Int = 0,
