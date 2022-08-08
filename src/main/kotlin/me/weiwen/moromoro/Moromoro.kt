@@ -19,7 +19,7 @@ class Moromoro : JavaPlugin() {
             private set
     }
 
-    var config: MoromoroConfig = parseConfig(this)
+    lateinit var config: MoromoroConfig
 
     private val resourcePackGenerator: ResourcePackGenerator by lazy {
         ResourcePackGenerator(
@@ -64,6 +64,8 @@ class Moromoro : JavaPlugin() {
     }
 
     override fun onEnable() {
+        config = parseConfig(this)
+
         experienceBoostManager.enable()
         permanentPotionEffectManager.enable()
         flyInClaimsManager.enable()
