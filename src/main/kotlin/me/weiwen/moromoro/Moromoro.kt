@@ -1,5 +1,12 @@
 package me.weiwen.moromoro
 
+import cloud.commandframework.ArgumentDescription
+import cloud.commandframework.arguments.standard.IntegerArgument
+import cloud.commandframework.arguments.standard.StringArgument
+import cloud.commandframework.bukkit.parsers.PlayerArgument
+import cloud.commandframework.bukkit.parsers.location.LocationArgument
+import cloud.commandframework.execution.CommandExecutionCoordinator
+import cloud.commandframework.paper.PaperCommandManager
 import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.hooks.ShulkerPacksHook
 import me.weiwen.moromoro.items.*
@@ -10,8 +17,10 @@ import me.weiwen.moromoro.resourcepack.ResourcePackGenerator
 import me.weiwen.moromoro.resourcepack.ResourcePackManager
 import org.bukkit.ChatColor
 import org.bukkit.Location
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.function.Function
 
 class Moromoro : JavaPlugin() {
     companion object {
@@ -88,118 +97,130 @@ class Moromoro : JavaPlugin() {
 
         val plugin = this
 
-        getCommand("pack")?.let {
-            it.setExecutor { sender, _, _, _ ->
-                if (sender is Player) {
-                    resourcePackManager.send(sender)
-                    true
-                } else {
-                    false
-                }
-            }
+        val manager = PaperCommandManager(
+            this, CommandExecutionCoordinator.simpleCoordinator(),
+            Function.identity(), Function.identity()
+        )
+
+        try {
+            manager.registerBrigadier()
+            manager.registerAsynchronousCompletions()
+            plugin.logger.info("Registered commands.")
+        } catch (e: Exception) {
+            plugin.logger.warning("Failed to initialize Brigadier support: " + e.message)
         }
 
-        getCommand("trinkets")?.apply {
-            setExecutor { sender, _, _, _ ->
-                if (sender is Player) {
-                    trinketManager.openTrinketInventory(sender)
-                    true
-                } else {
-                    false
+        manager.commandBuilder("pack", ArgumentDescription.of("Downloads the server resource pack")).let { builder ->
+            manager.command(builder.senderType(Player::class.java).permission("moromoro.pack").handler {
+                val player = it.sender as Player
+                if (!player.hasResourcePack()) {
+                    resourcePackManager.send(player)
                 }
-            }
-        }
-
-        getCommand("moromoro")?.apply {
-            setExecutor { sender, _, _, args ->
-                when (args[0]) {
-                    "items" -> {
-                        if (sender is Player) {
-                            itemManager.creativeItemPicker(sender)
-                            true
+            })
+            manager.command(builder.argument(PlayerArgument.of("player")).permission("moromoro.admin").handler {
+                val player: Player = it.get("player")
+                it.sender.sendMessage(
+                    "${ChatColor.GOLD}${player.name} ${
+                        if (player.hasResourcePack()) {
+                            "HAS"
                         } else {
-                            false
+                            "DOES NOT HAVE"
                         }
-                    }
-                    "drop" -> {
-                        if (args.size == 6) {
-                            val key = args[1]
-                            val template = itemManager.templates[key] ?: return@setExecutor false
-                            val item = template.item(key, args[2].toInt())
-                            val location = Location(
-                                server.getWorld(args[3]),
-                                args[4].toDouble(),
-                                args[5].toDouble(),
-                                args[6].toDouble()
-                            )
+                    } the resource pack enabled."
+                )
+            })
+        }
+
+        manager.commandBuilder("trinkets", ArgumentDescription.of("Opens your trinket bag")).let { builder ->
+            manager.command(builder.senderType(Player::class.java).permission("moromoro.trinkets").handler {
+                trinketManager.openTrinketInventory(it.sender as Player)
+            })
+        }
+
+        manager.commandBuilder("moromoro", ArgumentDescription.of("Manages the Moromoro plugin"))
+            .permission("moromoro.admin").let { builder ->
+                manager.command(
+                    builder.literal("items", ArgumentDescription.of("Opens a GUI to spawn custom items"))
+                        .senderType(Player::class.java)
+                        .handler { itemManager.creativeItemPicker(it.sender as Player) }
+                )
+
+                manager.command(
+                    builder.literal("drop", ArgumentDescription.of("Drops a custom item at the specified location"))
+                        .argument(StringArgument.of("key"))
+                        .argument(IntegerArgument.of("amount"))
+                        .argument(LocationArgument.of("location"))
+                        .handler {
+                            val key = it.get<String>("key")
+                            val template = itemManager.templates[key] ?: return@handler
+                            val item = template.item(key, it.get<Int>("amount"))
+                            val location = it.get<Location>("location")
                             location.world.dropItemNaturally(location, item)
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    "debug" -> {
-                        if (args.size == 1) {
-                            sender.sendMessage(ChatColor.GOLD.toString() + "${itemManager.keys.size} items, ${blockManager.blockTemplates.size} blocks, ${recipeManager.recipes.size} recipes loaded.")
-                            true
-                        } else if (args.size == 2) {
-                            if (args[1] == "blocks") {
+                        })
+
+                builder.literal("debug", ArgumentDescription.of("Prints some debug information"))
+                    .let { debugBuilder ->
+                        manager.command(debugBuilder.handler {
+                            it.sender.sendMessage(ChatColor.GOLD.toString() + "${itemManager.keys.size} items, ${blockManager.blockTemplates.size} blocks, ${recipeManager.recipes.size} recipes loaded.")
+                        })
+
+                        debugBuilder.literal("blocks").let { builder ->
+                            manager.command(builder.handler {
                                 val blocks = blockManager.blockTemplates.keys.joinToString(", ")
-                                sender.sendMessage(ChatColor.GOLD.toString() + "$blocks")
-                                true
-                            } else if (args[1] == "items") {
-                                val items = itemManager.templates.keys.joinToString(", ")
-                                sender.sendMessage(ChatColor.GOLD.toString() + "$items")
-                                true
-                            } else {
-                                false
-                            }
-                        } else if (args.size == 3) {
-                            if (args[1] == "blocks") {
-                                val template = blockManager.blockTemplates[args[1]]
+                                it.sender.sendMessage(ChatColor.GOLD.toString() + "$blocks")
+                            })
+                            manager.command(builder.argument(StringArgument.of("key")).handler {
+                                val template = blockManager.blockTemplates[it.get("key")]
                                 if (template != null) {
-                                    sender.sendMessage(ChatColor.GOLD.toString() + "$template")
-                                    true
+                                    it.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
                                 } else {
-                                    sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
-                                    false
+                                    it.sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
                                 }
-                            } else if (args[1] == "items") {
-                                val template = itemManager.templates[args[1]]
+                            })
+                        }
+
+                        debugBuilder.literal("items").let { builder ->
+                            manager.command(builder.literal("items").handler {
+                                val items = itemManager.keys.joinToString(", ")
+                                it.sender.sendMessage(ChatColor.GOLD.toString() + "$items")
+                            })
+                            manager.command(builder.argument(StringArgument.of("key")).handler {
+                                val template = itemManager.templates[it.get("key")]
                                 if (template != null) {
-                                    sender.sendMessage(ChatColor.GOLD.toString() + "$template")
-                                    true
+                                    it.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
                                 } else {
-                                    sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
-                                    false
+                                    it.sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
                                 }
-                            } else {
-                                false
-                            }
-                        } else {
-                            false
+                            })
+                        }
+
+                        debugBuilder.literal("recipes").let { builder ->
+                            manager.command(builder.literal("recipes").handler {
+                                val recipes = recipeManager.recipes.keys.joinToString(", ") { key -> key.key }
+                                it.sender.sendMessage(ChatColor.GOLD.toString() + "$recipes")
+                            })
+                            manager.command(builder.argument(StringArgument.of("key")).handler {
+                                val template =
+                                    recipeManager.recipes[NamespacedKey(this.config.namespace, it.get("key"))]
+                                if (template != null) {
+                                    it.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                                } else {
+                                    it.sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
+                                }
+                            })
                         }
                     }
-                    "reload" -> {
-                        equippedItemsManager.disable()
-                        config = parseConfig(plugin)
-                        itemManager.load()
-                        blockManager.load()
-                        recipeManager.load()
-                        equippedItemsManager.enable()
-                        sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
-                        true
-                    }
-                    else -> false
-                }
+
+                manager.command(builder.literal("reload").handler {
+                    equippedItemsManager.disable()
+                    config = parseConfig(plugin)
+                    itemManager.load()
+                    blockManager.load()
+                    recipeManager.load()
+                    equippedItemsManager.enable()
+                    it.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
+                })
             }
-            setTabCompleter { _, _, _, args ->
-                when (args.size) {
-                    0 -> listOf("reload", "debug", "items")
-                    else -> listOf()
-                }
-            }
-        }
 
         logger.info("Moromoro is enabled")
     }
