@@ -52,6 +52,7 @@ class ItemManager(val plugin: Moromoro) {
         // We process files closer to the root first, so we can resolve dependency issues with nesting
         val files = directory
             .walkBottomUp()
+            .onEnter { !it.name.startsWith("_") }
             .filter { file -> file.extension in setOf("json", "yml", "yaml") }
             .sortedBy { it.toPath().nameCount }
         for (file in files) {
