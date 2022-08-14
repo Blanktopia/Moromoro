@@ -58,14 +58,13 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.7")
     compileOnly("com.sk89q.worldedit:worldedit-core:7.2.0-SNAPSHOT")
     compileOnly(files("vendor/GSit-1.2.1.jar"))
-    implementation(kotlin("stdlib-jdk8"))
 }
 
 bukkit {
     main = "me.weiwen.moromoro.Moromoro"
     apiVersion = "1.13"
     name = "Moromoro"
-    version = getVersion().toString()
+    version = project.version.toString()
     description = "Easily build custom items for your Minecraft server"
     apiVersion = "1.16"
     author = "Goh Wei Wen <goweiwen@gmail.com>"
@@ -73,6 +72,18 @@ bukkit {
 
     depend = listOf("Essentials", "ProtocolLib", "WorldEdit")
     softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "WorldGuard", "GriefPrevention")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "me.weiwen.moromoro"
+            artifactId = "Moromoro"
+            version = project.version.toString()
+
+            from(components["java"])
+        }
+    }
 }
 
 tasks.withType<KotlinCompile> {
