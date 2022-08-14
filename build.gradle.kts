@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "me.weiwen.moromoro"
-version = "1.0.0"
+version = "1.0.0-SNAPSHOT"
 
 repositories {
     jcenter()
@@ -61,7 +61,7 @@ bukkit {
     main = "me.weiwen.moromoro.Moromoro"
     apiVersion = "1.13"
     name = "Moromoro"
-    version = "1.0.0"
+    version = getVersion().toString()
     description = "Easily build custom items for your Minecraft server"
     apiVersion = "1.16"
     author = "Goh Wei Wen <goweiwen@gmail.com>"
