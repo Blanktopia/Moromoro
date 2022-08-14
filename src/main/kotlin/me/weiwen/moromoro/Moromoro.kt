@@ -10,6 +10,7 @@ import cloud.commandframework.kotlin.extension.argumentDescription
 import cloud.commandframework.kotlin.extension.command
 import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.paper.PaperCommandManager
+import com.mineinabyss.idofront.platforms.IdofrontPlatforms
 import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.hooks.ShulkerPacksHook
 import me.weiwen.moromoro.items.*
@@ -75,6 +76,8 @@ class Moromoro : JavaPlugin() {
 
     override fun onLoad() {
         plugin = this
+
+        IdofrontPlatforms.load(this, "mineinabyss")
     }
 
     override fun onEnable() {

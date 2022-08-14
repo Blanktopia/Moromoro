@@ -4,24 +4,19 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.0"
-    kotlin("plugin.serialization") version "1.6.0"
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.1"
+    id("com.mineinabyss.conventions.kotlin")
+//    id("com.mineinabyss.conventions.nms")
+    id("maven-publish")
+    id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
     id("com.github.johnrengelman.shadow") version "7.1.0"
+    kotlin("plugin.serialization")
 }
 
-group = "me.weiwen.moromoro"
-version = "1.0.0-SNAPSHOT"
-
 repositories {
-    jcenter()
     mavenCentral()
 
-    maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
-    maven { url = uri("https://papermc.io/repo/repository/maven-public") }
     maven { url = uri("https://repo.purpurmc.org/snapshots") }
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
-
     maven { url = uri("https://repo.codemc.org/repository/maven-public") } // bStats
     maven { url = uri("https://repo.incendo.org/content/repositories/snapshots") } // Cloud
     maven { url = uri("https://repo.minebench.de/") } // MineDown
@@ -30,15 +25,23 @@ repositories {
     maven { url = uri("https://maven.enginehub.org/repo") } // WorldGuard
     maven { url = uri("https://repo.md-5.net/content/groups/public/") } // Lib's Disguises
     maven { url = uri("https://repo.dmulloy2.net/repository/public/") } // ProtocolLib
+    maven { url = uri("https://repo.mineinabyss.com") }
 }
 
 
 dependencies {
-    implementation(kotlin("stdlib", "1.6.0"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
-    implementation("com.charleskorn.kaml:kaml:0.33.0")
+    implementation(libs.idofront.platform.loader)
+    compileOnly(libs.kotlin.stdlib)
+    compileOnly(libs.kotlin.reflect)
+    compileOnly(libs.kotlinx.serialization.json)
+    compileOnly(libs.kotlinx.serialization.kaml)
+    compileOnly(libs.kotlinx.coroutines)
+    compileOnly(libs.minecraft.mccoroutine)
+    compileOnly(libs.koin.core)
+    implementation(libs.idofront.core)
+    implementation(libs.idofront.nms)
 
-    compileOnly("org.purpurmc.purpur", "purpur-api", "1.19-R0.1-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur", "purpur-api", "1.19.2-R0.1-SNAPSHOT")
     compileOnly("io.papermc.paper", "paper-api", "1.19-R0.1-SNAPSHOT")
     compileOnly("org.spigotmc", "spigot", "1.19-R0.1-SNAPSHOT")
 
@@ -55,6 +58,7 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.7")
     compileOnly("com.sk89q.worldedit:worldedit-core:7.2.0-SNAPSHOT")
     compileOnly(files("vendor/GSit-1.2.1.jar"))
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 bukkit {
@@ -72,19 +76,14 @@ bukkit {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
-    kotlinOptions.languageVersion = "1.6"
-    kotlinOptions.freeCompilerArgs = listOf(
-        "-Xopt-in=kotlin.RequiresOptIn",
-        "-Xuse-experimental=org.jetbrains.kotlinx.serialization.ExperimentalSerializationApi"
-    )
+    kotlinOptions.freeCompilerArgs = listOf("-opt-in=kotlinx.serialization.ExperimentalSerializationApi")
 }
 
 tasks.withType<ShadowJar> {
-    classifier = null
+    fun reloc(pkg: String) = relocate(pkg, "$group.dependency.$pkg")
 
-    relocate("org.bstats", "me.weiwen.moromoro.bstats")
-    relocate("de.themoep.minedown", "me.weiwen.moromoro.minedown")
-    relocate("cloud.commandframework", "me.weiwen.moromoro.cloud")
-    relocate("com.github.stefvanschie.inventoryframework", "me.weiwen.moromoro.inventoryframework")
+    reloc("org.bstats")
+    reloc("de.themoep.minedown")
+    reloc("cloud.commandframework")
+    reloc("com.github.stefvanschie.inventoryframework")
 }
