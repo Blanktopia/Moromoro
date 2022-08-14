@@ -204,6 +204,7 @@ open class ItemFrameCustomBlock(override val block: Block, val itemFrame: ItemFr
                         PersistentDataType.STRING
                     ) ?: return null
                 )
+
             }
         }
     }

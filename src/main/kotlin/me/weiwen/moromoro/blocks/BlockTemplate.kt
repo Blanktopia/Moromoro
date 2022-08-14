@@ -171,7 +171,11 @@ class ItemBlockTemplate(
             return false
         }
 
-        val rotation = player?.location?.clone()?.apply { yaw += 180 }?.rotation ?: Rotation.NONE
+        val rotation = if (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN) {
+            player?.location?.clone()?.apply { yaw += 180 }?.rotation ?: Rotation.NONE
+        } else {
+            Rotation.NONE
+        }
 
         val location = block.getRelative(blockFace).location
         val world = location.world ?: return false
