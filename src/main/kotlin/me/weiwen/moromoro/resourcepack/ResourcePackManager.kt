@@ -15,7 +15,6 @@ class ResourcePackManager(private val plugin: Moromoro, private val resourcePack
 
     fun enable() {
         manager = this
-        resourcePackGenerator.generate()
         plugin.server.pluginManager.registerEvents(this, plugin)
     }
 
@@ -29,6 +28,10 @@ class ResourcePackManager(private val plugin: Moromoro, private val resourcePack
         } else {
             player.setResourcePack(url, hash)
         }
+    }
+
+    fun generate() {
+        resourcePackGenerator.generate()
     }
 
     @EventHandler
