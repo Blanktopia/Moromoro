@@ -16,7 +16,6 @@ import java.util.*
 val NEXT_PAGE_ICON = playerHeadFromHash("Next Page", "61e1e730c77279c8e2e15d8b271a117e5e2ca93d25c8be3a00cc92a00cc0bb85")
 val PREV_PAGE_ICON = playerHeadFromHash("Previous Page", "9cdb8f43656c06c4e8683e2e6341b4479f157f48082fea4aff09b37ca3c6995b")
 
-
 fun playerHeadFromHash(name: String, url: String) =
     ItemStack(Material.PLAYER_HEAD).apply {
         setHeadHash("", url)

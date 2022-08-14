@@ -3,12 +3,8 @@ package me.weiwen.moromoro.items
 import com.charleskorn.kaml.PolymorphismStyle
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
-import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
-import com.github.stefvanschie.inventoryframework.pane.Pane
-import com.github.stefvanschie.inventoryframework.pane.StaticPane
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -16,6 +12,7 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
+import me.weiwen.moromoro.addNavigation
 import me.weiwen.moromoro.extensions.customItemKey
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -104,7 +101,9 @@ class ItemManager(val plugin: Moromoro) {
         // Migrate aliased items
         val alias = template.alias
         if (alias != null) {
-            val item = Moromoro.plugin.essentialsHook.getItemStack(alias)
+            val item = Moromoro.plugin.essentialsHook.getItemStack(alias)?.apply {
+                amount = item.amount
+            }
             return item ?: ItemStack(Material.STICK)
         }
 
@@ -145,31 +144,7 @@ class ItemManager(val plugin: Moromoro) {
             )
         }
         gui.addPane(pages)
-
-        val background = OutlinePane(8, 0, 1, 6)
-        background.addItem(GuiItem(ItemStack(Material.BLACK_STAINED_GLASS_PANE)))
-        background.setRepeat(true)
-        background.priority = Pane.Priority.LOWEST
-        background.setOnClick { it.isCancelled = true }
-        gui.addPane(background)
-
-        val navigation = StaticPane(8, 4, 1, 2)
-        navigation.addItem(GuiItem(ItemStack(Material.RED_WOOL)) {
-            if (pages.page > 0) {
-                pages.page = pages.page - 1
-                gui.update()
-            }
-            it.isCancelled = true
-        }, 0, 0)
-        navigation.addItem(GuiItem(ItemStack(Material.GREEN_WOOL)) {
-            if (pages.page < pages.pages - 1) {
-                pages.page = pages.page + 1
-                gui.update()
-            }
-            it.isCancelled = true
-        }, 0, 1)
-        gui.addPane(navigation)
-
+        gui.addNavigation(pages)
         gui.show(player)
     }
 }
