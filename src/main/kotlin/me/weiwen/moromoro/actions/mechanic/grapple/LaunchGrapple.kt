@@ -10,6 +10,7 @@ import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.playSoundAt
+import me.weiwen.moromoro.managers.ProjectileManager
 import me.weiwen.moromoro.serializers.ColorSerializer
 import org.bukkit.NamespacedKey
 import org.bukkit.SoundCategory
@@ -52,7 +53,7 @@ data class LaunchGrapple(val speed: Double = 1.0) : Action {
         entity.velocity = v.normalize().multiply(speed)
 
         ctx.item?.customItemKey?.let {
-            Moromoro.plugin.projectileManager.register(entity, ctx.player?.uniqueId, it)
+            ProjectileManager.register(entity, ctx.player?.uniqueId, it)
         }
 
         player.playSoundAt("entity.iron_golem.hurt", SoundCategory.PLAYERS, 0.5f, 2.0f)

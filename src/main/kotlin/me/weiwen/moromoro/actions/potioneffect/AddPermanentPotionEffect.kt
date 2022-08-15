@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
-import me.weiwen.moromoro.managers.addPermanentPotionEffects
+import me.weiwen.moromoro.managers.PermanentPotionEffectManager.addPermanentPotionEffects
 import me.weiwen.moromoro.serializers.PotionEffectTypeSerializer
 import org.bukkit.potion.PotionEffectType
 

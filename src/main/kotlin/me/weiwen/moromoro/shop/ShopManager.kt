@@ -6,26 +6,25 @@ import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.Manager
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.actions.actionModule
 import org.bukkit.entity.Player
 import java.io.File
 import java.util.logging.Level
 
-class ShopManager(private val plugin: Moromoro) {
+object ShopManager : Manager {
     var shopTemplates: MutableMap<String, ShopTemplate> = mutableMapOf()
-    private set
+        private set
+
+    override fun enable() {
+        load()
+    }
 
     fun show(player: Player, shop: String) {
         val shopTemplate = shopTemplates[shop] ?: return
         shopTemplate.show(player)
     }
-
-    fun enable() {
-        load()
-    }
-
-    fun disable() {}
 
     fun load() {
         val directory = File(plugin.dataFolder, "shops")

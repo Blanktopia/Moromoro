@@ -145,7 +145,6 @@ val actionModule = SerializersModule {
         subclass(LaunchEntity::class)
         subclass(LaunchFallingBlock::class)
         subclass(LaunchGrapple::class)
-        subclass(LaunchItemProjectile::class)
         subclass(LavaBucket::class)
         subclass(Light::class)
         subclass(Lightning::class)

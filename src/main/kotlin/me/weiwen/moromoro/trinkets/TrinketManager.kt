@@ -1,15 +1,18 @@
-package me.weiwen.moromoro.items
+package me.weiwen.moromoro.trinkets
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane
+import me.weiwen.moromoro.Manager
 import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.EQUIPPED_TRIGGERS
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.playSoundTo
+import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.types.CustomEquipmentSlot
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
@@ -23,23 +26,23 @@ import org.bukkit.event.Event
 import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.scheduler.BukkitTask
 import java.util.*
 
-class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager) {
+object TrinketManager : Manager {
     private val trinketTriggers: MutableMap<UUID,
             MutableMap<Trigger,
                     MutableMap<Int, Pair<ItemStack, List<Action>>>>> = mutableMapOf()
 
-    private var tickTask: Int = -1
-    private var tickSlowTask: Int = -1
+    private var task: BukkitTask? = null
 
-    fun enable() {
+    override fun enable() {
         trinketTriggers.clear()
         for (player in plugin.server.onlinePlayers) {
             runEquipTriggers(player)
         }
 
-        tickTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
+        task = plugin.server.scheduler.runTaskTimer(
             plugin,
             { ->
                 plugin.server.onlinePlayers.forEach {
@@ -49,37 +52,22 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
             plugin.config.tickInterval,
             plugin.config.tickInterval
         )
-        tickSlowTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
-            plugin,
-            { ->
-                plugin.server.onlinePlayers.forEach {
-                    runEquipTriggers(null, it, Trigger.TICK_SLOW)
-                }
-            },
-            plugin.config.tickSlowInterval,
-            plugin.config.tickSlowInterval
-        )
     }
 
-    fun disable() {
-        if (tickTask != -1) {
-            plugin.server.scheduler.cancelTask(tickTask)
-        }
-        if (tickSlowTask != -1) {
-            plugin.server.scheduler.cancelTask(tickSlowTask)
-        }
+    override fun disable() {
+        task?.cancel()
     }
 
     fun runEquipTriggers(player: Player) {
         val trinkets = player.trinkets
 
-        val triggersMap = itemManager.triggers
+        val triggersMap = ItemManager.triggers
 
         trinkets.forEachIndexed { slot, item ->
             val key = item?.customItemKey ?: return@forEachIndexed
 
             // Skip if in wrong slot
-            val slots = itemManager.templates[key]?.slots ?: return@forEachIndexed
+            val slots = ItemManager.templates[key]?.slots ?: return@forEachIndexed
             if (!slots.contains(CustomEquipmentSlot.TRINKET)) {
                 return
             }
@@ -144,7 +132,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
         }
 
         val key = item.customItemKey
-        val triggers = itemManager.triggers[key] ?: return true
+        val triggers = ItemManager.triggers[key] ?: return true
 
         triggers.forEach { (triggerType, actions) ->
             if (triggerType in EQUIPPED_TRIGGERS) {
@@ -156,7 +144,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
 
         val ctx = Context(null, player, item, null, null, null, null)
 
-        val template = itemManager.templates[key] ?: return true
+        val template = ItemManager.templates[key] ?: return true
         template.triggers[Trigger.EQUIP_ARMOR]?.forEach {
             it.perform(ctx)
         }
@@ -172,7 +160,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
         )
 
         val key = oldItem?.customItemKey ?: return oldItem
-        val triggers = itemManager.triggers[key] ?: return oldItem
+        val triggers = ItemManager.triggers[key] ?: return oldItem
 
         triggers.forEach { (triggerType, _) ->
             if (triggerType in EQUIPPED_TRIGGERS) {
@@ -187,7 +175,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
 
         val ctx = Context(null, player, oldItem, null, null, null, null)
 
-        val template = itemManager.templates[key] ?: return oldItem
+        val template = ItemManager.templates[key] ?: return oldItem
         template.triggers[Trigger.UNEQUIP_ARMOR]?.forEach {
             it.perform(ctx)
         }
@@ -223,7 +211,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
                 }
 
                 val key = newItem.customItemKey
-                val template = itemManager.templates[key]
+                val template = ItemManager.templates[key]
                 if (template == null || !template.slots.contains(CustomEquipmentSlot.TRINKET)) {
                     if (event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
                         player.sendActionBar(
@@ -264,7 +252,7 @@ class TrinketManager(val plugin: Moromoro, private val itemManager: ItemManager)
 
                 if (newItem.type != Material.AIR) {
                     val key = newItem.customItemKey
-                    val template = itemManager.templates[key]
+                    val template = ItemManager.templates[key]
                     if (template == null || !template.slots.contains(CustomEquipmentSlot.TRINKET)) {
                         player.sendActionBar(
                             Component.text("You can only place trinkets here.").color(TextColor.color(0xff5555))

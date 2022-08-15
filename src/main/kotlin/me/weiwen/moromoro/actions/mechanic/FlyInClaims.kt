@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
-import me.weiwen.moromoro.managers.canFlyInClaims
+import me.weiwen.moromoro.managers.FlyInClaimsListener.canFlyInClaims
 import me.weiwen.moromoro.serializers.PotionEffectTypeSerializer
 
 @Serializable

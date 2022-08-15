@@ -8,13 +8,12 @@ import com.comphenix.protocol.wrappers.EnumWrappers
 import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction
 import dev.geco.gsit.api.GSitAPI
 import io.papermc.paper.event.block.BlockBreakBlockEvent
-import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.extensions.rotation
-import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.managers.BlockManager
 import me.weiwen.moromoro.managers.customBlockState
 import me.weiwen.moromoro.packets.WrapperPlayClientBlockDig
@@ -37,8 +36,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.util.Vector
 
-class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager, val itemManager: ItemManager) :
-    Listener {
+object BlockListener : Listener {
 
     init {
         val manager = ProtocolLibrary.getProtocolManager()
@@ -87,12 +85,12 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
                     val direction = packet.direction ?: return@scheduleSyncDelayedTask
 
                     when (packet.status) {
-                        EnumWrappers.PlayerDigType.START_DESTROY_BLOCK -> blockManager.startDigging(
+                        EnumWrappers.PlayerDigType.START_DESTROY_BLOCK -> BlockManager.startDigging(
                             e.player,
                             customBlock,
                             direction.blockFace
                         )
-                        EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK -> blockManager.cancelDigging(e.player)
+                        EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK -> BlockManager.cancelDigging(e.player)
                         else -> {}
                     }
                 }
@@ -186,8 +184,8 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
             )
 
             if (customBlock != null) {
-                val sitHeight = blockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
-                val sitRotate = blockManager.blockTemplates[customBlock.key]?.sitRotate
+                val sitHeight = BlockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
+                val sitRotate = BlockManager.blockTemplates[customBlock.key]?.sitRotate
 
                 val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(customBlock.itemFrame.facing.direction)
                 val seatLocation = customBlock.itemFrame.location.block.location.apply {
@@ -222,7 +220,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
             }
         }
 
-        val blockTemplate = blockManager.blockTemplates[key] ?: return
+        val blockTemplate = BlockManager.blockTemplates[key] ?: return
 
         event.setUseItemInHand(Event.Result.DENY)
 
@@ -294,7 +292,7 @@ class BlockListener(val plugin: Moromoro, private val blockManager: BlockManager
         val customBlock = ItemFrameCustomBlock.fromItemFrame(itemFrame) ?: return
 
         // Sit
-        val sitHeight = blockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
+        val sitHeight = BlockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
 
         val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(itemFrame.facing.direction)
         val seatLocation = itemFrame.location.block.location.apply {

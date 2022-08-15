@@ -1,7 +1,7 @@
 package me.weiwen.moromoro.managers
 
-import me.weiwen.moromoro.Moromoro
-import me.weiwen.moromoro.blocks.BlockListener
+import me.weiwen.moromoro.Manager
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.blocks.BlockTemplate
 import me.weiwen.moromoro.blocks.CustomBlock
 import me.weiwen.moromoro.blocks.MushroomBlockTemplate
@@ -30,7 +30,7 @@ data class DigState(
     val taskId: Int
 )
 
-class BlockManager(val plugin: Moromoro, val itemManager: ItemManager) {
+object BlockManager: Manager {
     var blockTemplates: MutableMap<String, BlockTemplate> = mutableMapOf()
         private set
     var brownMushroomStates: MutableMap<Int, String> = mutableMapOf()
@@ -42,15 +42,12 @@ class BlockManager(val plugin: Moromoro, val itemManager: ItemManager) {
 
     var playersDigging: MutableMap<UUID, DigState> = mutableMapOf()
 
-    fun enable() {
-        plugin.server.pluginManager.registerEvents(BlockListener(plugin, this, itemManager), plugin)
+    override fun enable() {
         load()
     }
 
-    fun disable() {}
-
     fun load() {
-        itemManager
+        ItemManager
             .templates
             .filterValues { it.block != null }
             .forEach { (key, item) -> register(key, item.block as BlockTemplate) }

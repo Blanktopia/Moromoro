@@ -5,7 +5,7 @@ import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin
 import com.sk89q.worldguard.protection.flags.Flags
 import me.ryanhamshire.GriefPrevention.GriefPrevention
-import me.weiwen.moromoro.Moromoro.Companion.plugin
+import me.weiwen.moromoro.hooks.ShulkerPacksHook
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
@@ -63,7 +63,7 @@ fun Player.hasAtLeastInInventoryOrShulkerBoxes(itemStack: ItemStack): Boolean {
         val blockStateMeta = item.itemMeta as? BlockStateMeta ?: continue
         val shulkerBox = blockStateMeta.blockState as? ShulkerBox ?: continue
 
-        if (plugin.shulkerPacksHook?.isShulkerBoxOpen(item) == true) {
+        if (ShulkerPacksHook.isShulkerBoxOpen(item)) {
             continue
         }
 
@@ -106,7 +106,7 @@ fun Player.removeItemFromInventoryOrShulkerBoxes(
         val blockStateMeta = item.itemMeta as? BlockStateMeta ?: continue
         val shulkerBox = blockStateMeta.blockState as? ShulkerBox ?: continue
 
-        if (plugin.shulkerPacksHook?.isShulkerBoxOpen(item) == true) {
+        if (ShulkerPacksHook.isShulkerBoxOpen(item)) {
             continue
         }
 

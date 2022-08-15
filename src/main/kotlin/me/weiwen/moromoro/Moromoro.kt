@@ -11,15 +11,20 @@ import cloud.commandframework.kotlin.extension.command
 import cloud.commandframework.kotlin.extension.commandBuilder
 import cloud.commandframework.paper.PaperCommandManager
 import com.mineinabyss.idofront.platforms.IdofrontPlatforms
+import com.mineinabyss.idofront.plugin.registerEvents
+import me.weiwen.moromoro.blocks.BlockListener
+import me.weiwen.moromoro.equip.EquippedItemsManager
 import me.weiwen.moromoro.hooks.EssentialsHook
-import me.weiwen.moromoro.hooks.ShulkerPacksHook
-import me.weiwen.moromoro.items.*
+import me.weiwen.moromoro.items.ItemListener
+import me.weiwen.moromoro.items.ItemManager
+import me.weiwen.moromoro.items.item
 import me.weiwen.moromoro.managers.*
-import me.weiwen.moromoro.projectiles.ItemProjectileManager
-import me.weiwen.moromoro.projectiles.ProjectileManager
-import me.weiwen.moromoro.resourcepack.ResourcePackGenerator
+import me.weiwen.moromoro.recipes.RecipeListener
+import me.weiwen.moromoro.recipes.RecipeManager
+import me.weiwen.moromoro.resourcepack.ResourcePackListener
 import me.weiwen.moromoro.resourcepack.ResourcePackManager
 import me.weiwen.moromoro.shop.ShopManager
+import me.weiwen.moromoro.trinkets.TrinketManager
 import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
@@ -29,50 +34,12 @@ import java.util.function.Function
 
 class Moromoro : JavaPlugin() {
     companion object {
-        lateinit var plugin: Moromoro
-            private set
+        lateinit var plugin: Moromoro private set
     }
 
     lateinit var config: MoromoroConfig
 
-    private val resourcePackGenerator: ResourcePackGenerator by lazy {
-        ResourcePackGenerator(
-            this,
-            itemManager,
-            blockManager
-        )
-    }
-    private val resourcePackManager: ResourcePackManager by lazy { ResourcePackManager(this, resourcePackGenerator) }
-    val itemManager: ItemManager by lazy { ItemManager(this) }
-    private val equippedItemsManager: EquippedItemsManager by lazy { EquippedItemsManager(this, itemManager) }
-    private val trinketManager: TrinketManager by lazy { TrinketManager(this, itemManager) }
-    private val itemListener: ItemListener by lazy {
-        ItemListener(
-            plugin,
-            itemManager,
-            equippedItemsManager,
-            trinketManager,
-            projectileManager
-        )
-    }
-    val blockManager: BlockManager by lazy { BlockManager(this, itemManager) }
-    private val recipeManager: RecipeManager by lazy { RecipeManager(this, itemManager) }
-    private val shopManager: ShopManager by lazy { ShopManager(this) }
-
-    private val flyInClaimsManager: FlyInClaimsManager by lazy { FlyInClaimsManager(this) }
-    private val permanentPotionEffectManager: PermanentPotionEffectManager by lazy { PermanentPotionEffectManager(this) }
-    private val experienceBoostManager: ExperienceBoostManager by lazy { ExperienceBoostManager(this) }
-    val itemProjectileManager: ItemProjectileManager by lazy { ItemProjectileManager(this) }
-    val projectileManager: ProjectileManager by lazy { ProjectileManager(this, itemManager) }
-
-    val essentialsHook: EssentialsHook by lazy { EssentialsHook(this, itemManager) }
-    val shulkerPacksHook: ShulkerPacksHook? by lazy {
-        if (server.pluginManager.getPlugin("ShulkerPacks") != null) {
-            ShulkerPacksHook()
-        } else {
-            null
-        }
-    }
+    val managers: MutableList<Manager> = mutableListOf()
 
     override fun onLoad() {
         plugin = this
@@ -83,28 +50,30 @@ class Moromoro : JavaPlugin() {
     override fun onEnable() {
         config = parseConfig(this)
 
-        experienceBoostManager.enable()
-        permanentPotionEffectManager.enable()
-        flyInClaimsManager.enable()
-        itemProjectileManager.enable()
+        registerManagers(
+            ItemManager,
+            EquippedItemsManager,
+            TrinketManager,
+            BlockManager,
+            RecipeManager,
+            ShopManager,
+            ResourcePackManager,
+            PermanentPotionEffectManager,
+            ProjectileManager,
+        )
+
+        registerEvents(
+            ResourcePackListener,
+            FlyInClaimsListener,
+            ExperienceBoostListener,
+            ItemListener,
+            BlockListener,
+            RecipeListener,
+        )
 
         if (server.pluginManager.getPlugin("Essentials") != null) {
-            essentialsHook.register()
+            EssentialsHook.register()
         }
-
-        itemManager.enable()
-        recipeManager.enable()
-        blockManager.enable()
-        shopManager.enable()
-
-        projectileManager.enable()
-        equippedItemsManager.enable()
-        trinketManager.enable()
-        itemListener.enable()
-
-        resourcePackManager.enable()
-
-        val plugin = this
 
         val manager = PaperCommandManager(
             this, CommandExecutionCoordinator.simpleCoordinator(),
@@ -119,13 +88,14 @@ class Moromoro : JavaPlugin() {
             plugin.logger.warning("Failed to initialize Brigadier support: " + e.message)
         }
 
-        manager.command(manager.commandBuilder("pack", ArgumentDescription.of("Downloads the server resource pack")) {
+        manager.command(manager.commandBuilder("pack", ArgumentDescription.of("Downloads the server resource pack"))
+        {
             permission = "moromoro.pack"
             senderType<Player>()
             handler { ctx ->
                 val player = ctx.sender as Player
                 if (!player.hasResourcePack()) {
-                    resourcePackManager.send(player)
+                    ResourcePackManager.send(player)
                 }
             }
 
@@ -133,19 +103,21 @@ class Moromoro : JavaPlugin() {
                 literal("force")
                 handler { ctx ->
                     val player = ctx.sender as Player
-                    resourcePackManager.send(player)
+                    ResourcePackManager.send(player)
                 }
             }
         })
 
-        manager.command(manager.commandBuilder("trinkets", ArgumentDescription.of("Opens your trinket bag")) {
+        manager.command(manager.commandBuilder("trinkets", ArgumentDescription.of("Opens your trinket bag"))
+        {
             senderType<Player>()
             handler { ctx ->
-                trinketManager.openTrinketInventory(ctx.sender as Player)
+                TrinketManager.openTrinketInventory(ctx.sender as Player)
             }
         })
 
-        manager.command(manager.commandBuilder("moromoro", ArgumentDescription.of("Manages the Moromoro plugin")) {
+        manager.command(manager.commandBuilder("moromoro", ArgumentDescription.of("Manages the Moromoro plugin"))
+        {
             permission = "moromoro.admin"
 
             registerCopy {
@@ -154,14 +126,14 @@ class Moromoro : JavaPlugin() {
                 argument(PlayerArgument.optional("player"))
                 handler { ctx ->
                     val player = ctx.getOptional<Player>("player").orElseGet { ctx.sender as? Player } ?: return@handler
-                    shopManager.show(player, ctx.get("shop"))
+                    ShopManager.show(player, ctx.get("shop"))
                 }
             }
 
             registerCopy {
                 literal("items", argumentDescription("Opens a GUI to spawn custom items"))
                 senderType<Player>()
-                handler { ctx -> itemManager.creativeItemPicker(ctx.sender as Player) }
+                handler { ctx -> ItemManager.creativeItemPicker(ctx.sender as Player) }
             }
 
             registerCopy {
@@ -171,7 +143,7 @@ class Moromoro : JavaPlugin() {
                 argument(LocationArgument.of("location"))
                 handler { ctx ->
                     val key = ctx.get<String>("key")
-                    val template = itemManager.templates[key] ?: return@handler
+                    val template = ItemManager.templates[key] ?: return@handler
                     val item = template.item(key, ctx.get<Int>("amount"))
                     val location = ctx.get<Location>("location")
                     location.world.dropItemNaturally(location, item)
@@ -182,20 +154,20 @@ class Moromoro : JavaPlugin() {
                 literal("debug", argumentDescription("Prints some debug information"))
 
                 handler { ctx ->
-                    ctx.sender.sendMessage(ChatColor.GOLD.toString() + "${itemManager.keys.size} items, ${blockManager.blockTemplates.size} blocks, ${recipeManager.recipes.size} recipes loaded.")
+                    ctx.sender.sendMessage(ChatColor.GOLD.toString() + "${ItemManager.keys.size} items, ${BlockManager.blockTemplates.size} blocks, ${RecipeManager.recipes.size} recipes loaded.")
                 }
 
                 registerCopy {
                     literal("blocks")
                     handler { ctx ->
-                        val blocks = blockManager.blockTemplates.keys.joinToString(", ")
+                        val blocks = BlockManager.blockTemplates.keys.joinToString(", ")
                         ctx.sender.sendMessage(ChatColor.GOLD.toString() + blocks)
                     }
 
                     registerCopy {
                         argument(StringArgument.of("key"))
                         handler { ctx ->
-                            val template = blockManager.blockTemplates[ctx.get("key")]
+                            val template = BlockManager.blockTemplates[ctx.get("key")]
                             if (template != null) {
                                 ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
                             } else {
@@ -208,14 +180,14 @@ class Moromoro : JavaPlugin() {
                 registerCopy {
                     literal("items")
                     handler { ctx ->
-                        val items = itemManager.templates.keys.joinToString(", ")
+                        val items = ItemManager.templates.keys.joinToString(", ")
                         ctx.sender.sendMessage(ChatColor.GOLD.toString() + items)
                     }
 
                     registerCopy {
                         argument(StringArgument.of("key"))
                         handler { ctx ->
-                            val template = itemManager.templates[ctx.get("key")]
+                            val template = ItemManager.templates[ctx.get("key")]
                             if (template != null) {
                                 ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
                             } else {
@@ -228,7 +200,7 @@ class Moromoro : JavaPlugin() {
                 registerCopy {
                     literal("recipes")
                     handler { ctx ->
-                        val recipes = recipeManager.recipes.keys.joinToString(", ") { key -> key.key }
+                        val recipes = RecipeManager.recipes.keys.joinToString(", ") { key -> key.key }
                         ctx.sender.sendMessage(ChatColor.GOLD.toString() + recipes)
                     }
 
@@ -236,7 +208,7 @@ class Moromoro : JavaPlugin() {
                         argument(StringArgument.of("key"))
                         handler { ctx ->
                             val template =
-                                recipeManager.recipes[NamespacedKey(config.namespace, ctx.get("key"))]
+                                RecipeManager.recipes[NamespacedKey(config.namespace, ctx.get("key"))]
                             if (template != null) {
                                 ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
                             } else {
@@ -250,13 +222,17 @@ class Moromoro : JavaPlugin() {
             registerCopy {
                 literal("reload")
                 handler { ctx ->
-                    equippedItemsManager.disable()
+                    EquippedItemsManager.disable()
                     config = parseConfig(Companion.plugin)
-                    itemManager.load()
-                    blockManager.load()
-                    recipeManager.load()
-                    shopManager.load()
-                    equippedItemsManager.enable()
+                    ShopManager.disable()
+                    RecipeManager.disable()
+                    BlockManager.disable()
+                    ItemManager.disable()
+                    ItemManager.enable()
+                    BlockManager.enable()
+                    RecipeManager.enable()
+                    ShopManager.enable()
+                    EquippedItemsManager.enable()
                     ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
                 }
 
@@ -271,9 +247,10 @@ class Moromoro : JavaPlugin() {
                 registerCopy {
                     literal("items")
                     handler { ctx ->
-                        equippedItemsManager.disable()
-                        itemManager.load()
-                        equippedItemsManager.enable()
+                        EquippedItemsManager.disable()
+                        ItemManager.disable()
+                        ItemManager.enable()
+                        EquippedItemsManager.enable()
                         ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded items.")
                     }
                 }
@@ -281,7 +258,8 @@ class Moromoro : JavaPlugin() {
                 registerCopy {
                     literal("blocks")
                     handler { ctx ->
-                        blockManager.load()
+                        BlockManager.disable()
+                        BlockManager.enable()
                         ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded blocks.")
                     }
                 }
@@ -289,7 +267,8 @@ class Moromoro : JavaPlugin() {
                 registerCopy {
                     literal("recipes")
                     handler { ctx ->
-                        recipeManager.load()
+                        RecipeManager.disable()
+                        RecipeManager.enable()
                         ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded recipes.")
                     }
                 }
@@ -297,7 +276,8 @@ class Moromoro : JavaPlugin() {
                 registerCopy {
                     literal("shops")
                     handler { ctx ->
-                        shopManager.load()
+                        ShopManager.disable()
+                        ShopManager.enable()
                         ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded shops.")
                     }
                 }
@@ -305,7 +285,7 @@ class Moromoro : JavaPlugin() {
                 registerCopy {
                     literal("pack")
                     handler { ctx ->
-                        resourcePackManager.generate()
+                        ResourcePackManager.generate()
                         ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Generated resource pack!")
                     }
                 }
@@ -318,24 +298,18 @@ class Moromoro : JavaPlugin() {
 
     override fun onDisable() {
         if (server.pluginManager.getPlugin("Essentials") != null) {
-            essentialsHook.unregister()
+            EssentialsHook.unregister()
         }
 
-        resourcePackManager.disable()
-        itemListener.disable()
-        shopManager.disable()
-        recipeManager.disable()
-        blockManager.disable()
-        itemManager.disable()
-        projectileManager.disable()
-        trinketManager.disable()
-        equippedItemsManager.disable()
-
-        itemProjectileManager.disable()
-        flyInClaimsManager.disable()
-        permanentPotionEffectManager.disable()
-        experienceBoostManager.disable()
+        managers.reversed().forEach { it.disable() }
 
         logger.info("Moromoro is disabled")
+    }
+
+    private fun registerManagers(vararg managers: Manager) {
+        managers.forEach {
+            it.enable()
+            this.managers.add(it)
+        }
     }
 }

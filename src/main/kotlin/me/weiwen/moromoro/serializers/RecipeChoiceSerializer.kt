@@ -7,8 +7,8 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.hooks.EssentialsHook
 import org.bukkit.inventory.RecipeChoice
-import java.lang.RuntimeException
 import java.util.logging.Level
 
 class RecipeChoiceSerializer : KSerializer<RecipeChoice> {
@@ -20,7 +20,7 @@ class RecipeChoiceSerializer : KSerializer<RecipeChoice> {
 
         val items = string.split(',')
             .mapNotNull {
-                val item = Moromoro.plugin.essentialsHook.getItemStack(it)
+                val item = EssentialsHook.getItemStack(it)
 
                 if (item == null) {
                     Moromoro.plugin.logger.log(Level.WARNING, "Unnknown item: ${it}")
@@ -34,7 +34,7 @@ class RecipeChoiceSerializer : KSerializer<RecipeChoice> {
 
     override fun serialize(encoder: Encoder, value: RecipeChoice) {
         val string = when (value) {
-            is RecipeChoice.ExactChoice -> value.choices.mapNotNull { Moromoro.plugin.essentialsHook.getName(it) }
+            is RecipeChoice.ExactChoice -> value.choices.mapNotNull { EssentialsHook.getName(it) }
             is RecipeChoice.MaterialChoice -> value.choices.map { it.toString() }
             else -> throw RuntimeException("Unknown RecipeChoice subclass")
         }.joinToString(",")

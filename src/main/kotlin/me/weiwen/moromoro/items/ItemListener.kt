@@ -3,11 +3,14 @@ package me.weiwen.moromoro.items
 import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent
 import com.destroystokyo.paper.event.player.PlayerJumpEvent
 import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
+import me.weiwen.moromoro.equip.EquippedItemsManager
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
-import me.weiwen.moromoro.projectiles.ProjectileManager
+import me.weiwen.moromoro.managers.ProjectileManager
+import me.weiwen.moromoro.trinkets.TrinketManager
 import me.weiwen.moromoro.types.CustomEquipmentSlot
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -29,20 +32,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import java.util.logging.Level
 
-class ItemListener(
-    val plugin: Moromoro,
-    private val itemManager: ItemManager,
-    private val equippedItemsManager: EquippedItemsManager,
-    private val trinketManager: TrinketManager,
-    private val projectileManager: ProjectileManager,
-) : Listener {
-    fun enable() {
-        plugin.server.pluginManager.registerEvents(this, plugin)
-    }
-
-    fun disable() {
-    }
-
+object ItemListener : Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = false)
     fun onEntityShootBow(event: EntityShootBowEvent) {
         val item = event.bow ?: return
@@ -51,7 +41,7 @@ class ItemListener(
         val persistentData = event.projectile.persistentDataContainer
         persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
 
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -67,7 +57,7 @@ class ItemListener(
 
         triggers[Trigger.PROJECTILE_TICK]?.let {
             (event.projectile as? Projectile)?.let { projectile ->
-                projectileManager.register(projectile, (event.entity as? Player)?.uniqueId, key)
+                ProjectileManager.register(projectile, (event.entity as? Player)?.uniqueId, key)
             }
         }
     }
@@ -81,7 +71,7 @@ class ItemListener(
         val persistentData = projectile.persistentDataContainer
         persistentData.set(NamespacedKey(Moromoro.plugin.config.namespace, "type"), PersistentDataType.STRING, key)
 
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -96,7 +86,7 @@ class ItemListener(
         triggers[Trigger.PROJECTILE_LAUNCH]?.forEach { it.perform(ctx) }
 
         triggers[Trigger.PROJECTILE_TICK]?.let {
-            projectileManager.register(projectile, (projectile.shooter as? Player)?.uniqueId, key)
+            ProjectileManager.register(projectile, (projectile.shooter as? Player)?.uniqueId, key)
         }
     }
 
@@ -104,7 +94,7 @@ class ItemListener(
     fun onProjectileHit(event: ProjectileHitEvent) {
         val key = event.entity.customItemKey ?: return
 
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -159,7 +149,7 @@ class ItemListener(
 
         var didAction = false
 
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
         when (event.action) {
             Action.LEFT_CLICK_BLOCK -> {
                 triggers[Trigger.LEFT_CLICK_BLOCK]?.forEach { it.perform(ctx); didAction = true }
@@ -192,16 +182,16 @@ class ItemListener(
         // Equip trinket
         if (!didAction && (event.action == Action.RIGHT_CLICK_AIR || event.action == Action.RIGHT_CLICK_BLOCK)) {
             val key = item.customItemKey
-            val template = itemManager.templates[key]
+            val template = ItemManager.templates[key]
             if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
-                if (trinketManager.equipTrinket(event.player, item)) {
+                if (TrinketManager.equipTrinket(event.player, item)) {
                     when (event.hand) {
                         EquipmentSlot.HAND -> event.player.inventory.setItemInMainHand(null)
                         EquipmentSlot.OFF_HAND -> event.player.inventory.setItemInOffHand(null)
                     }
                 }
                 plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
-                    trinketManager.openTrinketInventory(event.player)
+                    TrinketManager.openTrinketInventory(event.player)
                 }, 1)
 
                 event.isCancelled
@@ -220,7 +210,7 @@ class ItemListener(
         }
 
         val key = item.customItemKey ?: return
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -249,7 +239,7 @@ class ItemListener(
         val item = player.inventory.itemInMainHand
 
         val key = item.customItemKey ?: return
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -274,7 +264,7 @@ class ItemListener(
         val item = event.player.inventory.itemInMainHand
 
         val key = item.customItemKey ?: return
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -299,7 +289,7 @@ class ItemListener(
         val item = event.player.inventory.itemInMainHand
 
         val key = item.customItemKey ?: return
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -324,7 +314,7 @@ class ItemListener(
         val item = event.player.inventory.itemInMainHand
 
         val key = item.customItemKey ?: return
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -369,7 +359,7 @@ class ItemListener(
         val item = event.item
 
         val key = item.customItemKey ?: return
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -397,7 +387,7 @@ class ItemListener(
         val item = event.itemDrop.itemStack
 
         val key = item.customItemKey ?: return
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val ctx = Context(
             event,
@@ -409,8 +399,8 @@ class ItemListener(
         )
 
         triggers[Trigger.DROP]?.forEach { it.perform(ctx) }
-        equippedItemsManager.runEquipTriggers(event, event.player, Trigger.DROP)
-        trinketManager.runEquipTriggers(event, event.player, Trigger.DROP)
+        EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.DROP)
+        TrinketManager.runEquipTriggers(event, event.player, Trigger.DROP)
 
         event.isCancelled = ctx.isCancelled
 
@@ -428,7 +418,7 @@ class ItemListener(
     fun onPlayerSwapHandItems(event: PlayerSwapHandItemsEvent) {
         event.mainHandItem?.let { item ->
             val key = item.customItemKey ?: return@let
-            val triggers = itemManager.triggers[key] ?: return@let
+            val triggers = ItemManager.triggers[key] ?: return@let
 
             val ctx = Context(
                 event,
@@ -455,7 +445,7 @@ class ItemListener(
 
         event.offHandItem?.let { item ->
             val key = item.customItemKey ?: return@let
-            val triggers = itemManager.triggers[key] ?: return@let
+            val triggers = ItemManager.triggers[key] ?: return@let
 
             val ctx = Context(
                 event,
@@ -480,8 +470,8 @@ class ItemListener(
             }
         }
 
-        equippedItemsManager.runEquipTriggers(event, event.player, Trigger.SWAP_HAND)
-        trinketManager.runEquipTriggers(event, event.player, Trigger.SWAP_HAND)
+        EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.SWAP_HAND)
+        TrinketManager.runEquipTriggers(event, event.player, Trigger.SWAP_HAND)
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -492,7 +482,7 @@ class ItemListener(
 
         var key = item.customItemKey ?: return
 
-        itemManager.migrateItem(item)?.let {
+        ItemManager.migrateItem(item)?.let {
             inventory.setItem(event.slot, it)
             return
         }
@@ -500,20 +490,20 @@ class ItemListener(
         // Equip trinket
         if (event.click == ClickType.RIGHT || event.click == ClickType.SHIFT_RIGHT) {
             val key = item.customItemKey
-            val template = itemManager.templates[key]
+            val template = ItemManager.templates[key]
             if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
-                if (trinketManager.equipTrinket(player, item)) {
+                if (TrinketManager.equipTrinket(player, item)) {
                     event.currentItem = null
                 }
                 plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
-                    trinketManager.openTrinketInventory(player)
+                    TrinketManager.openTrinketInventory(player)
                 }, 1)
 
                 event.isCancelled
             }
         }
 
-        val triggers = itemManager.triggers[key] ?: return
+        val triggers = ItemManager.triggers[key] ?: return
 
         val trigger = when (event.click) {
             ClickType.RIGHT -> Trigger.RIGHT_CLICK_INVENTORY
@@ -568,77 +558,77 @@ class ItemListener(
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerArmorChange(event: PlayerArmorChangeEvent) {
-        equippedItemsManager.onPlayerArmorChange(event)
+        EquippedItemsManager.onPlayerArmorChange(event)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerMove(event: PlayerMoveEvent) {
-        equippedItemsManager.runEquipTriggers(event, event.player, Trigger.MOVE)
-        trinketManager.runEquipTriggers(event, event.player, Trigger.MOVE)
+        EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.MOVE)
+        TrinketManager.runEquipTriggers(event, event.player, Trigger.MOVE)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerJump(event: PlayerJumpEvent) {
-        equippedItemsManager.runEquipTriggers(event, event.player, Trigger.JUMP)
-        trinketManager.runEquipTriggers(event, event.player, Trigger.JUMP)
+        EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.JUMP)
+        TrinketManager.runEquipTriggers(event, event.player, Trigger.JUMP)
     }
 
     @EventHandler(ignoreCancelled = true)
     fun onPlayerToggleSneak(event: PlayerToggleSneakEvent) {
         val trigger = if (event.isSneaking) Trigger.SNEAK else Trigger.UNSNEAK
-        equippedItemsManager.runEquipTriggers(event, event.player, trigger)
-        trinketManager.runEquipTriggers(event, event.player, trigger)
+        EquippedItemsManager.runEquipTriggers(event, event.player, trigger)
+        TrinketManager.runEquipTriggers(event, event.player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerToggleSprint(event: PlayerToggleSprintEvent) {
         val trigger = if (event.isSprinting) Trigger.SPRINT else Trigger.UNSPRINT
-        equippedItemsManager.runEquipTriggers(event, event.player, trigger)
-        trinketManager.runEquipTriggers(event, event.player, trigger)
+        EquippedItemsManager.runEquipTriggers(event, event.player, trigger)
+        TrinketManager.runEquipTriggers(event, event.player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerToggleFlight(event: PlayerToggleFlightEvent) {
         val trigger = if (event.isFlying) Trigger.FLY else Trigger.UNFLY
-        equippedItemsManager.runEquipTriggers(event, event.player, trigger)
-        trinketManager.runEquipTriggers(event, event.player, trigger)
+        EquippedItemsManager.runEquipTriggers(event, event.player, trigger)
+        TrinketManager.runEquipTriggers(event, event.player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerToggleGlide(event: EntityToggleGlideEvent) {
         val player = event.entity as? Player ?: return
         val trigger = if (event.isGliding) Trigger.GLIDE else Trigger.UNGLIDE
-        equippedItemsManager.runEquipTriggers(event, player, trigger)
-        trinketManager.runEquipTriggers(event, player, trigger)
+        EquippedItemsManager.runEquipTriggers(event, player, trigger)
+        TrinketManager.runEquipTriggers(event, player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerToggleSwim(event: EntityToggleSwimEvent) {
         val player = event.entity as? Player ?: return
         val trigger = if (event.isSwimming) Trigger.SWIM else Trigger.UNSWIM
-        equippedItemsManager.runEquipTriggers(event, player, trigger)
-        trinketManager.runEquipTriggers(event, player, trigger)
+        EquippedItemsManager.runEquipTriggers(event, player, trigger)
+        TrinketManager.runEquipTriggers(event, player, trigger)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerDamaged(event: EntityDamageEvent) {
         val player = event.entity as? Player ?: return
-        equippedItemsManager.runEquipTriggers(event, player, Trigger.DAMAGED)
-        trinketManager.runEquipTriggers(event, player, Trigger.DAMAGED)
+        EquippedItemsManager.runEquipTriggers(event, player, Trigger.DAMAGED)
+        TrinketManager.runEquipTriggers(event, player, Trigger.DAMAGED)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerJoin(event: PlayerJoinEvent) {
         event.player.equipment.let { eq ->
-            eq.helmet?.let { itemManager.migrateItem(it)?.let { eq.helmet = it } }
-            eq.chestplate?.let { itemManager.migrateItem(it)?.let { eq.chestplate = it } }
-            eq.leggings?.let { itemManager.migrateItem(it)?.let { eq.leggings = it } }
-            eq.boots?.let { itemManager.migrateItem(it)?.let { eq.boots = it } }
+            eq.helmet?.let { ItemManager.migrateItem(it)?.let { eq.helmet = it } }
+            eq.chestplate?.let { ItemManager.migrateItem(it)?.let { eq.chestplate = it } }
+            eq.leggings?.let { ItemManager.migrateItem(it)?.let { eq.leggings = it } }
+            eq.boots?.let { ItemManager.migrateItem(it)?.let { eq.boots = it } }
         }
 
         event.player.inventory.storageContents?.forEach { item ->
             if (item != null) {
-                itemManager.migrateItem(item)?.let {
+                ItemManager.migrateItem(item)?.let {
                     if (event.player.inventory.removeItem(item).isEmpty()) {
                         event.player.inventory.addItem(it)
                     }
@@ -646,13 +636,13 @@ class ItemListener(
             }
         }
 
-        trinketManager.runEquipTriggers(event.player)
+        TrinketManager.runEquipTriggers(event.player)
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerQuit(event: PlayerQuitEvent) {
-        equippedItemsManager.cleanUp(event.player)
-        trinketManager.cleanUp(event.player)
+        EquippedItemsManager.cleanUp(event.player)
+        TrinketManager.cleanUp(event.player)
     }
 }
 

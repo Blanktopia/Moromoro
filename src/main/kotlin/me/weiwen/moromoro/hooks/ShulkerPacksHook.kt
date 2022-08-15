@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
-class ShulkerPacksHook {
+object ShulkerPacksHook {
     private val checkIfOpenMethod: Method? by lazy {
         if (Bukkit.getPluginManager().getPlugin("ShulkerPacks") == null) {
             return@lazy null

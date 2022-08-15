@@ -2,8 +2,10 @@ package me.weiwen.moromoro.blocks
 
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.*
+import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.items.ItemTemplate
 import me.weiwen.moromoro.items.item
+import me.weiwen.moromoro.managers.BlockManager
 import me.weiwen.moromoro.managers.customBlockState
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -31,7 +33,7 @@ sealed interface CustomBlock {
     val key: String?
 
     val template: ItemTemplate?
-        get() = Moromoro.plugin.itemManager.templates[key]
+        get() = ItemManager.templates[key]
 
     fun breakDuration(tool: ItemStack): Long {
         val speed = when (tool.type) {
@@ -81,9 +83,9 @@ class MushroomCustomBlock(override val block: Block, override val key: String) :
     companion object {
         fun fromBlock(block: Block): MushroomCustomBlock? {
             val states = when (block.type) {
-                Material.BROWN_MUSHROOM_BLOCK -> Moromoro.plugin.blockManager.brownMushroomStates
-                Material.RED_MUSHROOM_BLOCK -> Moromoro.plugin.blockManager.redMushroomStates
-                Material.MUSHROOM_STEM -> Moromoro.plugin.blockManager.mushroomStemStates
+                Material.BROWN_MUSHROOM_BLOCK -> BlockManager.brownMushroomStates
+                Material.RED_MUSHROOM_BLOCK -> BlockManager.redMushroomStates
+                Material.MUSHROOM_STEM -> BlockManager.mushroomStemStates
                 else -> return null
             }
             val state = block.customBlockState ?: return null
@@ -93,7 +95,7 @@ class MushroomCustomBlock(override val block: Block, override val key: String) :
     }
 
     override fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean {
-        val template = Moromoro.plugin.blockManager.itemManager.templates[key] ?: return false
+        val template = ItemManager.templates[key] ?: return false
 
         block.setType(Material.AIR, true)
 
@@ -210,7 +212,7 @@ open class ItemFrameCustomBlock(override val block: Block, val itemFrame: ItemFr
     }
 
     override fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean {
-        val template = Moromoro.plugin.blockManager.itemManager.templates[key] ?: return false
+        val template = ItemManager.templates[key] ?: return false
 
         if (dropItem) {
             val items = if (tool?.enchantments?.get(Enchantment.SILK_TOUCH) == null) {

@@ -1,21 +1,23 @@
-package me.weiwen.moromoro.projectiles
+package me.weiwen.moromoro.managers
 
-import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.Manager
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.items.ItemManager
 import org.bukkit.entity.Projectile
+import org.bukkit.scheduler.BukkitTask
 import java.util.*
 
-class ProjectileManager(val plugin: Moromoro, val itemManager: ItemManager) {
+object ProjectileManager : Manager {
     private val projectiles: WeakHashMap<Projectile,
             Pair<UUID?, List<Action>>> = WeakHashMap()
 
-    private var tickTask: Int = -1
+    private var task: BukkitTask? = null
 
-    fun enable() {
-        tickTask = plugin.server.scheduler.scheduleSyncRepeatingTask(
+    override fun enable() {
+        task = plugin.server.scheduler.runTaskTimer(
             plugin,
             { ->
                 projectiles.forEach { (projectile, playerActions) ->
@@ -40,14 +42,12 @@ class ProjectileManager(val plugin: Moromoro, val itemManager: ItemManager) {
         )
     }
 
-    fun disable() {
-        if (tickTask != -1) {
-            plugin.server.scheduler.cancelTask(tickTask)
-        }
+    override fun disable() {
+        task?.cancel()
     }
 
     fun register(projectile: Projectile, uuid: UUID?, key: String) {
-        val actions = itemManager.triggers[key]?.get(Trigger.PROJECTILE_TICK) ?: return
+        val actions = ItemManager.triggers[key]?.get(Trigger.PROJECTILE_TICK) ?: return
         projectiles[projectile] = Pair(uuid, actions)
     }
 }

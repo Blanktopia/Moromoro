@@ -1,25 +1,17 @@
 package me.weiwen.moromoro.resourcepack
 
-import me.weiwen.moromoro.Moromoro
-import org.bukkit.ChatColor
+import me.weiwen.moromoro.Manager
+import me.weiwen.moromoro.Moromoro.Companion.plugin
+import me.weiwen.moromoro.items.ItemManager
+import me.weiwen.moromoro.managers.BlockManager
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerResourcePackStatusEvent
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
-class ResourcePackManager(private val plugin: Moromoro, private val resourcePackGenerator: ResourcePackGenerator) : Listener {
-    companion object {
-        lateinit var manager: ResourcePackManager
-    }
-
-    fun enable() {
-        manager = this
-        plugin.server.pluginManager.registerEvents(this, plugin)
-    }
-
-    fun disable() {}
-
+object ResourcePackManager : Manager {
     fun send(player: Player) {
         val url = plugin.config.resourcePackUrl ?: return
         val hash = plugin.config.resourcePackHash
@@ -31,21 +23,26 @@ class ResourcePackManager(private val plugin: Moromoro, private val resourcePack
     }
 
     fun generate() {
-        resourcePackGenerator.generate()
+        generateItems(ItemManager.templates.values)
+        generateMushroomBlocks(BlockManager.blockTemplates.values)
+        bundleResourcePack()
     }
 
-    @EventHandler
-    fun onPlayerJoin(event: PlayerJoinEvent) {
-        send(event.player)
-    }
+    private fun bundleResourcePack() {
+        val zip = File(plugin.dataFolder, "pack.zip")
+        zip.outputStream().use { fos ->
+            ZipOutputStream(fos).use { zos ->
+                zos.setLevel(9)
 
-    @EventHandler
-    fun onPlayerResourcePackStatus(event: PlayerResourcePackStatusEvent) {
-        if (event.status == PlayerResourcePackStatusEvent.Status.DECLINED) {
-            event.player.sendMessage("${ChatColor.GOLD}Activating the resource pack will enhance your experience and is highly recommended. You can also download and apply it manually here: ${ChatColor.BLUE}${ChatColor.UNDERLINE}${plugin.config.resourcePackUrl}")
-        }
-        if (event.status == PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD) {
-            event.player.sendMessage("${ChatColor.GOLD}Resource pack download failed. You can download and apply the resource pack manually here: ${ChatColor.BLUE}${ChatColor.UNDERLINE}${plugin.config.resourcePackUrl}")
+                val folder = File(plugin.dataFolder, "pack").path
+                val pp = Paths.get(folder)
+                val paths = Files.walk(pp)
+                paths.filter { !Files.isDirectory(it) }.forEach {
+                    zos.putNextEntry(ZipEntry(pp.relativize(it).toString()))
+                    Files.copy(it, zos)
+                    zos.closeEntry()
+                }
+            }
         }
     }
 }

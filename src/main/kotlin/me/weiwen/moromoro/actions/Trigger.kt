@@ -151,7 +151,6 @@ enum class Trigger {
 
 val EQUIPPED_TRIGGERS = setOf(
     Trigger.TICK,
-    Trigger.TICK_SLOW,
     Trigger.MOVE,
     Trigger.JUMP,
     Trigger.SNEAK,

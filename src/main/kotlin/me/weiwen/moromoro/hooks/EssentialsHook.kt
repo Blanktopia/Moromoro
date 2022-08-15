@@ -1,35 +1,31 @@
 package me.weiwen.moromoro.hooks
 
 import com.earth2me.essentials.Essentials
-import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.items.item
 import net.ess3.api.IItemDb
 import org.bukkit.inventory.ItemStack
 
-class EssentialsHook(
-    private val moromoro: Moromoro,
-    private val itemManager: ItemManager,
-) : Hook, IItemDb.ItemResolver {
+object EssentialsHook : Hook, IItemDb.ItemResolver {
     override val name = "Essentials"
 
     fun register() {
         val plugin = plugin as? Essentials ?: return
-        plugin.itemDb.registerResolver(moromoro, "moromoro", this)
+        plugin.itemDb.registerResolver(plugin, "moromoro", this)
     }
 
     fun unregister() {
         val plugin = plugin as? Essentials ?: return
-        plugin.itemDb.unregisterResolver(moromoro, "moromoro")
+        plugin.itemDb.unregisterResolver(plugin, "moromoro")
     }
 
     override fun apply(type: String): ItemStack? {
         val renamed = type.replace('_', '-')
-        return itemManager.templates[renamed]?.item(renamed)
+        return ItemManager.templates[renamed]?.item(renamed)
     }
 
     override fun getNames(): Collection<String> {
-        return itemManager.keys.map { it.replace('-', '_') }
+        return ItemManager.keys.map { it.replace('-', '_') }
     }
 
     fun getItemStack(name: String): ItemStack? {

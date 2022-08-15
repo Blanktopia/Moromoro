@@ -5,15 +5,16 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import me.weiwen.moromoro.Moromoro
+import me.weiwen.moromoro.Manager
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
 import me.weiwen.moromoro.addNavigation
 import me.weiwen.moromoro.extensions.customItemKey
+import me.weiwen.moromoro.hooks.EssentialsHook
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -22,7 +23,7 @@ import org.bukkit.persistence.PersistentDataType
 import java.io.File
 import java.util.logging.Level
 
-class ItemManager(val plugin: Moromoro) {
+object ItemManager: Manager {
     var keys: Set<String> = setOf()
         private set
     var templates: MutableMap<String, ItemTemplate> = mutableMapOf()
@@ -30,13 +31,11 @@ class ItemManager(val plugin: Moromoro) {
     var triggers: MutableMap<String, Map<Trigger, List<Action>>> = mutableMapOf()
         private set
 
-    fun enable() {
+    override fun enable() {
         load()
     }
 
-    fun disable() {}
-
-    fun load() {
+    private fun load() {
         val directory = File(plugin.dataFolder, "items")
 
         if (!directory.isDirectory) {
@@ -71,7 +70,6 @@ class ItemManager(val plugin: Moromoro) {
         )
     )
 
-    @OptIn(ExperimentalSerializationApi::class)
     private fun parse(file: File): ItemTemplate? {
         val key = file.nameWithoutExtension
 
@@ -101,7 +99,7 @@ class ItemManager(val plugin: Moromoro) {
         // Migrate aliased items
         val alias = template.alias
         if (alias != null) {
-            val item = Moromoro.plugin.essentialsHook.getItemStack(alias)?.apply {
+            val item = EssentialsHook.getItemStack(alias)?.apply {
                 amount = item.amount
             }
             return item ?: ItemStack(Material.STICK)

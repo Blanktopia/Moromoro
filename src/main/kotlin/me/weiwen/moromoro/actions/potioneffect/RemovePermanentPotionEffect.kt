@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
-import me.weiwen.moromoro.managers.removePermanentPotionEffects
+import me.weiwen.moromoro.managers.PermanentPotionEffectManager.removePermanentPotionEffects
 
 @Serializable
 @SerialName("remove-permanent-potion-effect")

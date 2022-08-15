@@ -1,27 +1,23 @@
 package me.weiwen.moromoro.managers
 
+import me.weiwen.moromoro.Manager
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitTask
 import java.util.*
 
-class PermanentPotionEffectManager(val plugin: JavaPlugin) {
+object PermanentPotionEffectManager : Manager {
     private var task: BukkitTask? = null
 
-    companion object {
-        lateinit var manager: PermanentPotionEffectManager
-    }
+    private val potionEffectGroups: MutableMap<UUID, MutableMap<String, Map<PotionEffectType, Int>>> = mutableMapOf()
 
-    val potionEffectGroups: MutableMap<UUID, MutableMap<String, Map<PotionEffectType, Int>>> = mutableMapOf()
-
-    fun enable() {
-        manager = this
+    override fun enable() {
         task = plugin.server.scheduler.runTaskTimer(plugin, ::applyToAllPlayers as (() -> Unit), 100, 100)
     }
 
-    fun disable() {
+    override fun disable() {
         task?.cancel()
     }
 
@@ -49,29 +45,29 @@ class PermanentPotionEffectManager(val plugin: JavaPlugin) {
             }
         }
     }
-}
 
-fun Player.addPermanentPotionEffects(key: String, effects: Map<PotionEffectType, Int>) {
-    PermanentPotionEffectManager.manager.potionEffectGroups.getOrPut(uniqueId) { mutableMapOf() }[key] = effects
-    for ((type, level) in effects.entries) {
-        addPotionEffect(
-            PotionEffect(
-                type,
-                619,
-                level,
-                true,
-                false,
+    fun Player.addPermanentPotionEffects(key: String, effects: Map<PotionEffectType, Int>) {
+        potionEffectGroups.getOrPut(uniqueId) { mutableMapOf() }[key] = effects
+        for ((type, level) in effects.entries) {
+            addPotionEffect(
+                PotionEffect(
+                    type,
+                    619,
+                    level,
+                    true,
+                    false,
+                )
             )
-        )
-    }
-}
-
-fun Player.removePermanentPotionEffects(key: String) {
-    val effects = PermanentPotionEffectManager.manager.potionEffectGroups[uniqueId]?.get(key) ?: return
-    for ((type, level) in effects.entries) {
-        if (getPotionEffect(type)?.amplifier == level) {
-            removePotionEffect(type)
         }
     }
-    PermanentPotionEffectManager.manager.potionEffectGroups[uniqueId]?.remove(key)
+
+    fun Player.removePermanentPotionEffects(key: String) {
+        val effects = potionEffectGroups[uniqueId]?.get(key) ?: return
+        for ((type, level) in effects.entries) {
+            if (getPotionEffect(type)?.amplifier == level) {
+                removePotionEffect(type)
+            }
+        }
+        potionEffectGroups[uniqueId]?.remove(key)
+    }
 }
