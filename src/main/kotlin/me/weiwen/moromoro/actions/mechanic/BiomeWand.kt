@@ -75,9 +75,13 @@ data class BiomeWand(val range: Int = 1) : Action {
 @Serializable
 @SerialName("biome-wand-pick")
 object BiomeWandPick : Action {
-    private val biomes = BiomeType.REGISTRY.keySet().toList().sortedBy { formatBiomeName(it) }
+    private var biomes: List<String> = listOf()
 
     override fun perform(ctx: Context): Boolean {
+        if (biomes.isEmpty()) {
+            biomes = BiomeType.REGISTRY.keySet().toList().sortedBy { formatBiomeName(it) }
+        }
+
         val player = ctx.player ?: return false
 
         openGui(player)

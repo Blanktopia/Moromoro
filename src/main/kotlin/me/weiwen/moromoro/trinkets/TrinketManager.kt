@@ -35,6 +35,7 @@ object TrinketManager : Manager {
                     MutableMap<Int, Pair<ItemStack, List<Action>>>>> = mutableMapOf()
 
     private var task: BukkitTask? = null
+    private var taskSlow: BukkitTask? = null
 
     override fun enable() {
         trinketTriggers.clear()
@@ -52,10 +53,21 @@ object TrinketManager : Manager {
             plugin.config.tickInterval,
             plugin.config.tickInterval
         )
+        taskSlow = plugin.server.scheduler.runTaskTimer(
+            plugin,
+            { ->
+                plugin.server.onlinePlayers.forEach {
+                    runEquipTriggers(null, it, Trigger.TICK_SLOW)
+                }
+            },
+            plugin.config.tickSlowInterval,
+            plugin.config.tickSlowInterval
+        )
     }
 
     override fun disable() {
         task?.cancel()
+        taskSlow?.cancel()
     }
 
     fun runEquipTriggers(player: Player) {

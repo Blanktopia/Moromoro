@@ -25,6 +25,7 @@ object EquippedItemsManager : Manager {
                     MutableMap<PlayerArmorChangeEvent.SlotType, Pair<ItemStack, List<Action>>>>> = mutableMapOf()
 
     private var task: BukkitTask? = null
+    private var taskSlow: BukkitTask? = null
 
     override fun enable() {
         runEquipTriggers()
@@ -39,11 +40,22 @@ object EquippedItemsManager : Manager {
             plugin.config.tickInterval,
             plugin.config.tickInterval
         )
+        taskSlow = plugin.server.scheduler.runTaskTimer(
+            plugin,
+            { ->
+                plugin.server.onlinePlayers.forEach {
+                    runEquipTriggers(null, it, Trigger.TICK_SLOW)
+                }
+            },
+            plugin.config.tickSlowInterval,
+            plugin.config.tickSlowInterval
+        )
 
     }
 
     override fun disable() {
         task?.cancel()
+        taskSlow?.cancel()
     }
 
     private fun runEquipTriggers() {
