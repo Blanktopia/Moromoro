@@ -16,6 +16,16 @@ import org.bukkit.block.BlockFace
 import org.bukkit.block.data.*
 import org.bukkit.block.data.type.Door
 
+val saplings = listOf(
+    Material.OAK_SAPLING,
+    Material.SPRUCE_SAPLING,
+    Material.BIRCH_SAPLING,
+    Material.JUNGLE_SAPLING,
+    Material.ACACIA_SAPLING,
+    Material.DARK_OAK_SAPLING,
+    Material.MANGROVE_PROPAGULE,
+)
+
 val planks = listOf(
     Material.OAK_PLANKS,
     Material.SPRUCE_PLANKS,
@@ -23,6 +33,7 @@ val planks = listOf(
     Material.JUNGLE_PLANKS,
     Material.ACACIA_PLANKS,
     Material.DARK_OAK_PLANKS,
+    Material.MANGROVE_PLANKS,
     Material.CRIMSON_PLANKS,
     Material.WARPED_PLANKS,
 )
@@ -34,6 +45,7 @@ val slabs = listOf(
     Material.JUNGLE_SLAB,
     Material.ACACIA_SLAB,
     Material.DARK_OAK_SLAB,
+    Material.MANGROVE_SLAB,
     Material.CRIMSON_SLAB,
     Material.WARPED_SLAB,
 )
@@ -45,6 +57,7 @@ val stairs = listOf(
     Material.JUNGLE_STAIRS,
     Material.ACACIA_STAIRS,
     Material.DARK_OAK_STAIRS,
+    Material.MANGROVE_STAIRS,
     Material.CRIMSON_STAIRS,
     Material.WARPED_STAIRS,
 )
@@ -56,6 +69,7 @@ val fences = listOf(
     Material.JUNGLE_FENCE,
     Material.ACACIA_FENCE,
     Material.DARK_OAK_FENCE,
+    Material.MANGROVE_FENCE,
     Material.CRIMSON_FENCE,
     Material.WARPED_FENCE,
 )
@@ -67,6 +81,7 @@ val fenceGates = listOf(
     Material.JUNGLE_FENCE_GATE,
     Material.ACACIA_FENCE_GATE,
     Material.DARK_OAK_FENCE_GATE,
+    Material.MANGROVE_FENCE_GATE,
     Material.CRIMSON_FENCE_GATE,
     Material.WARPED_FENCE_GATE,
 )
@@ -78,6 +93,7 @@ val pressurePlates = listOf(
     Material.JUNGLE_PRESSURE_PLATE,
     Material.ACACIA_PRESSURE_PLATE,
     Material.DARK_OAK_PRESSURE_PLATE,
+    Material.MANGROVE_PRESSURE_PLATE,
     Material.CRIMSON_PRESSURE_PLATE,
     Material.WARPED_PRESSURE_PLATE,
 )
@@ -89,6 +105,7 @@ val buttons = listOf(
     Material.JUNGLE_BUTTON,
     Material.ACACIA_BUTTON,
     Material.DARK_OAK_BUTTON,
+    Material.MANGROVE_BUTTON,
     Material.CRIMSON_BUTTON,
     Material.WARPED_BUTTON,
 )
@@ -100,6 +117,7 @@ val trapdoors = listOf(
     Material.JUNGLE_TRAPDOOR,
     Material.ACACIA_TRAPDOOR,
     Material.DARK_OAK_TRAPDOOR,
+    Material.MANGROVE_TRAPDOOR,
     Material.CRIMSON_TRAPDOOR,
     Material.WARPED_TRAPDOOR,
 )
@@ -111,6 +129,7 @@ val doors = listOf(
     Material.JUNGLE_DOOR,
     Material.ACACIA_DOOR,
     Material.DARK_OAK_DOOR,
+    Material.MANGROVE_DOOR,
     Material.CRIMSON_DOOR,
     Material.WARPED_DOOR,
 )
@@ -122,6 +141,7 @@ val logs = listOf(
     Material.JUNGLE_LOG,
     Material.ACACIA_LOG,
     Material.DARK_OAK_LOG,
+    Material.MANGROVE_LOG,
     Material.CRIMSON_STEM,
     Material.WARPED_STEM,
 )
@@ -133,6 +153,7 @@ val wood = listOf(
     Material.JUNGLE_WOOD,
     Material.ACACIA_WOOD,
     Material.DARK_OAK_WOOD,
+    Material.MANGROVE_WOOD,
     Material.CRIMSON_HYPHAE,
     Material.WARPED_HYPHAE,
 )
@@ -144,6 +165,7 @@ val strippedLogs = listOf(
     Material.STRIPPED_JUNGLE_LOG,
     Material.STRIPPED_ACACIA_LOG,
     Material.STRIPPED_DARK_OAK_LOG,
+    Material.STRIPPED_MANGROVE_LOG,
     Material.STRIPPED_CRIMSON_STEM,
     Material.STRIPPED_WARPED_STEM,
 )
@@ -155,6 +177,7 @@ val strippedWood = listOf(
     Material.STRIPPED_JUNGLE_WOOD,
     Material.STRIPPED_ACACIA_WOOD,
     Material.STRIPPED_DARK_OAK_WOOD,
+    Material.STRIPPED_MANGROVE_WOOD,
     Material.STRIPPED_CRIMSON_HYPHAE,
     Material.STRIPPED_WARPED_HYPHAE,
 )
@@ -211,6 +234,34 @@ val tallFlowers = listOf(
     Material.PEONY
 )
 
+val dirt = listOf(
+    Material.DIRT,
+    Material.ROOTED_DIRT,
+    Material.COARSE_DIRT,
+)
+
+val grass = listOf(
+    Material.DIRT_PATH,
+    Material.GRASS_BLOCK,
+    Material.PODZOL,
+    Material.MYCELIUM,
+)
+
+val sand = listOf(
+    Material.SAND,
+    Material.RED_SAND,
+)
+
+val sandstone = listOf(
+    Material.SANDSTONE,
+    Material.RED_SANDSTONE,
+)
+
+val nylium = listOf(
+    Material.WARPED_NYLIUM,
+    Material.CRIMSON_NYLIUM,
+)
+
 fun <T> nextOf(list: List<T>, value: T, reversed: Boolean): T? {
     return if (reversed) {
         when (val index = list.indexOf(value)) {
@@ -234,6 +285,7 @@ data class CycleFlora(val reversed: Boolean = false) : Action {
         val block = ctx.block ?: return false
 
         val newType = when (block.type) {
+            in saplings -> nextOf(saplings, block.type, reversed)
             in planks -> nextOf(planks, block.type, reversed)
             in slabs -> nextOf(slabs, block.type, reversed)
             in stairs -> nextOf(stairs, block.type, reversed)
@@ -253,6 +305,11 @@ data class CycleFlora(val reversed: Boolean = false) : Action {
             in pottedFlowers -> nextOf(pottedFlowers, block.type, reversed)
             in pottedMushrooms -> nextOf(pottedMushrooms, block.type, reversed)
             in tallFlowers -> nextOf(tallFlowers, block.type, reversed)
+            in dirt -> nextOf(dirt, block.type, reversed)
+            in grass -> nextOf(grass, block.type, reversed)
+            in sand -> nextOf(sand, block.type, reversed)
+            in sandstone -> nextOf(sandstone, block.type, reversed)
+            in nylium -> nextOf(nylium, block.type, reversed)
             else -> return false
         } ?: return false
 
