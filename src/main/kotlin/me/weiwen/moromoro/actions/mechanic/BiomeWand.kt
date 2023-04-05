@@ -108,7 +108,7 @@ object BiomeWandPick : Action {
             }
         }
         gui.addPane(pages)
-        gui.addNavigation(pages)
+        gui.addNavigation(pages, null)
 
         gui.show(player)
     }

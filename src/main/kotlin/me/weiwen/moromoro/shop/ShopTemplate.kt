@@ -67,7 +67,7 @@ data class ShopTemplate(
         )
         pages.setOnClick { it.isCancelled = true }
         gui.addPane(pages)
-        gui.addNavigation(pages)
+        gui.addNavigation(pages, null)
         gui.show(player)
     }
 
@@ -102,7 +102,7 @@ data class ShopTemplate(
         )
         pages.setOnClick { it.isCancelled = true }
         gui.addPane(pages)
-        gui.addNavigation(pages)
+        gui.addNavigation(pages) { show(player) }
         gui.show(player)
     }
 

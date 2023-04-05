@@ -70,6 +70,8 @@ class Moromoro : JavaPlugin() {
             ItemListener,
             BlockListener,
             RecipeListener,
+            SoulboundListener,
+            UnenchantableListener,
         )
 
         val manager = PaperCommandManager(

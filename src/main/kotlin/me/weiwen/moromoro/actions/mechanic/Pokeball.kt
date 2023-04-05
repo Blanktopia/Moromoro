@@ -8,6 +8,7 @@ import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.playSoundAt
 import me.weiwen.moromoro.serializers.EntityTypeSerializer
 import net.kyori.adventure.text.Component
@@ -34,6 +35,10 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
             val location = Location(world, vector.x, vector.y, vector.z)
             deserializedEntity.spawnAt(location)
 
+            if (!player.canBuildAt(location)) {
+                return false
+            }
+
             val message = Component.text("Caught: NONE")
                 .decoration(TextDecoration.ITALIC, false)
                 .color(TextColor.color(0xffffff))
@@ -51,6 +56,10 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
             deserializedEntity.playSoundAt(Sound.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 1.0f, 1.0f)
         } else {
             val entity = ctx.entity as? LivingEntity ?: return false
+
+            if (!player.canBuildAt(entity.location)) {
+                return false
+            }
 
             if (entity.type in blacklist) {
                 val message = Component.text("This creature seems to resist capturing.")

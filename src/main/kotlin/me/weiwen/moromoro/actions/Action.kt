@@ -121,6 +121,7 @@ val actionModule = SerializersModule {
         subclass(Disguise::class)
         subclass(EntityIs::class)
         subclass(EquipItem::class)
+        subclass(Everstone::class)
         subclass(EvokerFang::class)
         subclass(ExperienceBoost::class)
         subclass(Explode::class)

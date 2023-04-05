@@ -23,7 +23,9 @@ import me.weiwen.moromoro.serializers.MaterialSerializer
 import me.weiwen.moromoro.types.AttributeModifier
 import me.weiwen.moromoro.types.CustomEquipmentSlot
 import me.weiwen.moromoro.types.modifier
-import org.bukkit.ChatColor
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Color
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -55,6 +57,8 @@ data class ItemTemplate(
 
     val unique: Boolean = false,
     val unbreakable: Boolean = false,
+    val soulbound: Boolean = false,
+    val unenchantable: Boolean = false,
 
     val enchantments: Map<Enchantment, Int> = mapOf(),
     val attributes: List<AttributeModifier> = listOf(),
@@ -83,22 +87,6 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
 
     customModelData?.let { data -> itemMeta.setCustomModelData(data) }
 
-    enchantments.forEach { (enchant, level) ->
-        itemMeta.addEnchant(enchant, level, true)
-        if (enchant.key.namespace != "minecraft") {
-            val lore = StringBuilder().apply {
-                append(ChatColor.GRAY)
-                append(enchant.name)
-                if (enchant.maxLevel != 1) {
-                    append(" ")
-                    append(level.toRomanNumerals())
-                }
-            }.toString()
-
-            itemMeta.lore = itemMeta.lore?.apply { add(0, lore) }
-        }
-    }
-
     attributes.forEach { itemMeta.addAttributeModifier(it.attribute, it.modifier) }
 
     flags.forEach { itemMeta.addItemFlags(it) }
@@ -123,6 +111,48 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
             PersistentDataType.BYTE_ARRAY,
             bb.array()
         )
+    }
+
+    if (soulbound) {
+        persistentData.set(
+            NamespacedKey(Moromoro.plugin.config.namespace, "soulbound"),
+            PersistentDataType.BYTE,
+            1
+        )
+        itemMeta.lore()?.let {
+            it.add(0, Component.text("Soulbound")
+                    .color(TextColor.color(0xAAAAAA))
+                    .decoration(TextDecoration.ITALIC, false))
+            itemMeta.lore(it)
+        }
+    }
+
+    if (unenchantable) {
+        persistentData.set(
+            NamespacedKey(Moromoro.plugin.config.namespace, "unenchantable"),
+            PersistentDataType.BYTE,
+            1
+        )
+    }
+
+    enchantments.forEach { (enchant, level) ->
+        itemMeta.addEnchant(enchant, level, true)
+        if (enchant.key.namespace != "minecraft") {
+            val name = StringBuilder().apply {
+                append(enchant.name)
+                if (enchant.maxLevel != 1) {
+                    append(" ")
+                    append(level.toRomanNumerals())
+                }
+            }.toString()
+
+            itemMeta.lore()?.let {
+                it.add(0, Component.text(name)
+                    .color(TextColor.color(0xAAAAAA))
+                    .decoration(TextDecoration.ITALIC, false))
+                itemMeta.lore(it)
+            }
+        }
     }
 
     color?.let {

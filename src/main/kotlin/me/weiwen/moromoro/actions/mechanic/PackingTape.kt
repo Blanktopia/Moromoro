@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.playSoundAt
 import org.bukkit.*
 import org.bukkit.block.Container
@@ -23,7 +24,12 @@ val packableBlocks = setOf(
 @SerialName("packing-tape")
 object PackingTape : Action {
     override fun perform(ctx: Context): Boolean {
+        val player = ctx.player ?: return false
         val block = ctx.block ?: return false
+
+        if (!player.canBuildAt(block.location)) {
+            return false
+        }
 
         if (block.type !in packableBlocks) {
             return false
