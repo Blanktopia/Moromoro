@@ -66,6 +66,10 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
                 return false
             }
 
+            if (entity.type == EntityType.PLAYER) {
+                return false
+            }
+
             if (entity.type in blacklist) {
                 val message = Component.text("This creature seems to resist capturing.")
                     .decoration(TextDecoration.ITALIC, false)
