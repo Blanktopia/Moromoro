@@ -33,9 +33,14 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
             val deserializedEntity = Bukkit.getUnsafe().deserializeEntity(serializedEntity, world, true)
             val vector = player.rayTraceBlocks(5.0)?.hitPosition ?: return false
             val location = Location(world, vector.x, vector.y, vector.z)
-            deserializedEntity.spawnAt(location)
 
             if (!player.canBuildAt(location)) {
+                return false
+            }
+
+            try {
+                deserializedEntity.spawnAt(location)
+            } catch (e: Exception) {
                 return false
             }
 
@@ -69,7 +74,14 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
                 return false
             }
 
-            val serializedEntity = Bukkit.getUnsafe().serializeEntity(entity)
+            entity.rider?.leaveVehicle()
+            entity.leaveVehicle()
+
+            val serializedEntity = try {
+                Bukkit.getUnsafe().serializeEntity(entity)
+            } catch (e: Exception) {
+                return false
+            }
 
             val message = Component.text("Caught: ${entity.name}")
                 .decoration(TextDecoration.ITALIC, false)
