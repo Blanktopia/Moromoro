@@ -2,7 +2,8 @@ package me.weiwen.moromoro.trinkets
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane
+import com.github.stefvanschie.inventoryframework.pane.StaticPane
+import com.github.stefvanschie.inventoryframework.pane.util.Slot
 import me.weiwen.moromoro.Manager
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.Moromoro.Companion.plugin
@@ -121,6 +122,7 @@ object TrinketManager : Manager {
 
     fun equipTrinket(player: Player, item: ItemStack, slot: Int? = null): Boolean {
         val trinkets = player.trinkets
+        @Suppress("NAME_SHADOWING")
         val slot = slot ?: trinkets.indexOfFirst { it == null }
         if (slot == -1) {
             return false
@@ -131,7 +133,7 @@ object TrinketManager : Manager {
             return false
         }
 
-        if (item?.type != Material.AIR) {
+        if (item.type != Material.AIR) {
             player.persistentDataContainer.set(
                 NamespacedKey(Moromoro.plugin.config.namespace, "trinkets_$slot"),
                 PersistentDataType.BYTE_ARRAY,
@@ -177,6 +179,7 @@ object TrinketManager : Manager {
         triggers.forEach { (triggerType, _) ->
             if (triggerType in EQUIPPED_TRIGGERS) {
                 val triggersByType = trinketTriggers[player.uniqueId] ?: return@forEach
+                @Suppress("NAME_SHADOWING")
                 val triggers = triggersByType[triggerType] ?: return@forEach
                 triggers.remove(slot)
                 if (triggers.isEmpty()) {
@@ -198,16 +201,16 @@ object TrinketManager : Manager {
     fun openTrinketInventory(player: Player) {
         val gui = ChestGui(2, "Trinkets")
 
-        val trinketPane = OutlinePane(0, 0, 9, 2)
+        val trinketPane = StaticPane(0, 0, 9, 2)
 
         val guiItems = player.trinkets.mapIndexed { i, item ->
-            val guiItem = if (item != null) {
-                GuiItem(item)
+            if (item != null) {
+                val guiItem = GuiItem(item)
+                trinketPane.addItem(guiItem, Slot.fromIndex(i))
+                guiItem
             } else {
-                GuiItem(ItemStack(Material.AIR))
+                null
             }
-            trinketPane.insertItem(guiItem, i)
-            guiItem
         }.toMutableList()
 
         gui.setOnTopDrag { event ->
@@ -216,8 +219,8 @@ object TrinketManager : Manager {
 
         gui.setOnBottomClick { event ->
             if (event.action == InventoryAction.PICKUP_HALF || event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-                val newItem = event.currentItem ?: ItemStack(Material.AIR)
-                if (newItem.type == Material.AIR) {
+                val newItem = event.currentItem
+                if (newItem == null) {
                     event.isCancelled = true
                     return@setOnBottomClick
                 }
@@ -235,7 +238,7 @@ object TrinketManager : Manager {
                     return@setOnBottomClick
                 }
 
-                val emptySlot = guiItems.indexOfFirst { it.item.type == Material.AIR }
+                val emptySlot = guiItems.indexOfFirst { it == null }
                 if (emptySlot == -1) {
                     event.isCancelled = true
                     return@setOnBottomClick
@@ -250,8 +253,8 @@ object TrinketManager : Manager {
                 val newGuiItem = GuiItem(newItem)
                 val oldGuiItem = guiItems[emptySlot]
                 guiItems[emptySlot] = newGuiItem
-                trinketPane.removeItem(oldGuiItem)
-                trinketPane.insertItem(newGuiItem, emptySlot)
+                oldGuiItem?.let { trinketPane.removeItem(it) }
+                trinketPane.addItem(newGuiItem, Slot.fromIndex(emptySlot))
 
                 gui.update()
             }
@@ -260,9 +263,9 @@ object TrinketManager : Manager {
         trinketPane.setOnClick { event ->
             event.isCancelled = true
             if (event.action == InventoryAction.PLACE_ALL || event.action == InventoryAction.PLACE_ONE || event.action == InventoryAction.PICKUP_ALL) {
-                val newItem = event.cursor ?: ItemStack(Material.AIR)
+                val newItem = if (event.cursor.type != Material.AIR) event.cursor else null
 
-                if (newItem.type != Material.AIR) {
+                if (newItem != null) {
                     val key = newItem.customItemKey
                     val template = ItemManager.templates[key]
                     if (template == null || !template.slots.contains(CustomEquipmentSlot.TRINKET)) {
@@ -274,18 +277,18 @@ object TrinketManager : Manager {
                     }
                 }
 
-                val newGuiItem = GuiItem(newItem)
+                val newGuiItem = newItem?.let { GuiItem(it) }
                 val oldGuiItem = guiItems[event.slot]
 
                 val oldItem = unequipTrinket(player, event.slot)
-                if (!equipTrinket(player, newItem, event.slot)) {
+                if (newItem != null && !equipTrinket(player, newItem, event.slot)) {
                     return@setOnClick
                 }
-                event.setCursor(oldItem)
+                event.whoClicked.setItemOnCursor(oldItem)
 
                 guiItems[event.slot] = newGuiItem
-                trinketPane.removeItem(oldGuiItem)
-                trinketPane.insertItem(newGuiItem, event.slot)
+                oldGuiItem?.let { trinketPane.removeItem(it) }
+                newGuiItem?.let { trinketPane.addItem(it, Slot.fromIndex(event.slot)) }
 
                 gui.update()
             } else if (event.action == InventoryAction.PICKUP_HALF || event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
@@ -296,10 +299,8 @@ object TrinketManager : Manager {
                 if (didntAdd.size == 0) {
                     unequipTrinket(player, event.slot)
 
-                    val newGuiItem = GuiItem(ItemStack(Material.AIR))
-                    guiItems[event.slot] = newGuiItem
-                    trinketPane.removeItem(oldGuiItem)
-                    trinketPane.insertItem(newGuiItem, event.slot)
+                    guiItems[event.slot] = null
+                    oldGuiItem?.let { trinketPane.removeItem(it) }
                 }
 
                 gui.update()
