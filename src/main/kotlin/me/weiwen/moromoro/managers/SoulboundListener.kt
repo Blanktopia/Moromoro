@@ -16,14 +16,20 @@ object SoulboundListener : Listener {
             return
         }
 
-        val items = event.entity.inventory.contents?.map {
-            if (it != null && (it.itemMeta.persistentDataContainer.get(NamespacedKey(Moromoro.plugin.config.namespace, "soulbound"), PersistentDataType.BYTE) == 1.toByte()) ) {
+        val items = event.entity.inventory.contents.map {
+            if (it != null && (it.type == Material.ENDER_CHEST || it.itemMeta.persistentDataContainer.get(
+                    NamespacedKey(
+                        Moromoro.plugin.config.namespace,
+                        "soulbound"
+                    ), PersistentDataType.BYTE
+                ) == 1.toByte())
+            ) {
                 event.drops.remove(it)
                 it
             } else {
                 ItemStack(Material.AIR)
             }
-        } ?: return
+        }
 
         event.keepInventory = true
         event.entity.inventory.contents = items.toTypedArray()
