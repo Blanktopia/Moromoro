@@ -55,9 +55,9 @@ object Light : Action {
 
         replacedBlock.world.spawnParticle(
             Particle.BLOCK_MARKER,
-            block.x + 0.5,
-            block.y + 0.5,
-            block.z + 0.5,
+            replacedBlock.x + 0.5,
+            replacedBlock.y + 0.5,
+            replacedBlock.z + 0.5,
             1,
             0.0,
             0.0,
