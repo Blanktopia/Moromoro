@@ -63,7 +63,7 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Essentials", "ProtocolLib")
+    depend = listOf("Essentials", "ProtocolLib", "Vault")
     softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "WorldGuard", "GriefPrevention", "FastAsyncWorldEdit")
 }
 
