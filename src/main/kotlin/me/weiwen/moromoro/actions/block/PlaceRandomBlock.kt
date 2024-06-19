@@ -29,7 +29,7 @@ object PlaceRandomBlock : Action {
         val blockFace = ctx.blockFace ?: return false
 
         val (placedAgainst, targetFace) = when (block.type) {
-            Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Pair(
+            Material.SHORT_GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Pair(
                 block.getRelative(BlockFace.DOWN), BlockFace.UP
             )
             else -> Pair(block, blockFace)

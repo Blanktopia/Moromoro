@@ -281,7 +281,7 @@ object TrinketManager : Manager {
                 if (!equipTrinket(player, newItem, event.slot)) {
                     return@setOnClick
                 }
-                event.cursor = oldItem
+                event.setCursor(oldItem)
 
                 guiItems[event.slot] = newGuiItem
                 trinketPane.removeItem(oldGuiItem)

@@ -9,6 +9,7 @@ import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.managers.FlyInClaimsListener.canFlyInClaims
 import me.weiwen.moromoro.serializers.PotionEffectTypeSerializer
+import net.kyori.adventure.util.TriState
 
 @Serializable
 @SerialName("fly-in-claims")
@@ -16,7 +17,7 @@ data class FlyInClaims(val fly: Boolean) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         player.canFlyInClaims = fly
-        player.setFlyingFallDamage(fly)
+        player.setFlyingFallDamage(TriState.byBoolean(fly))
         return true
     }
 }

@@ -7,8 +7,6 @@ import cloud.commandframework.bukkit.parsers.PlayerArgument
 import cloud.commandframework.bukkit.parsers.location.LocationArgument
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.paper.PaperCommandManager
-import com.mineinabyss.idofront.platforms.IdofrontPlatforms
-import com.mineinabyss.idofront.plugin.registerEvents
 import me.weiwen.moromoro.blocks.BlockListener
 import me.weiwen.moromoro.equip.EquippedItemsManager
 import me.weiwen.moromoro.hooks.EssentialsHook
@@ -26,6 +24,7 @@ import org.bukkit.ChatColor
 import org.bukkit.Location
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
+import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.function.Function
 
@@ -40,8 +39,6 @@ class Moromoro : JavaPlugin() {
 
     override fun onLoad() {
         plugin = this
-
-        IdofrontPlatforms.load(this, "mineinabyss")
     }
 
     override fun onEnable() {
@@ -247,6 +244,13 @@ class Moromoro : JavaPlugin() {
         managers.forEach {
             it.enable()
             this.managers.add(it)
+        }
+    }
+
+    private fun registerEvents(vararg listeners: Listener) {
+        val pluginManager = server.pluginManager
+        listeners.forEach {
+            server.pluginManager.registerEvents(it, plugin)
         }
     }
 }

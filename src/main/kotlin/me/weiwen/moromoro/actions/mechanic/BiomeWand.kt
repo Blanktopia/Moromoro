@@ -61,7 +61,7 @@ data class BiomeWand(val range: Int = 1) : Action {
                         val loc = BukkitAdapter.adapt(world, other)
                         if (player.canBuildAt(loc)) {
                             session.setBiome(other, biome)
-                            loc.block.spawnParticle(Particle.VILLAGER_HAPPY, 2, 0.02)
+                            loc.block.spawnParticle(Particle.HEART, 2, 0.02)
                         }
                     }
                 }

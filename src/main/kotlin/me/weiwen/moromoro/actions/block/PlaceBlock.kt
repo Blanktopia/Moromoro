@@ -25,7 +25,7 @@ data class PlaceBlock(val material: Material) : Action {
         val face = ctx.blockFace ?: return false
 
         val (placedAgainst, placedBlock, targetFace) = when (block.type) {
-            Material.GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Triple(
+            Material.SHORT_GRASS, Material.TALL_GRASS, Material.FERN, Material.LARGE_FERN, Material.SNOW -> Triple(
                 block.getRelative(
                     BlockFace.DOWN
                 ), block, BlockFace.DOWN

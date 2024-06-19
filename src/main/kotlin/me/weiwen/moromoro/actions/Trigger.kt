@@ -51,6 +51,8 @@ enum class Trigger {
     FISH_REEL_IN,
     @SerialName("fish-bite")
     FISH_BITE,
+    @SerialName("fish-lured")
+    FISH_LURED,
 
     @SerialName("consume")
     CONSUME,

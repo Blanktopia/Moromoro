@@ -47,7 +47,7 @@ sealed interface CustomBlock {
             else -> 1.0
         }
 
-        val efficiency = when (val level = tool.getEnchantmentLevel(Enchantment.DIG_SPEED)) {
+        val efficiency = when (val level = tool.getEnchantmentLevel(Enchantment.EFFICIENCY)) {
             0 -> 0
             else -> level * level + 1
         }
@@ -116,7 +116,7 @@ class MushroomCustomBlock(override val block: Block, override val key: String) :
             }
 
             if (template.block?.canFortune == true) {
-                val fortune = tool?.enchantments?.get(Enchantment.LOOT_BONUS_BLOCKS) ?: 0
+                val fortune = tool?.enchantments?.get(Enchantment.FORTUNE) ?: 0
                 items.forEach {
                     val multiplier = 1 + max(0, Random.nextInt(fortune + 2) - 2)
                     it.amount *= multiplier
@@ -128,7 +128,7 @@ class MushroomCustomBlock(override val block: Block, override val key: String) :
 
         val location = block.location.add(0.5, 0.5, 0.5)
         block.world.spawnParticle(
-            Particle.ITEM_CRACK,
+            Particle.ITEM,
             location.x,
             location.y,
             location.z,
@@ -232,7 +232,7 @@ open class ItemFrameCustomBlock(override val block: Block, val itemFrame: ItemFr
             }
 
             if (template.block?.canFortune == true) {
-                val fortune = tool?.enchantments?.get(Enchantment.LOOT_BONUS_BLOCKS) ?: 0
+                val fortune = tool?.enchantments?.get(Enchantment.FORTUNE) ?: 0
                 items.forEach {
                     val multiplier = 1 + max(0, Random.nextInt(fortune + 2) - 2)
                     it.amount *= multiplier
@@ -246,7 +246,7 @@ open class ItemFrameCustomBlock(override val block: Block, val itemFrame: ItemFr
 
         val location = block.location.add(0.5, 0.5, 0.5)
         block.world.spawnParticle(
-            Particle.ITEM_CRACK,
+            Particle.ITEM,
             location.x,
             location.y,
             location.z,

@@ -136,7 +136,7 @@ object ReplaceBlock : Action {
 
         state.update(true, false)
 
-        player.location.spawnParticleLine(block.location.add(0.5, 0.5, 0.5), Particle.BLOCK_DUST, 0.2, material.createBlockData())
+        player.location.spawnParticleLine(block.location.add(0.5, 0.5, 0.5), Particle.BLOCK, 0.2, material.createBlockData())
         block.playSoundAt(block.soundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 1.0f)
 
         return true

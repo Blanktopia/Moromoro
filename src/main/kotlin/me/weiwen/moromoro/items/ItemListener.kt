@@ -188,6 +188,7 @@ object ItemListener : Listener {
                     when (event.hand) {
                         EquipmentSlot.HAND -> event.player.inventory.setItemInMainHand(null)
                         EquipmentSlot.OFF_HAND -> event.player.inventory.setItemInOffHand(null)
+                        else -> {}
                     }
                 }
                 plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
@@ -330,7 +331,7 @@ object ItemListener : Listener {
             PlayerFishEvent.State.FISHING -> {
                 val persistentData = event.hook.persistentDataContainer
                 persistentData.set(
-                    NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                    NamespacedKey(plugin.config.namespace, "type"),
                     PersistentDataType.STRING,
                     key
                 )
@@ -343,6 +344,7 @@ object ItemListener : Listener {
             PlayerFishEvent.State.FAILED_ATTEMPT -> Trigger.FISH_FAILED_ATTEMPT
             PlayerFishEvent.State.REEL_IN -> Trigger.FISH_REEL_IN
             PlayerFishEvent.State.BITE -> Trigger.FISH_BITE
+            PlayerFishEvent.State.LURED -> Trigger.FISH_LURED
         }
 
         triggers[trigger]?.forEach { it.perform(ctx) }
@@ -438,7 +440,7 @@ object ItemListener : Listener {
                 if (ctx.isCancelled) {
                     event.player.inventory.setItemInOffHand(itemAfterRemoving)
                 } else {
-                    event.mainHandItem = itemAfterRemoving
+                    event.setMainHandItem(itemAfterRemoving)
                 }
             }
         }
@@ -465,7 +467,7 @@ object ItemListener : Listener {
                 if (ctx.isCancelled) {
                     event.player.inventory.setItemInMainHand(itemAfterRemoving)
                 } else {
-                    event.offHandItem = itemAfterRemoving
+                    event.setOffHandItem(itemAfterRemoving)
                 }
             }
         }

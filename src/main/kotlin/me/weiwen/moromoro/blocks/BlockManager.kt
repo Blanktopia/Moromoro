@@ -93,7 +93,7 @@ object BlockManager: Manager {
 
     fun cancelDigging(player: Player) {
         playersDigging[player.uniqueId]?.let {
-            player.removePotionEffect(PotionEffectType.SLOW_DIGGING)
+            player.removePotionEffect(PotionEffectType.MINING_FATIGUE)
             it.customBlock.block.sendBlockDamage(0f, -player.entityId)
             plugin.server.scheduler.cancelTask(it.taskId)
         }
@@ -108,7 +108,7 @@ object BlockManager: Manager {
         playersDigging[player.uniqueId]?.let { digState ->
             player.addPotionEffect(
                 PotionEffect(
-                    PotionEffectType.SLOW_DIGGING,
+                    PotionEffectType.MINING_FATIGUE,
                     plugin.config.renderInterval + 20,
                     100,
                     true,
@@ -139,7 +139,7 @@ object BlockManager: Manager {
                         digState.customBlock.block.location.add(0.5, 0.5, 0.5)
                             .add(digState.blockFace.direction.multiply(0.5))
                     digState.customBlock.block.world.spawnParticle(
-                        Particle.ITEM_CRACK,
+                        Particle.ITEM,
                         location.x,
                         location.y,
                         location.z,
@@ -176,6 +176,7 @@ var BlockState.customBlockState: Int?
                 BlockFace.SOUTH -> state += 8
                 BlockFace.UP -> state += 16
                 BlockFace.WEST -> state += 32
+                else -> {}
             }
         }
         return state
@@ -254,6 +255,7 @@ var Block.customBlockState: Int?
                 BlockFace.SOUTH -> state += 8
                 BlockFace.UP -> state += 16
                 BlockFace.WEST -> state += 32
+                else -> {}
             }
         }
 

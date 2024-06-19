@@ -117,7 +117,7 @@ val Material.isPartiallyEmpty: Boolean
         AIR,
         WATER,
         LAVA,
-        GRASS,
+        SHORT_GRASS,
         TALL_GRASS,
         FERN,
         LARGE_FERN,
