@@ -11,10 +11,7 @@ import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.playSoundAt
 import me.weiwen.moromoro.extensions.spawnParticle
 import me.weiwen.moromoro.serializers.MaterialSerializer
-import org.bukkit.Material
-import org.bukkit.Particle
-import org.bukkit.Sound
-import org.bukkit.SoundCategory
+import org.bukkit.*
 
 @Serializable
 @SerialName("remove-light")
@@ -41,6 +38,30 @@ data class RemoveLight(val range: Int = 0) : Action {
 
                     other.spawnParticle(Particle.ASH, 1, 0.0)
                     other.playSoundAt(Sound.BLOCK_CANDLE_EXTINGUISH, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                    other.world.spawnParticle(
+                        Particle.BLOCK_MARKER,
+                        other.x + 0.5,
+                        other.y + 0.5,
+                        other.z + 0.5,
+                        1,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        Bukkit.getServer().createBlockData(Material.LIGHT)
+                    )
+                    other.world.spawnParticle(
+                        Particle.BLOCK_MARKER,
+                        other.x + 0.5,
+                        other.y + 0.5,
+                        other.z + 0.5,
+                        1,
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0,
+                        Bukkit.getServer().createBlockData(Material.BARRIER)
+                    )
 
                     didRemove = true
 

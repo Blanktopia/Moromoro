@@ -7,10 +7,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.extensions.playSoundAt
 import me.weiwen.moromoro.serializers.MaterialSerializer
-import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.Particle
+import org.bukkit.*
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 
@@ -65,6 +64,23 @@ object Light : Action {
             0.0,
             Bukkit.getServer().createBlockData(Material.LIGHT)
         )
+        if (material == Material.LIGHT) {
+            player.playSoundAt(Sound.BLOCK_AMETHYST_BLOCK_PLACE, SoundCategory.BLOCKS, 1f, 0.5f)
+        } else {
+            replacedBlock.world.spawnParticle(
+                Particle.BLOCK_MARKER,
+                replacedBlock.x + 0.5,
+                replacedBlock.y + 0.5,
+                replacedBlock.z + 0.5,
+                1,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                Bukkit.getServer().createBlockData(Material.BARRIER)
+            )
+            player.playSoundAt(Sound.BLOCK_CANDLE_EXTINGUISH, SoundCategory.BLOCKS, 1f, 1.0f)
+        }
 
         return true
     }
