@@ -121,9 +121,9 @@ object BlockListener : Listener {
         // Mushroom Blocks
         val customBlock = MushroomCustomBlock.fromBlock(block)
         if (customBlock != null) {
-            return
             event.drops.clear()
             customBlock.breakNaturally(null, true)
+            return
         }
     }
 
@@ -135,11 +135,11 @@ object BlockListener : Listener {
         val customBlock = MushroomCustomBlock.fromBlock(block)
         if (customBlock != null) {
             event.isCancelled = true
-            return
             customBlock.breakNaturally(
                 event.player.inventory.itemInMainHand,
                 event.player.gameMode != GameMode.CREATIVE
             )
+            return
         }
     }
 
@@ -149,7 +149,7 @@ object BlockListener : Listener {
 
         // Item Frame Barrier Blocks
         if (event.action == Action.LEFT_CLICK_BLOCK) {
-            var customBlock = ItemFrameCustomBlock.fromBlock(block) ?: ItemFrameCustomBlock.fromBlock(
+            val customBlock = ItemFrameCustomBlock.fromBlock(block) ?: ItemFrameCustomBlock.fromBlock(
                 block.getRelative(
                     event.blockFace
                 )
@@ -177,7 +177,7 @@ object BlockListener : Listener {
 
         // Sit
         if (event.hand == EquipmentSlot.HAND && event.action == Action.RIGHT_CLICK_BLOCK && item.type == Material.AIR) {
-            var customBlock = ItemFrameCustomBlock.fromBlock(
+            val customBlock = ItemFrameCustomBlock.fromBlock(
                 block.getRelative(
                     event.blockFace
                 )
