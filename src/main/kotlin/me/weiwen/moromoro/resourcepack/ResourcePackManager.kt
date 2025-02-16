@@ -23,7 +23,7 @@ object ResourcePackManager : Manager {
     }
 
     fun generate() {
-        generateItems(ItemManager.templates.values)
+        generateItems(ItemManager.templates)
         generateMushroomBlocks(BlockManager.blockTemplates.values)
         bundleResourcePack()
     }
