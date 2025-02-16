@@ -8,8 +8,9 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.NamespacedKey
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.persistence.PersistentDataType
-import java.util.*
+import java.net.URI
 
 var ItemStack.customItemKey: String?
     get() {
@@ -31,16 +32,18 @@ fun ItemStack.setHeadHash(name: String, hash: String) {
 }
 
 fun ItemStack.setHeadUrl(name: String, url: String) {
-    val bytes = Base64.getEncoder().encode("{textures:{SKIN:{url:\"$url\"}}}".toByteArray())
-    setHeadBase64(name, String(bytes))
-}
+    var name = Regex("[^A-z0-9]").replace(name, "")
+    if (name.length > 16) {
+        name = name.substring(0, 16)
+    }
+    val profile = Bukkit.createProfile(null, name)
+    val textures = profile.textures
+    textures.skin = URI.create(url).toURL()
+    profile.setTextures(textures)
 
-fun ItemStack.setHeadBase64(name: String, base64: String) {
-    val uuid = base64.hashCode()
-    Bukkit.getUnsafe().modifyItemStack(
-        this,
-        "{SkullOwner:{Name:\"$name\",Id:[I;-1,$uuid,-1,$uuid],Properties:{textures:[{Value:\"$base64\"}]}}}"
-    )
+    val skullMeta = itemMeta as? SkullMeta ?: return
+    skullMeta.playerProfile = profile
+    itemMeta = skullMeta
 }
 
 var ItemStack.isUnenchantable: Boolean
