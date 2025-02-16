@@ -16,10 +16,7 @@ import me.weiwen.moromoro.blocks.BlockTemplate
 import me.weiwen.moromoro.extensions.setHeadUrl
 import me.weiwen.moromoro.extensions.toRomanNumerals
 import me.weiwen.moromoro.resourcepack.ItemModel
-import me.weiwen.moromoro.serializers.ColorSerializer
-import me.weiwen.moromoro.serializers.EnchantmentSerializer
-import me.weiwen.moromoro.serializers.FormattedString
-import me.weiwen.moromoro.serializers.MaterialSerializer
+import me.weiwen.moromoro.serializers.*
 import me.weiwen.moromoro.types.AttributeModifier
 import me.weiwen.moromoro.types.CustomEquipmentSlot
 import me.weiwen.moromoro.types.modifier
@@ -45,7 +42,7 @@ data class ItemTemplate(
     val alias: String? = null,
 
     val name: FormattedString? = null,
-    val lore: FormattedString? = null,
+    val lore: List<FormattedString>? = null,
 
     val material: Material,
     @SerialName("custom-model-data")
@@ -76,16 +73,22 @@ data class ItemTemplate(
 fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
     val item = ItemStack(material, amount)
 
-    head?.let { item.setHeadUrl(name?.value ?: "", it) }
+    head?.let { item.setHeadUrl(name?.text ?: "", it) }
 
     val itemMeta = item.itemMeta as ItemMeta
 
-    name?.let { itemMeta.setDisplayName(it.value) }
-    lore?.let { itemMeta.lore = it.value.lines() }
+    name?.let { itemMeta.displayName(it.component.decoration(TextDecoration.ITALIC, false)) }
+    lore?.let { itemMeta.lore(it.map { text -> text.component.decoration(TextDecoration.ITALIC, false) }) }
 
     itemMeta.isUnbreakable = unbreakable
 
     customModelData?.let { data -> itemMeta.setCustomModelData(data) }
+
+    if (model != null) {
+        val customModelData = itemMeta.customModelDataComponent
+        customModelData.strings = listOf(key)
+        itemMeta.setCustomModelDataComponent(customModelData)
+    }
 
     attributes.forEach { itemMeta.addAttributeModifier(it.attribute, it.modifier) }
 

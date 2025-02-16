@@ -9,6 +9,7 @@ import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.color
 import me.weiwen.moromoro.extensions.highlightBlock
 import me.weiwen.moromoro.extensions.playSoundAt
+import net.kyori.adventure.text.minimessage.MiniMessage
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
@@ -212,10 +213,10 @@ object PaintBrushPick : Action {
 
         val meta = item.itemMeta ?: return false
 
-        val lore = meta.lore ?: return false
-        lore[2] = "§7Paint: ${paint}"
+        val lore = meta.lore() ?: return false
+        lore[2] = MiniMessage.miniMessage().deserialize("<gray>Paint: ${paint}")
 
-        meta.lore = lore
+        meta.lore(lore)
 
         val data = meta.persistentDataContainer
 
