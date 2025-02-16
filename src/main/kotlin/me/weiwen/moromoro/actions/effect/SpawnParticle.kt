@@ -6,7 +6,10 @@ import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.LocationSelector
 import me.weiwen.moromoro.actions.PlayerLocationSelector
+import me.weiwen.moromoro.serializers.ItemStackSerializer
+import org.bukkit.Material
 import org.bukkit.Particle
+import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 import kotlin.math.PI
 
@@ -26,6 +29,9 @@ data class SpawnParticle(
     @SerialName("offset-z")
     val offsetZ: Double = 0.0,
     val extra: Double = 0.0,
+    @Serializable(with = ItemStackSerializer::class)
+    val item: ItemStack? = null,
+    val block: Material? = null,
 ) : Action {
     override fun perform(ctx: Context): Boolean {
         val entity = ctx.projectile ?: ctx.entity ?: ctx.player ?: return false
@@ -35,6 +41,11 @@ data class SpawnParticle(
 
         val location = entity.location.add(vec)
 
+        if (item != null) {
+            entity.world.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, item)
+        } else if (block != null) {
+            entity.world.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, block.createBlockData())
+        }
         entity.world.spawnParticle(particle, location, count, offsetX, offsetY, offsetZ, extra)
         return true
     }
