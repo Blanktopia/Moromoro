@@ -12,7 +12,7 @@ data class SetVelocity(val x: Double? = null, val y: Double? = null, val z: Doub
     override fun perform(ctx: Context): Boolean {
         val entity = ctx.entity ?: ctx.player ?: return false
 
-        val vec = Vector(x ?: 0.0, y ?: 0.0, z ?: 0.0)
+        val vec = Vector(x ?: entity.velocity.x, y ?: entity.velocity.y, z ?: entity.velocity.z)
         vec.rotateAroundY(entity.location.yaw.toDouble())
 
         entity.velocity = vec
