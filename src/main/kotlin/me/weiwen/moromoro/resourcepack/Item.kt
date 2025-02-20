@@ -7,8 +7,17 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.items.ItemTemplate
+import net.kyori.adventure.key.Key
+import org.bukkit.Registry
 import org.bukkit.inventory.ItemType
 import java.io.File
+
+@Serializable
+data class ItemModel(
+    val item: String,
+    val predicate: Predicate,
+    val model: String
+)
 
 @Serializable
 data class Model(
@@ -66,6 +75,11 @@ fun generateItems(templates: Map<String, ItemTemplate>) {
     val rangeDispatches: MutableMap<ItemType, MutableList<RangeDispatchEntry>> = mutableMapOf()
 
     for ((_, item) in templates) {
+        for (model in item.models) {
+            val item = Registry.ITEM.get(Key.key(model.item)) ?: continue
+            rangeDispatches.getOrPut(item) { mutableListOf() }.add(RangeDispatchEntry(model.predicate.custom_model_data, Model(model.model)))
+        }
+
         val model = item.model ?: continue
         val customModelData = item.customModelData ?: continue
         rangeDispatches.getOrPut(item.item) { mutableListOf() }.add(RangeDispatchEntry(customModelData, Model(model)))

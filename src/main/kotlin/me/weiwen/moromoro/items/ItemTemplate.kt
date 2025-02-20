@@ -16,6 +16,7 @@ import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.blocks.BlockTemplate
 import me.weiwen.moromoro.extensions.setHeadUrl
 import me.weiwen.moromoro.extensions.toRomanNumerals
+import me.weiwen.moromoro.resourcepack.ItemModel
 import me.weiwen.moromoro.serializers.*
 import me.weiwen.moromoro.types.AttributeModifier
 import me.weiwen.moromoro.types.CustomEquipmentSlot
@@ -51,6 +52,7 @@ data class ItemTemplate(
     val head: String? = null,
 
     val model: String? = null,
+    val models: List<ItemModel> = listOf(),
 
     val unique: Boolean = false,
     val unbreakable: Boolean = false,

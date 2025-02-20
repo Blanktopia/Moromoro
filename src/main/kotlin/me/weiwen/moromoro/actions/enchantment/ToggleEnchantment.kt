@@ -20,9 +20,9 @@ data class ToggleEnchantment(val enchantment: Enchantment, val level: Int, val n
     override fun perform(ctx: Context): Boolean {
         val item = ctx.item ?: return false
         val player = ctx.player ?: return false
-        val toggled = toggled ?: item.enchantments.containsKey(enchantment)
+        val toggled = toggled ?: item.containsEnchantment(enchantment)
 
-        if (!toggled && item.enchantments.containsKey(enchantment)) {
+        if (!toggled && item.containsEnchantment(enchantment)) {
             item.removeEnchantment(enchantment)
 
             if (enchantment.key.namespace != "minecraft") {
@@ -38,7 +38,7 @@ data class ToggleEnchantment(val enchantment: Enchantment, val level: Int, val n
 
             player.sendActionBar("${ChatColor.RED}Disabled ${name}.")
 
-        } else if (toggled && !item.enchantments.containsKey(enchantment)) {
+        } else if (toggled && !item.containsEnchantment(enchantment)) {
             item.addEnchantment(enchantment, level)
 
             if (enchantment.key.namespace != "minecraft") {

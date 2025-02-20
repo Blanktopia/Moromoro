@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemType
 
 class ItemTypeSerializer : KSerializer<ItemType> {
     override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("Material", PrimitiveKind.STRING)
+        get() = PrimitiveSerialDescriptor("ItemType", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): ItemType {
         val string = decoder.decodeString()

@@ -1,12 +1,14 @@
 @file:Suppress("SpellCheckingInspection")
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.serialization") version "2.1.10"
-    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
+    id("net.minecrell.plugin-yml.paper") version "0.6.0"
     id("io.github.goooler.shadow") version "8.1.7"
+    id("maven-publish")
 }
 
 repositories {
@@ -44,13 +46,10 @@ dependencies {
     compileOnly("net.essentialsx", "EssentialsX", "2.21.0-SNAPSHOT")
     compileOnly("LibsDisguises", "LibsDisguises", "10.0.44")
     compileOnly("com.github.TechFortress:GriefPrevention:16.18.2")
-    compileOnly(files("vendor/GSit-1.2.1.jar"))
+    compileOnly("com.github.Gecolay.GSit:core:2.1.0")
 }
 
 configurations.all {
-    resolutionStrategy.capabilitiesResolution.withCapability("database:connection-pool") {
-        select("com.zaxxer:HikariCP")
-    }
     resolutionStrategy {
         capabilitiesResolution.withCapability("org.spigotmc:spigot-api:1.21.4-R0.1-SNAPSHOT") {
             select("org.purpurmc.purpur:purpur-api:1.21.4-R0.1-SNAPSHOT")
@@ -61,17 +60,49 @@ configurations.all {
     }
 }
 
-bukkit {
+paper {
     main = "me.weiwen.moromoro.Moromoro"
-    apiVersion = "1.20"
+    bootstrapper = "me.weiwen.moromoro.MoromoroBootstrap"
+    apiVersion = "1.21"
     name = "Moromoro"
     version = project.version.toString()
     description = "Easily build custom items for your Minecraft server"
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Essentials", "ProtocolLib", "Vault")
-    softDepend = listOf("Blanktopia", "LibsDisguises", "GSit", "WorldGuard", "GriefPrevention", "FastAsyncWorldEdit")
+    serverDependencies {
+        register("Essentials") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+        register("ProtocolLib") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+        register("Vault") {
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
+        }
+
+        register("Blanktopia") {
+            required = false
+        }
+        register("LibsDisguises") {
+            required = false
+        }
+        register("GSit") {
+            required = false
+        }
+        register("WorldGuard") {
+            required = false
+        }
+        register("GriefPrevention") {
+            required = false
+        }
+        register("FastAsyncWorldEdit") {
+            required = false
+        }
+        register("ShulkerPacks") {
+            required = false
+        }
+    }
 }
 
 tasks.withType<ShadowJar> {
@@ -95,6 +126,18 @@ if(pluginPath != null) {
                     into(pluginPath)
                 }
             }
+        }
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "me.weiwen.moromoro"
+            artifactId = "Moromoro"
+            version = "1.2.0-SNAPSHOT"
+
+            from(components["java"])
         }
     }
 }

@@ -6,7 +6,6 @@ import org.bukkit.NamespacedKey
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
 object SoulboundListener : Listener {
@@ -16,7 +15,7 @@ object SoulboundListener : Listener {
             return
         }
 
-        val items = event.entity.inventory.contents.map {
+        event.entity.inventory.contents.forEach {
             if (it != null && (it.type == Material.ENDER_CHEST || it.itemMeta.persistentDataContainer.get(
                     NamespacedKey(
                         Moromoro.plugin.config.namespace,
@@ -24,15 +23,11 @@ object SoulboundListener : Listener {
                     ), PersistentDataType.BYTE
                 ) == 1.toByte())
             ) {
+                event.itemsToKeep.add(it)
                 event.drops.remove(it)
-                it
-            } else {
-                ItemStack(Material.AIR)
             }
         }
 
-        event.keepInventory = true
-        event.entity.inventory.contents = items.toTypedArray()
         return
     }
 }

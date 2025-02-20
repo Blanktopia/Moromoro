@@ -13,8 +13,10 @@ import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.actionModule
 import me.weiwen.moromoro.addNavigation
+import me.weiwen.moromoro.enchantments.enchantmentLores
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.hooks.EssentialsHook
+import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -112,6 +114,17 @@ object ItemManager: Manager {
         )
         if (version == 0 || (version ?: 0) != template.version || plugin.config.forceMigration) {
             return template.item(key, item.amount)
+        }
+
+        // Migrate lore-based enchantments
+        val lore = mutableListOf<Component>()
+        for (line in item.lore() ?: listOf()) {
+            if (!enchantmentLores.contains(line)) {
+                lore.add(line)
+            }
+        }
+        if (lore.isNotEmpty()) {
+            item.lore(lore)
         }
 
         return null

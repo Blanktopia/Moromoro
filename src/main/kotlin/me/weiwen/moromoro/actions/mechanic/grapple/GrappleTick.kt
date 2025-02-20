@@ -17,12 +17,19 @@ import kotlin.math.sqrt
 @SerialName("grapple-tick")
 data class GrappleTick(
     val acceleration: Double = 0.5,
-    @SerialName("max-speed") val maxSpeed: Double = 1.0,
-    @SerialName("detach-speed") val detachSpeed: Double = 0.5,
+    @SerialName("max-speed")
+    val maxSpeed: Double = 1.0,
+    @SerialName("detach-speed")
+    val detachSpeed: Double = 0.5,
     val control: Double = 0.75,
     val range: Double = 50.0,
     val particle: Particle = Particle.ELECTRIC_SPARK,
-    val sound: String = "entity.fishing_bobber.retrieve"
+    @SerialName("tick-sound")
+    val tickSound: String = "entity.fishing_bobber.retrieve",
+    @SerialName("grapple-sound")
+    val grappleSound: String = "block.wool.break",
+    @SerialName("disconnect-sound")
+    val disconnectSound: String = "block.wool.break",
 ) :
     Action {
     private val rangeSquared = range * range
@@ -36,11 +43,11 @@ data class GrappleTick(
             return false
         }
 
-        val distanceSquared = arrow.location.distanceSquared(player.location.clone().add(0.0, player.height/2, 0.0))
+        val distanceSquared = arrow.location.distanceSquared(player.location.clone().add(0.0, player.height / 2, 0.0))
 
         if (!arrow.isOnGround) {
             if (distanceSquared > rangeSquared) {
-                player.playSoundAt("block.wool.break", SoundCategory.PLAYERS, 1.0f, 2.0f)
+                player.playSoundAt(grappleSound, SoundCategory.PLAYERS, 1.0f, 2.0f)
                 arrow.remove()
             }
             if (player.isSneaking) {
@@ -70,14 +77,14 @@ data class GrappleTick(
         player.fallDistance = 0f
 
         if (distanceSquared < 1.0 || player.isSneaking) {
-            player.playSoundAt("entity.blaze.hurt", SoundCategory.PLAYERS, 0.5f, 2.0f)
+            player.playSoundAt(disconnectSound, SoundCategory.PLAYERS, 0.5f, 2.0f)
             player.velocity = player.location.direction.multiply(detachSpeed).add(Vector(0.0, 0.5, 0.0))
             arrow.remove()
             return true
         }
 
         if (Bukkit.getServer().currentTick.mod(2) == 0) {
-            player.playSoundAt("entity.fishing_bobber.retrieve", SoundCategory.PLAYERS, 1.0f, 0.5f)
+            player.playSoundAt(tickSound, SoundCategory.PLAYERS, 1.0f, 0.5f)
             arrow.location.spawnParticleLine(player.eyeLocation, particle, 0.8)
         }
 

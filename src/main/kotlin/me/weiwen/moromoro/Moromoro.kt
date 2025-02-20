@@ -8,6 +8,7 @@ import cloud.commandframework.bukkit.parsers.location.LocationArgument
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.paper.PaperCommandManager
 import me.weiwen.moromoro.blocks.BlockListener
+import me.weiwen.moromoro.enchantments.listeners.*
 import me.weiwen.moromoro.equip.EquippedItemsManager
 import me.weiwen.moromoro.hooks.EssentialsHook
 import me.weiwen.moromoro.items.ItemListener
@@ -28,12 +29,10 @@ import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.function.Function
 
-class Moromoro : JavaPlugin() {
+class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
     companion object {
         lateinit var plugin: Moromoro private set
     }
-
-    lateinit var config: MoromoroConfig
 
     val managers: MutableList<Manager> = mutableListOf()
 
@@ -42,8 +41,6 @@ class Moromoro : JavaPlugin() {
     }
 
     override fun onEnable() {
-        config = parseConfig(this)
-
         if (server.pluginManager.getPlugin("Essentials") != null) {
             EssentialsHook.register()
         }
@@ -69,6 +66,22 @@ class Moromoro : JavaPlugin() {
             RecipeListener,
             SoulboundListener,
             UnenchantableListener,
+
+            // Enchantments
+            Beheading,
+            Final,
+            Frost,
+            Harvest,
+            NightVision,
+            Parry,
+            Rush,
+            Smelt,
+            Sniper,
+            Soulbound,
+            Spectral,
+            Spring,
+            Sting,
+            Stride
         )
 
         val manager = PaperCommandManager(

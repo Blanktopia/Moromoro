@@ -25,7 +25,9 @@ val grapples: MutableMap<UUID, WeakReference<Arrow>> = mutableMapOf()
 
 @Serializable
 @SerialName("launch-grapple")
-data class LaunchGrapple(val speed: Double = 1.0) : Action {
+data class LaunchGrapple(
+    val speed: Double = 1.0
+) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
 

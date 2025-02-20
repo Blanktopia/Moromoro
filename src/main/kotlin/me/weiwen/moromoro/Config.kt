@@ -5,9 +5,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
-import java.util.logging.Level
 
 @Serializable
 data class MoromoroConfig(
@@ -38,11 +38,15 @@ data class MoromoroConfig(
 )
 
 fun parseConfig(plugin: JavaPlugin): MoromoroConfig {
-    val file = File(plugin.dataFolder, "config.yml")
+    return parseConfig(plugin.componentLogger, plugin.dataFolder)
+}
+
+fun parseConfig(logger: ComponentLogger, dataFolder: File): MoromoroConfig {
+    val file = File(dataFolder, "config.yml")
 
     if (!file.exists()) {
-        plugin.logger.log(Level.INFO, "Config file not found, creating default")
-        plugin.dataFolder.mkdirs()
+        logger.info("Config file not found, creating default")
+        dataFolder.mkdirs()
         file.createNewFile()
         file.writeText(Yaml().encodeToString(MoromoroConfig()))
     }
@@ -50,7 +54,7 @@ fun parseConfig(plugin: JavaPlugin): MoromoroConfig {
     return try {
         Yaml().decodeFromString<MoromoroConfig>(file.readText())
     } catch (e: Exception) {
-        plugin.logger.log(Level.SEVERE, e.message)
+        logger.error(e.message)
         MoromoroConfig()
     }
 }
