@@ -1,11 +1,12 @@
 @file:UseSerializers(
-    MaterialSerializer::class,
+    ItemTypeSerializer::class,
     EnchantmentSerializer::class,
     ColorSerializer::class,
 )
 
 package me.weiwen.moromoro.items
 
+import io.papermc.paper.datacomponent.DataComponentTypes
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -15,20 +16,20 @@ import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.blocks.BlockTemplate
 import me.weiwen.moromoro.extensions.setHeadUrl
 import me.weiwen.moromoro.extensions.toRomanNumerals
-import me.weiwen.moromoro.resourcepack.ItemModel
 import me.weiwen.moromoro.serializers.*
 import me.weiwen.moromoro.types.AttributeModifier
 import me.weiwen.moromoro.types.CustomEquipmentSlot
 import me.weiwen.moromoro.types.modifier
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Color
-import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.ItemType
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.persistence.PersistentDataType
@@ -44,13 +45,12 @@ data class ItemTemplate(
     val name: FormattedString? = null,
     val lore: List<FormattedString>? = null,
 
-    val material: Material,
+    val item: ItemType,
     @SerialName("custom-model-data")
     val customModelData: Int? = null,
     val head: String? = null,
 
     val model: String? = null,
-    val models: List<ItemModel> = listOf(),
 
     val unique: Boolean = false,
     val unbreakable: Boolean = false,
@@ -71,7 +71,7 @@ data class ItemTemplate(
 )
 
 fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
-    val item = ItemStack(material, amount)
+    val item = this.item.createItemStack(amount)
 
     head?.let { item.setHeadUrl(name?.text ?: "", it) }
 
@@ -85,9 +85,7 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
     customModelData?.let { data -> itemMeta.setCustomModelData(data) }
 
     if (model != null) {
-        val customModelData = itemMeta.customModelDataComponent
-        customModelData.strings = listOf(key)
-        itemMeta.setCustomModelDataComponent(customModelData)
+        item.setData(DataComponentTypes.ITEM_MODEL, Key.key(model))
     }
 
     attributes.forEach { itemMeta.addAttributeModifier(it.attribute, it.modifier) }

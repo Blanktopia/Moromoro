@@ -1,6 +1,6 @@
 @file:UseSerializers(
     ItemStackSerializer::class,
-    MaterialSerializer::class,
+    ItemTypeSerializer::class,
     EnchantmentSerializer::class,
     ColorSerializer::class,
     UUIDSerializer::class

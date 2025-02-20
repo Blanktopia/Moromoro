@@ -1,8 +1,5 @@
-@file:UseSerializers(MaterialSerializer::class, EnchantmentSerializer::class)
-
 package me.weiwen.moromoro.actions
 
-import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
@@ -54,8 +51,6 @@ import me.weiwen.moromoro.actions.velocity.AddVelocity
 import me.weiwen.moromoro.actions.velocity.ClampVelocity
 import me.weiwen.moromoro.actions.velocity.MultiplyVelocity
 import me.weiwen.moromoro.actions.velocity.SetVelocity
-import me.weiwen.moromoro.serializers.EnchantmentSerializer
-import me.weiwen.moromoro.serializers.MaterialSerializer
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Entity

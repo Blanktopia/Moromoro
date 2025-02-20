@@ -7,15 +7,8 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.items.ItemTemplate
-import org.bukkit.Material
+import org.bukkit.inventory.ItemType
 import java.io.File
-
-@Serializable
-data class ItemModel(
-    val material: Material,
-    val predicate: Predicate,
-    val model: String,
-)
 
 @Serializable
 data class Model(
@@ -70,23 +63,17 @@ data class Predicate(
 fun generateItems(templates: Map<String, ItemTemplate>) {
     val root = File(plugin.dataFolder, "pack/assets/minecraft")
 
-    val selects: MutableMap<Material, MutableList<SelectCase>> = mutableMapOf()
-    val rangeDispatches: MutableMap<Material, MutableList<RangeDispatchEntry>> = mutableMapOf()
+    val rangeDispatches: MutableMap<ItemType, MutableList<RangeDispatchEntry>> = mutableMapOf()
 
-    for ((key, item) in templates) {
-        for (model in item.models) {
-            rangeDispatches.getOrPut(model.material) { mutableListOf() }.add(RangeDispatchEntry(model.predicate.custom_model_data, Model(model.model)))
-        }
-
+    for ((_, item) in templates) {
         val model = item.model ?: continue
-//        selects.getOrPut(item.material) { mutableListOf() }.add(SelectCase(key, Model(model)))
         val customModelData = item.customModelData ?: continue
-        rangeDispatches.getOrPut(item.material) { mutableListOf() }.add(RangeDispatchEntry(customModelData, Model(model)))
+        rangeDispatches.getOrPut(item.item) { mutableListOf() }.add(RangeDispatchEntry(customModelData, Model(model)))
     }
 
-    for ((material, entries) in rangeDispatches) {
-        val path = "items/${material.name.lowercase()}.json"
-        val json = defaultItem(entries, "item/${material.key.key}")
+    for ((item, entries) in rangeDispatches) {
+        val path = "items/${item.key.value()}.json"
+        val json = defaultItem(entries, "item/${item.key.value()}")
         val file = File(root, path)
         file.parentFile.mkdirs()
         file.writeText(JsonObject(json).toString())
