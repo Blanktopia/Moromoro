@@ -19,16 +19,30 @@ data class ItemModel(
 
 @Serializable
 data class Model(
-    val type: String,
     val model: String,
+    val type: String = "model",
+)
+
+@Serializable
+data class RangeDispatch(
+    val entries: List<RangeDispatchEntry>,
+    val fallback: Model,
+    val type: String = "range_dispatch",
+    val property: String = "custom_model_data",
+)
+
+@Serializable
+data class RangeDispatchEntry(
+    val threshold: Int,
+    val model: Model,
 )
 
 @Serializable
 data class Select(
-    val type: String,
-    val property: String,
     val cases: List<SelectCase>,
     val fallback: Model,
+    val type: String = "select",
+    val property: String = "custom_model_data",
 )
 
 @Serializable
@@ -57,36 +71,37 @@ fun generateItems(templates: Map<String, ItemTemplate>) {
     val root = File(plugin.dataFolder, "pack/assets/minecraft")
 
     val selects: MutableMap<Material, MutableList<SelectCase>> = mutableMapOf()
+    val rangeDispatches: MutableMap<Material, MutableList<RangeDispatchEntry>> = mutableMapOf()
 
     for ((key, item) in templates) {
-//        for (model in item.models) {
-//            overrides
-//                .getOrPut(model.material) { mutableListOf() }
-//                .add(ItemModelOverride(model = model.model, predicate = model.predicate))
-//        }
+        for (model in item.models) {
+            rangeDispatches.getOrPut(model.material) { mutableListOf() }.add(RangeDispatchEntry(model.predicate.custom_model_data, Model(model.model)))
+        }
 
         val model = item.model ?: continue
-        selects.getOrPut(item.material) { mutableListOf() }.add(SelectCase(key, Model("model", model)))
+//        selects.getOrPut(item.material) { mutableListOf() }.add(SelectCase(key, Model(model)))
+        val customModelData = item.customModelData ?: continue
+        rangeDispatches.getOrPut(item.material) { mutableListOf() }.add(RangeDispatchEntry(customModelData, Model(model)))
     }
 
-    for ((material, cases) in selects) {
+    for ((material, entries) in rangeDispatches) {
         val path = "items/${material.name.lowercase()}.json"
-        val json = defaultItem(cases, "item/${material.key.key}")
+        val json = defaultItem(entries, "item/${material.key.key}")
         val file = File(root, path)
         file.parentFile.mkdirs()
         file.writeText(JsonObject(json).toString())
     }
 }
 
-fun defaultItem(cases: List<SelectCase>, fallbackModel: String): JsonObject {
+private val json = Json { encodeDefaults = true }
+
+fun defaultItem(entries: List<RangeDispatchEntry>, fallbackModel: String): JsonObject {
     return JsonObject(
         mapOf(
             Pair(
-                "model", Json.encodeToJsonElement(
-                    Select(
-                        "select", "custom_model_data", cases, Model("model", fallbackModel)
-                    )
-                )
+                "model",
+                // json.encodeToJsonElement(Select(cases, Model(fallbackModel)))
+                json.encodeToJsonElement(RangeDispatch(entries, Model(fallbackModel)))
             )
         )
     )
