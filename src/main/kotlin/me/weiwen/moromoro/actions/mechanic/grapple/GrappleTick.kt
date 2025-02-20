@@ -19,8 +19,10 @@ data class GrappleTick(
     val acceleration: Double = 0.5,
     @SerialName("max-speed") val maxSpeed: Double = 1.0,
     @SerialName("detach-speed") val detachSpeed: Double = 0.5,
+    val control: Double = 0.75,
     val range: Double = 50.0,
-    val particle: Particle = Particle.ELECTRIC_SPARK
+    val particle: Particle = Particle.ELECTRIC_SPARK,
+    val sound: String = "entity.fishing_bobber.retrieve"
 ) :
     Action {
     private val rangeSquared = range * range
@@ -53,7 +55,7 @@ data class GrappleTick(
             arrow.location.toVector()
                 .subtract(player.location.toVector())
                 .normalize()
-                .add(player.location.direction.multiply(0.75))
+                .add(player.location.direction.multiply(control))
                 .normalize()
                 .multiply(acceleration)
         )
