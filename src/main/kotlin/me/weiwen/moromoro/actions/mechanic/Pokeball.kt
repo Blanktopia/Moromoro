@@ -63,6 +63,10 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
             val entity = ctx.entity as? LivingEntity ?: return false
 
             if (!player.canBuildAt(entity.location)) {
+                val message = Component.text("You don't have permission here.")
+                    .decoration(TextDecoration.ITALIC, false)
+                    .color(TextColor.color(0xffffff))
+                player.sendActionBar(message)
                 return false
             }
 
