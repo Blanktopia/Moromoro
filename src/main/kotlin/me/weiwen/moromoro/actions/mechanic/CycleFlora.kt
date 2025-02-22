@@ -24,6 +24,8 @@ val saplings = listOf(
     Material.ACACIA_SAPLING,
     Material.DARK_OAK_SAPLING,
     Material.MANGROVE_PROPAGULE,
+    Material.CHERRY_SAPLING,
+    Material.PALE_OAK_SAPLING,
 )
 
 val planks = listOf(
@@ -36,6 +38,8 @@ val planks = listOf(
     Material.MANGROVE_PLANKS,
     Material.CRIMSON_PLANKS,
     Material.WARPED_PLANKS,
+    Material.CHERRY_PLANKS,
+    Material.PALE_OAK_PLANKS,
 )
 
 val slabs = listOf(
@@ -48,6 +52,8 @@ val slabs = listOf(
     Material.MANGROVE_SLAB,
     Material.CRIMSON_SLAB,
     Material.WARPED_SLAB,
+    Material.CHERRY_SLAB,
+    Material.PALE_OAK_SLAB,
 )
 
 val stairs = listOf(
@@ -60,6 +66,8 @@ val stairs = listOf(
     Material.MANGROVE_STAIRS,
     Material.CRIMSON_STAIRS,
     Material.WARPED_STAIRS,
+    Material.CHERRY_STAIRS,
+    Material.PALE_OAK_STAIRS,
 )
 
 val fences = listOf(
@@ -72,6 +80,8 @@ val fences = listOf(
     Material.MANGROVE_FENCE,
     Material.CRIMSON_FENCE,
     Material.WARPED_FENCE,
+    Material.CHERRY_FENCE,
+    Material.PALE_OAK_FENCE,
 )
 
 val fenceGates = listOf(
@@ -84,6 +94,8 @@ val fenceGates = listOf(
     Material.MANGROVE_FENCE_GATE,
     Material.CRIMSON_FENCE_GATE,
     Material.WARPED_FENCE_GATE,
+    Material.CHERRY_FENCE_GATE,
+    Material.PALE_OAK_FENCE_GATE,
 )
 
 val pressurePlates = listOf(
@@ -96,6 +108,8 @@ val pressurePlates = listOf(
     Material.MANGROVE_PRESSURE_PLATE,
     Material.CRIMSON_PRESSURE_PLATE,
     Material.WARPED_PRESSURE_PLATE,
+    Material.CHERRY_PRESSURE_PLATE,
+    Material.PALE_OAK_PRESSURE_PLATE,
 )
 
 val buttons = listOf(
@@ -108,6 +122,8 @@ val buttons = listOf(
     Material.MANGROVE_BUTTON,
     Material.CRIMSON_BUTTON,
     Material.WARPED_BUTTON,
+    Material.CHERRY_BUTTON,
+    Material.PALE_OAK_BUTTON,
 )
 
 val trapdoors = listOf(
@@ -120,6 +136,8 @@ val trapdoors = listOf(
     Material.MANGROVE_TRAPDOOR,
     Material.CRIMSON_TRAPDOOR,
     Material.WARPED_TRAPDOOR,
+    Material.CHERRY_TRAPDOOR,
+    Material.PALE_OAK_TRAPDOOR,
 )
 
 val doors = listOf(
@@ -132,6 +150,8 @@ val doors = listOf(
     Material.MANGROVE_DOOR,
     Material.CRIMSON_DOOR,
     Material.WARPED_DOOR,
+    Material.CHERRY_DOOR,
+    Material.PALE_OAK_DOOR,
 )
 
 val logs = listOf(
@@ -144,6 +164,8 @@ val logs = listOf(
     Material.MANGROVE_LOG,
     Material.CRIMSON_STEM,
     Material.WARPED_STEM,
+    Material.CHERRY_LOG,
+    Material.PALE_OAK_LOG,
 )
 
 val wood = listOf(
@@ -156,6 +178,8 @@ val wood = listOf(
     Material.MANGROVE_WOOD,
     Material.CRIMSON_HYPHAE,
     Material.WARPED_HYPHAE,
+    Material.CHERRY_WOOD,
+    Material.PALE_OAK_WOOD,
 )
 
 val strippedLogs = listOf(
@@ -168,6 +192,8 @@ val strippedLogs = listOf(
     Material.STRIPPED_MANGROVE_LOG,
     Material.STRIPPED_CRIMSON_STEM,
     Material.STRIPPED_WARPED_STEM,
+    Material.STRIPPED_CHERRY_LOG,
+    Material.STRIPPED_PALE_OAK_LOG,
 )
 
 val strippedWood = listOf(
@@ -180,6 +206,8 @@ val strippedWood = listOf(
     Material.STRIPPED_MANGROVE_WOOD,
     Material.STRIPPED_CRIMSON_HYPHAE,
     Material.STRIPPED_WARPED_HYPHAE,
+    Material.STRIPPED_CHERRY_WOOD,
+    Material.STRIPPED_PALE_OAK_WOOD,
 )
 
 val mushrooms = listOf(
