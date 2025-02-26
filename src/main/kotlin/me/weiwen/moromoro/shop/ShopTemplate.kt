@@ -26,6 +26,7 @@ import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 
 @Serializable
@@ -48,14 +49,12 @@ data class ShopTemplate(
         pages.populateWithGuiItems(
             categories.map { (category, shopItems) ->
                 val item = (shopItems.getOrNull(0)?.item ?: ItemStack(Material.BLACK_STAINED_GLASS_PANE)).clone().apply {
+                    itemFlags.addAll(sequenceOf(ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_DYE, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ARMOR_TRIM, ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_STORED_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE))
                     itemMeta = itemMeta.apply {
                         displayName(Component.text(category).decoration(TextDecoration.ITALIC, false))
-                        lore(
-                            listOf(
-                                miniMessage.deserialize("<gold>Items: <white>${shopItems.size} ")
-                                    .decoration(TextDecoration.ITALIC, false)
-                            )
-                        )
+                        lore(mutableListOf(
+                            miniMessage.deserialize("<gold>Items: <white>${shopItems.size} ")
+                                .decoration(TextDecoration.ITALIC, false)))
                     }
                 }
                 GuiItem(item) { event ->
@@ -81,16 +80,16 @@ data class ShopTemplate(
             items.map { shopItem ->
                 val item = shopItem.item.clone().apply {
                     itemMeta = itemMeta.apply {
-                        lore(
-                            listOf(
-                                shopItem.price?.let {
-                                    miniMessage.deserialize("<gold>Price: <white>${it.amount} ")
-                                        .decoration(TextDecoration.ITALIC, false).append(
-                                        it.itemMeta.displayName() ?: Component.translatable(it)
-                                    )
-                                } ?: miniMessage.deserialize("<gold>FREE").decoration(TextDecoration.ITALIC, false)
-                            )
-                        )
+                        val lore = mutableListOf(
+                            shopItem.price?.let {
+                                miniMessage.deserialize("<gold>Price: <white>${it.amount} ")
+                                    .decoration(TextDecoration.ITALIC, false).append(it.itemMeta.itemName())
+                            } ?: miniMessage.deserialize("<gold>FREE").decoration(TextDecoration.ITALIC, false))
+                        lore()?.let {
+                            Component.text("")
+                            lore.addAll(it)
+                        }
+                        lore(lore)
                     }
                 }
                 GuiItem(item) { event ->
