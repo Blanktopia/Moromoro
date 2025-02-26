@@ -620,6 +620,38 @@ object ItemListener : Listener {
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    fun onPlayerKeyPress(event: PlayerInputEvent) {
+        if (event.input.isForward) {
+            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_FORWARD)
+            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_FORWARD)
+        }
+        if (event.input.isBackward) {
+            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_BACKWARD)
+            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_BACKWARD)
+        }
+        if (event.input.isLeft) {
+            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_LEFT)
+            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_LEFT)
+        }
+        if (event.input.isRight) {
+            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_RIGHT)
+            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_RIGHT)
+        }
+        if (event.input.isJump) {
+            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_JUMP)
+            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_JUMP)
+        }
+        if (event.input.isSneak) {
+            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_SNEAK)
+            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_SNEAK)
+        }
+        if (event.input.isSprint) {
+            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_SPRINT)
+            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_SPRINT)
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerJoin(event: PlayerJoinEvent) {
         event.player.equipment.let { eq ->
             eq.helmet?.let { ItemManager.migrateItem(it)?.let { eq.helmet = it } }

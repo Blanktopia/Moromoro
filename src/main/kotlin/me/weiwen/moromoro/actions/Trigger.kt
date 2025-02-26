@@ -148,6 +148,21 @@ enum class Trigger {
     CREATIVE_INVENTORY,
     @SerialName("swap-offhand-inventory")
     SWAP_OFFHAND_INVENTORY,
+
+    @SerialName("key-down-forward")
+    KEY_DOWN_FORWARD,
+    @SerialName("key-down-backward")
+    KEY_DOWN_BACKWARD,
+    @SerialName("key-down-left")
+    KEY_DOWN_LEFT,
+    @SerialName("key-down-right")
+    KEY_DOWN_RIGHT,
+    @SerialName("key-down-jump")
+    KEY_DOWN_JUMP,
+    @SerialName("key-down-sneak")
+    KEY_DOWN_SNEAK,
+    @SerialName("key-down-sprint")
+    KEY_DOWN_SPRINT
     ;
 }
 
@@ -169,4 +184,11 @@ val EQUIPPED_TRIGGERS = setOf(
     Trigger.DAMAGED,
     Trigger.DROP,
     Trigger.SWAP_HAND,
+    Trigger.KEY_DOWN_FORWARD,
+    Trigger.KEY_DOWN_BACKWARD,
+    Trigger.KEY_DOWN_LEFT,
+    Trigger.KEY_DOWN_RIGHT,
+    Trigger.KEY_DOWN_JUMP,
+    Trigger.KEY_DOWN_SNEAK,
+    Trigger.KEY_DOWN_SPRINT,
 )
