@@ -64,7 +64,6 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
             ItemListener,
             BlockListener,
             RecipeListener,
-            SoulboundListener,
             UnenchantableListener,
 
             // Enchantments

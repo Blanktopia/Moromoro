@@ -14,13 +14,12 @@ object Spring : Listener {
 
     @EventHandler
     fun onPlayerJump(event: PlayerJumpEvent) {
+        val enchantment = Registry.ENCHANTMENT.get(key) ?: return
         for (item in event.player.inventory.armorContents) {
             item ?: continue
+            if (!item.containsEnchantment(enchantment)) continue
 
-            val enchantment = Registry.ENCHANTMENT.get(key) ?: return
-            if (!item.containsEnchantment(enchantment)) return
-
-            val level = item.getEnchantmentLevel(enchantment) ?: 1
+            val level = item.getEnchantmentLevel(enchantment)
             val prevLevel = event.player.getPotionEffect(PotionEffectType.JUMP_BOOST)?.amplifier ?: -1
             val amplifier = minOf(level - 1, prevLevel + 1)
             event.player.addPotionEffect(

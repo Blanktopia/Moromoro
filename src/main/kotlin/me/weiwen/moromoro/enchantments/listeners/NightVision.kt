@@ -11,7 +11,7 @@ import org.bukkit.event.Listener
 import org.bukkit.potion.PotionEffectType
 
 object NightVision : Listener {
-    val key = NamespacedKey(plugin.config.namespace, "nightvision")
+    val key = NamespacedKey(plugin.config.namespace, "night-vision")
 
     @EventHandler
     fun onPlayerArmorChange(event: PlayerArmorChangeEvent) {

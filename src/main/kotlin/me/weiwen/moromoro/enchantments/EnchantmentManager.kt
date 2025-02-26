@@ -107,7 +107,7 @@ object EnchantmentManager: Manager {
             event.registrar().addToTag(
                 EnchantmentTagKeys.SMELTS_LOOT,
                 templates.entries.stream()
-                    .filter { !it.value.smeltsLoot }
+                    .filter { it.value.smeltsLoot }
                     .map { TagEntry.valueEntry(TypedKey.create(RegistryKey.ENCHANTMENT, Key.key(config.namespace, it.key))) }
                     .collect(Collectors.toSet())
             )

@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.types.AttributeModifier
+import me.weiwen.moromoro.types.key
 
 @Serializable
 @SerialName("remove-attribute-modifier")
@@ -17,7 +18,7 @@ data class RemoveAttributeModifier(
         attributeModifiers.forEach { modifier ->
             val attribute = player.getAttribute(modifier.attribute) ?: return@forEach
             attribute.modifiers
-                .filter { it.uniqueId == modifier.uuid }
+                .filter { it.key == modifier.key }
                 .forEach { attribute.removeModifier(it) }
         }
 

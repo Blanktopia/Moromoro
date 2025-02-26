@@ -42,8 +42,13 @@ object Beheading : Listener {
                 event.drops.add(skull)
                 return
             }
-
-            else -> Pair(0.0, null)
+            EntityType.SKELETON -> 0.02 to ItemStack(Material.SKELETON_SKULL)
+            EntityType.WITHER_SKELETON -> 0.02 to ItemStack(Material.WITHER_SKELETON_SKULL)
+            EntityType.ZOMBIE -> 0.02 to ItemStack(Material.ZOMBIE_HEAD)
+            EntityType.CREEPER -> 0.02 to ItemStack(Material.CREEPER_HEAD)
+            EntityType.ENDER_DRAGON -> 0.2 to ItemStack(Material.DRAGON_HEAD)
+            EntityType.PIGLIN -> 0.2 to ItemStack(Material.PIGLIN_HEAD)
+            else -> 0.0 to null
         }
 
         // val (chance: Double, skull: ItemStack?) = when (entity.type) {
@@ -380,7 +385,7 @@ object Beheading : Listener {
         //     EntityType.PLAYER -> Pair(0.0, null)
         // }
 
-        if (skull != null && (weapon.getEnchantLevel(enchantment) ?: 1) * chance > Math.random()) {
+        if (skull != null && (weapon.getEnchantLevel(enchantment)) * chance > Math.random()) {
             event.drops.add(skull)
         }
     }

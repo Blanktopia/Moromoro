@@ -1,22 +1,26 @@
 package me.weiwen.moromoro.types
 
 import kotlinx.serialization.Serializable
+import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.serializers.AttributeSerializer
-import me.weiwen.moromoro.serializers.UUIDSerializer
+import me.weiwen.moromoro.serializers.EquipmentSlotGroupSerializer
+import org.bukkit.NamespacedKey
 import org.bukkit.attribute.Attribute
-import org.bukkit.inventory.EquipmentSlot
-import java.util.*
+import org.bukkit.inventory.EquipmentSlotGroup
 
 @Serializable
 data class AttributeModifier(
     @Serializable(with = AttributeSerializer::class)
     val attribute: Attribute,
-    @Serializable(with = UUIDSerializer::class)
-    val uuid: UUID,
     val name: String,
     val amount: Double,
     val operation: org.bukkit.attribute.AttributeModifier.Operation,
-    val slot: EquipmentSlot? = null,
+    @Serializable(with = EquipmentSlotGroupSerializer::class)
+    val slot: EquipmentSlotGroup = EquipmentSlotGroup.ANY,
 )
+
 val AttributeModifier.modifier: org.bukkit.attribute.AttributeModifier
-    get() = org.bukkit.attribute.AttributeModifier(uuid, name, amount, operation, slot)
+    get() = org.bukkit.attribute.AttributeModifier(key, amount, operation, slot)
+
+val AttributeModifier.key: NamespacedKey
+    get() = NamespacedKey(plugin.config.namespace, name)

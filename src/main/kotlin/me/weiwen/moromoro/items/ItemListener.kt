@@ -482,12 +482,12 @@ object ItemListener : Listener {
         val inventory = event.clickedInventory ?: return
         var item = inventory.getItem(event.slot) ?: return
 
-        var key = item.customItemKey ?: return
-
         ItemManager.migrateItem(item)?.let {
             inventory.setItem(event.slot, it)
             return
         }
+
+        val key = item.customItemKey ?: return
 
         // Equip trinket
         if (event.click == ClickType.RIGHT || event.click == ClickType.SHIFT_RIGHT) {
