@@ -40,7 +40,7 @@ object BlockManager: Manager {
     var mushroomStemStates: MutableMap<Int, String> = mutableMapOf()
         private set
 
-    var playersDigging: MutableMap<UUID, DigState> = mutableMapOf()
+    private var playersDigging: MutableMap<UUID, DigState> = mutableMapOf()
 
     override fun enable() {
         load()

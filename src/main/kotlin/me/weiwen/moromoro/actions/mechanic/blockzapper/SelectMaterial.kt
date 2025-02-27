@@ -26,7 +26,7 @@ object SelectMaterial : Action {
         val message = Component.text("Selected: ${ItemStack(block.type).i18NDisplayName}").color(TextColor.color(0xffaa00))
         player.sendActionBar(message)
 
-        player.playSoundAt(block.soundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 0.5f)
+        player.playSoundAt(block.blockSoundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 0.5f)
 
         return true
     }

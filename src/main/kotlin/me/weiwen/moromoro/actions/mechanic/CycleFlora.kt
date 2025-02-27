@@ -380,7 +380,7 @@ data class CycleFlora(val reversed: Boolean = false) : Action {
         }
 
         block.spawnParticle(Particle.HEART, 8, 0.01)
-        block.world.playSound(block.location, block.soundGroup.placeSound, 1.0f, 1.0f)
+        block.world.playSound(block.location, block.blockSoundGroup.placeSound, 1.0f, 1.0f)
 
         return true
     }

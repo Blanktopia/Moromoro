@@ -29,7 +29,7 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
 
         val serializedEntity = item.itemMeta?.persistentDataContainer?.get(NamespacedKey(Moromoro.plugin.config.namespace, "entity"), PersistentDataType.BYTE_ARRAY)
         if (serializedEntity != null) {
-            val world = player.world ?: return false
+            val world = player.world
             val deserializedEntity = Bukkit.getUnsafe().deserializeEntity(serializedEntity, world, true)
             val vector = player.rayTraceBlocks(5.0)?.hitPosition ?: return false
             val location = Location(world, vector.x, vector.y, vector.z)

@@ -114,7 +114,7 @@ data class BuildersWand(val range: Int = 1) : Action {
         }
 
         return if (canBuild) {
-            block.playSoundAt(block.soundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 1.0f)
+            block.playSoundAt(block.blockSoundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 1.0f)
             true
         } else {
             player.playSoundTo(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 1.0f, 1.0f)

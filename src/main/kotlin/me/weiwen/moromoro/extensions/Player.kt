@@ -54,7 +54,7 @@ fun Player.hasAtLeastInInventoryOrShulkerBoxes(itemStack: ItemStack): Boolean {
         return true
     }
 
-    val contents = inventory.storageContents ?: return false
+    val contents = inventory.storageContents
     for (i in contents.indices) {
         val item = contents[i] ?: continue
         if (item.type !in shulkerBoxes) {
@@ -97,7 +97,7 @@ fun Player.removeItemFromInventoryOrShulkerBoxes(
         }
     }
 
-    val contents = inventory.storageContents ?: return itemStack
+    val contents = inventory.storageContents
     for (i in contents.indices) {
         val item = contents[i] ?: continue
         if (item.type !in shulkerBoxes) {

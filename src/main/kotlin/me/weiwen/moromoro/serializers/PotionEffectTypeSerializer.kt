@@ -6,6 +6,8 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import org.bukkit.NamespacedKey
+import org.bukkit.Registry
 import org.bukkit.potion.PotionEffectType
 
 class PotionEffectTypeSerializer : KSerializer<PotionEffectType> {
@@ -14,6 +16,10 @@ class PotionEffectTypeSerializer : KSerializer<PotionEffectType> {
 
     override fun deserialize(decoder: Decoder): PotionEffectType {
         val string = decoder.decodeString()
+        if (string.contains(':')) {
+            val (namespace, key) = string.split(':', limit = 2)
+            return Registry.POTION_EFFECT_TYPE.get(NamespacedKey(namespace, key)) ?: PotionEffectType.SPEED
+        }
         return PotionEffectType.getByName(string) ?: PotionEffectType.SPEED
     }
 

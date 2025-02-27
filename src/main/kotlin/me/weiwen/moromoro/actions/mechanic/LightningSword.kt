@@ -19,7 +19,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 data class LightningSword(val radius: Double, val bounces: Int, @SerialName("chain-damage") val chainDamage: Double) :
     Action {
     override fun perform(ctx: Context): Boolean {
-        val event = ctx.event as EntityDamageEvent ?: return false
+        val event = ctx.event as? EntityDamageEvent ?: return false
         val entity = event.entity as? LivingEntity ?: return false
         val player = ctx.player ?: return false
 

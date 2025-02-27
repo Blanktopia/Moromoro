@@ -60,8 +60,6 @@ object ShopManager : Manager {
 
     @OptIn(ExperimentalSerializationApi::class)
     private fun parse(file: File): ShopTemplate? {
-        val key = file.nameWithoutExtension
-
         val format = when (file.extension) {
             "json" -> json
             "yml", "yaml" -> yaml

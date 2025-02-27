@@ -55,7 +55,7 @@ object PlaceRandomBlock : Action {
             }
 
             if (placeBlock(ctx, item.type, placedAgainst)) {
-                placedBlock.playSoundAt(placedBlock.soundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 1.0f)
+                placedBlock.playSoundAt(placedBlock.blockSoundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 1.0f)
                 return true
             }
         }

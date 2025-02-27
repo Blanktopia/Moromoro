@@ -258,7 +258,6 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
     }
 
     private fun registerEvents(vararg listeners: Listener) {
-        val pluginManager = server.pluginManager
         listeners.forEach {
             server.pluginManager.registerEvents(it, plugin)
         }

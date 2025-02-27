@@ -12,6 +12,7 @@ import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.managers.ProjectileManager
 import me.weiwen.moromoro.trinkets.TrinketManager
 import me.weiwen.moromoro.types.CustomEquipmentSlot
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
@@ -195,7 +196,8 @@ object ItemListener : Listener {
                     TrinketManager.openTrinketInventory(event.player)
                 }, 1)
 
-                event.isCancelled
+                event.setUseItemInHand(Event.Result.DENY)
+                event.setUseInteractedBlock(Event.Result.DENY)
                 return
             }
         }
@@ -418,7 +420,7 @@ object ItemListener : Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onPlayerSwapHandItems(event: PlayerSwapHandItemsEvent) {
-        event.mainHandItem?.let { item ->
+        event.mainHandItem.let { item ->
             val key = item.customItemKey ?: return@let
             val triggers = ItemManager.triggers[key] ?: return@let
 
@@ -445,7 +447,7 @@ object ItemListener : Listener {
             }
         }
 
-        event.offHandItem?.let { item ->
+        event.offHandItem.let { item ->
             val key = item.customItemKey ?: return@let
             val triggers = ItemManager.triggers[key] ?: return@let
 
@@ -660,7 +662,7 @@ object ItemListener : Listener {
             eq.boots?.let { ItemManager.migrateItem(it)?.let { eq.boots = it } }
         }
 
-        event.player.inventory.storageContents?.forEach { item ->
+        event.player.inventory.storageContents.forEach { item ->
             if (item != null) {
                 ItemManager.migrateItem(item)?.let {
                     if (event.player.inventory.removeItem(item).isEmpty()) {
@@ -690,5 +692,8 @@ private fun removeOne(item: ItemStack): ItemStack? {
 }
 
 private fun removeOne(player: Player, slot: EquipmentSlot) {
-    player.inventory.setItem(slot, player.inventory.getItem(slot)?.let { removeOne(it) })
+    val item = player.inventory.getItem(slot)
+    if (item.type != Material.AIR) {
+        player.inventory.setItem(slot, removeOne(item))
+    }
 }

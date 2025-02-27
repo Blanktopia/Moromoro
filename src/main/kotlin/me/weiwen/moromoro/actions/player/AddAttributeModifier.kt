@@ -16,9 +16,13 @@ data class AddAttributeModifier(
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
 
-        attributeModifiers.forEach {
+        attributeModifiers.forEach { mod ->
             try {
-                player.getAttribute(it.attribute)?.addModifier(it.modifier)
+                player.getAttribute(mod.attribute)?.let { attr ->
+                    if (!attr.modifiers.any { it.name == mod.name }) {
+                        attr.addModifier(mod.modifier)
+                    }
+                }
             } catch (e: Exception) {
                 Moromoro.plugin.logger.warning("$e")
             }

@@ -11,6 +11,7 @@ import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.equipmentSlot
 import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.types.customEquipmentSlot
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
 import org.bukkit.event.Event
@@ -113,7 +114,8 @@ object EquippedItemsManager : Manager {
     fun onPlayerArmorChange(event: PlayerArmorChangeEvent) {
         if (event.newItem == event.oldItem) return
 
-        event.oldItem?.let { item ->
+        event.oldItem.let { item ->
+            if (item.type == Material.AIR) return@let
             val key = item.customItemKey ?: return@let
 
             // Skip if in wrong slot
@@ -147,7 +149,8 @@ object EquippedItemsManager : Manager {
             triggers[Trigger.UNEQUIP_ARMOR]?.forEach { it.perform(ctx) }
         }
 
-        event.newItem?.let { item ->
+        event.newItem.let { item ->
+            if (item.type == Material.AIR) return@let
             val key = item.customItemKey ?: return@let
 
             // Skip if in wrong slot
