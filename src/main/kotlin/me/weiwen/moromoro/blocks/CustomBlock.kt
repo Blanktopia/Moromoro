@@ -1,23 +1,18 @@
 package me.weiwen.moromoro.blocks
 
-import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.*
 import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.items.ItemTemplate
 import me.weiwen.moromoro.items.item
-import me.weiwen.moromoro.managers.BlockManager
-import me.weiwen.moromoro.managers.customBlockState
+import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.Particle
 import org.bukkit.SoundCategory
 import org.bukkit.block.Block
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.ExperienceOrb
-import org.bukkit.entity.ItemFrame
 import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.random.Random
@@ -25,12 +20,12 @@ import kotlin.random.Random
 sealed interface CustomBlock {
     companion object {
         fun fromBlock(block: Block): CustomBlock? {
-            return MushroomCustomBlock.fromBlock(block) ?: ItemFrameCustomBlock.fromBlock(block)
+            return MushroomCustomBlock.fromBlock(block) ?: EntityCustomBlock.fromBlock(block)
         }
     }
 
     val block: Block
-    val key: String?
+    val key: String
 
     val template: ItemTemplate?
         get() = ItemManager.templates[key]
@@ -76,37 +71,16 @@ sealed interface CustomBlock {
         return ceil(1.0 / damage).toLong()
     }
 
-    fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean
-}
-
-class MushroomCustomBlock(override val block: Block, override val key: String) : CustomBlock {
-    companion object {
-        fun fromBlock(block: Block): MushroomCustomBlock? {
-            val states = when (block.type) {
-                Material.BROWN_MUSHROOM_BLOCK -> BlockManager.brownMushroomStates
-                Material.RED_MUSHROOM_BLOCK -> BlockManager.redMushroomStates
-                Material.MUSHROOM_STEM -> BlockManager.mushroomStemStates
-                else -> return null
-            }
-            val state = block.customBlockState ?: return null
-            val key = states[state] ?: return null
-            return MushroomCustomBlock(block, key)
-        }
-    }
-
-    override fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean {
+    fun breakNaturally(tool: ItemStack?, dropItem: Boolean, location: Location? = null): Boolean {
         val template = ItemManager.templates[key] ?: return false
 
-        block.setType(Material.AIR, true)
+        val location = location ?: block.location.add(0.5, 0.5, 0.5)
 
         if (dropItem) {
             val items = if (tool?.enchantments?.get(Enchantment.SILK_TOUCH) == null) {
                 val experience = template.block?.experience ?: 0
                 if (experience != 0) {
-                    (block.world.spawnEntity(
-                        block.location.clone().add(0.5, 0.5, 0.5),
-                        EntityType.EXPERIENCE_ORB
-                    ) as? ExperienceOrb)?.apply {
+                    (location.world.spawnEntity(location, EntityType.EXPERIENCE_ORB) as? ExperienceOrb)?.apply {
                         this.experience = experience
                     }
                 }
@@ -123,129 +97,10 @@ class MushroomCustomBlock(override val block: Block, override val key: String) :
                 }
             }
 
-            items.forEach { block.world.dropItemNaturally(block.location, it) }
+            items.forEach { location.world.dropItemNaturally(location, it) }
         }
 
-        val location = block.location.add(0.5, 0.5, 0.5)
-        block.world.spawnParticle(
-            Particle.ITEM,
-            location.x,
-            location.y,
-            location.z,
-            50,
-            0.2,
-            0.2,
-            0.2,
-            0.1,
-            template.item("")
-        )
-
-        template.block?.sounds?.`break`?.let {
-            location.block.playSoundAt(
-                it?.sound ?: "block.wood.break",
-                SoundCategory.BLOCKS,
-                it?.volume ?: 1f,
-                it?.pitch ?: 1f
-
-            )
-        }
-
-        return true
-    }
-}
-
-open class ItemFrameCustomBlock(override val block: Block, val itemFrame: ItemFrame, override val key: String) :
-    CustomBlock {
-    companion object {
-        fun fromItemFrame(itemFrame: ItemFrame): ItemFrameCustomBlock? {
-            val block = itemFrame.location.block
-            val key = itemFrame.persistentDataContainer.get(
-                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                PersistentDataType.STRING
-            ) ?: return null
-
-            return if (block.type == Material.BARRIER) {
-                ItemFrameBarrierCustomBlock(block, itemFrame, key)
-            } else {
-                ItemFrameCustomBlock(block, itemFrame, key)
-            }
-        }
-
-        fun fromBlock(block: Block): ItemFrameCustomBlock? {
-            val location = block.location.add(0.5, 0.5, 0.5)
-
-            val itemFrames = location.world.getNearbyEntities(location, 0.5, 0.5, 0.5) {
-                it.type == EntityType.ITEM_FRAME &&
-                        it.persistentDataContainer.has(
-                            NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                            PersistentDataType.STRING
-                        )
-            }
-
-            if (itemFrames.isEmpty()) {
-                return null
-            }
-
-            val itemFrame = itemFrames.first() as? ItemFrame ?: return null
-
-            return if (block.type == Material.BARRIER) {
-                ItemFrameBarrierCustomBlock(
-                    block,
-                    itemFrame,
-                    itemFrame.persistentDataContainer.get(
-                        NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                        PersistentDataType.STRING
-                    ) ?: return null
-                )
-            } else {
-                ItemFrameCustomBlock(
-                    block,
-                    itemFrame,
-                    itemFrame.persistentDataContainer.get(
-                        NamespacedKey(Moromoro.plugin.config.namespace, "type"),
-                        PersistentDataType.STRING
-                    ) ?: return null
-                )
-
-            }
-        }
-    }
-
-    override fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean {
-        val template = ItemManager.templates[key] ?: return false
-
-        if (dropItem) {
-            val items = if (tool?.enchantments?.get(Enchantment.SILK_TOUCH) == null) {
-                val experience = template.block?.experience ?: 0
-                if (experience != 0) {
-                    (block.world.spawnEntity(
-                        block.location.clone().add(0.5, 0.5, 0.5),
-                        EntityType.EXPERIENCE_ORB
-                    ) as? ExperienceOrb)?.apply {
-                        this.experience = experience
-                    }
-                }
-
-                template.block?.drops?.map { it.clone() } ?: listOf(template.item(key, 1))
-            } else {
-                listOf(template.item(key, 1))
-            }
-
-            if (template.block?.canFortune == true) {
-                val fortune = tool?.enchantments?.get(Enchantment.FORTUNE) ?: 0
-                items.forEach {
-                    val multiplier = 1 + max(0, Random.nextInt(fortune + 2) - 2)
-                    it.amount *= multiplier
-                }
-            }
-
-            items.forEach { block.world.dropItemNaturally(block.location, it) }
-        }
-
-        itemFrame.remove()
-
-        val location = block.location.add(0.5, 0.5, 0.5)
-        block.world.spawnParticle(
+        location.world.spawnParticle(
             Particle.ITEM,
             location.x,
             location.y,
@@ -259,7 +114,7 @@ open class ItemFrameCustomBlock(override val block: Block, val itemFrame: ItemFr
         )
 
         template.block?.sounds?.`break`.let {
-            location.block.playSoundAt(
+            location.playSoundAt(
                 it?.sound ?: "block.wood.break",
                 SoundCategory.BLOCKS,
                 it?.volume ?: 1f,
@@ -268,17 +123,5 @@ open class ItemFrameCustomBlock(override val block: Block, val itemFrame: ItemFr
         }
 
         return true
-    }
-}
-
-class ItemFrameBarrierCustomBlock(block: Block, itemFrame: ItemFrame, key: String) :
-    ItemFrameCustomBlock(block, itemFrame, key) {
-
-    override fun breakNaturally(tool: ItemStack?, dropItem: Boolean): Boolean {
-        if (super.breakNaturally(tool, dropItem)) {
-            block.setType(Material.AIR, true)
-            return true
-        }
-        return false
     }
 }

@@ -21,11 +21,13 @@ import me.weiwen.moromoro.serializers.*
 import org.bukkit.*
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import kotlin.math.roundToInt
 
 @Serializable
 sealed class BlockTemplate {
@@ -131,8 +133,8 @@ class MushroomBlockTemplate(
 }
 
 @Serializable
-@SerialName("item")
-/* Placed using invisible item frames */
+@SerialName("itemframe")
+/* Placed using block display entities*/
 class ItemBlockTemplate(
     private val collision: Boolean = false,
 
@@ -161,7 +163,7 @@ class ItemBlockTemplate(
 
         val centerLocation = block.getRelative(blockFace).location.add(0.5, 0.5, 0.5)
         val nearbyItems = centerLocation.world.getNearbyEntities(centerLocation, 0.5, 0.5, 0.5) {
-            it.type == EntityType.ITEM_FRAME &&
+            it.type == EntityType.ITEM_FRAME || it.type == EntityType.ITEM_DISPLAY &&
                     it.persistentDataContainer.has(
                         NamespacedKey(Moromoro.plugin.config.namespace, "type"),
                         PersistentDataType.STRING
@@ -201,11 +203,112 @@ class ItemBlockTemplate(
 
         // Move item into item frame
         val cloned = item.clone()
-        cloned.itemMeta = cloned.itemMeta.apply {
-            setDisplayName(null)
-        }
         cloned.amount = 1
         itemFrame.setItem(cloned, false)
+
+        if (collision) {
+            location.block.type = Material.BARRIER
+        }
+
+        sounds.place.let {
+            location.block.playSoundAt(
+                it?.sound ?: "block.wood.place",
+                SoundCategory.BLOCKS,
+                it?.volume ?: 1f,
+                it?.pitch ?: 1f
+            )
+        }
+
+        return true
+    }
+}
+
+@Serializable
+@SerialName("item")
+/* Placed using item display entities*/
+class ItemDisplayBlockTemplate(
+    private val collision: Boolean = false,
+
+    val wall: Boolean = false,
+
+    @SerialName("sit-height")
+    override val sitHeight: Double? = null,
+    @SerialName("sit-rotate")
+    override val sitRotate: Boolean? = null,
+
+    override val drops: List<ItemStack>? = null,
+    override val experience: Int = 0,
+    @SerialName("can-fortune")
+    override val canFortune: Boolean = false,
+
+    override val hardness: Double = 1.0,
+    override val tools: List<ItemStack>? = null,
+
+    override val sounds: SoundGroup = SoundGroup(),
+) : BlockTemplate() {
+    override fun place(ctx: Context): Boolean {
+        val player = ctx.player ?: return false
+        val item = ctx.item ?: return false
+        val key = ctx.item.customItemKey ?: return false
+
+        val block = ctx.block ?: return false
+        val blockFace = ctx.blockFace ?: BlockFace.UP
+
+        val centerLocation = block.getRelative(blockFace).location.add(0.5, 0.5, 0.5)
+        val nearbyItems = centerLocation.world.getNearbyEntities(centerLocation, 0.5, 0.5, 0.5) {
+            it.type == EntityType.ITEM_FRAME || it.type == EntityType.ITEM_DISPLAY &&
+                    it.persistentDataContainer.has(
+                        NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                        PersistentDataType.STRING
+                    )
+        }
+        if (nearbyItems.isNotEmpty()) {
+            return false
+        }
+
+        val location = block.getRelative(blockFace).location
+        val world = location.world ?: return false
+
+        val rotation = if (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN) {
+            player.location?.clone()?.apply { yaw += 180 }?.rotation ?: Rotation.NONE
+        } else {
+            Rotation.NONE
+        }
+
+        // Try to place item display
+        val itemDisplay = try {
+            world.spawnEntity(location.add(0.5, 0.5, 0.5).apply {
+                if (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN) {
+                    val preciseYaw = player.location.yaw.plus(180)
+                    yaw = if (player.isSneaking) {
+                        preciseYaw
+                    } else {
+                        45f * (preciseYaw / 45).roundToInt()
+                    }
+                    if (blockFace == BlockFace.DOWN) {
+                        pitch = 180f
+                    }
+                } else {
+                    direction = blockFace.direction
+                    pitch = 90f
+                }
+                if (wall) {
+                    pitch -= 90f
+                }
+            }, EntityType.ITEM_DISPLAY) as ItemDisplay
+        } catch (e: IllegalArgumentException) {
+            return false
+        }.apply {
+            // Set persistent data
+            persistentDataContainer.set(
+                NamespacedKey(Moromoro.plugin.config.namespace, "type"),
+                PersistentDataType.STRING,
+                key
+            )
+        }
+
+        // Move item into item frame
+        itemDisplay.setItemStack(item.clone())
 
         if (collision) {
             location.block.type = Material.BARRIER

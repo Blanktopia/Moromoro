@@ -66,8 +66,7 @@ object BlockListener : Listener {
                     }
 
                     // Break custom blocks
-                    val itemFrame = entity as? ItemFrame ?: return@scheduleSyncDelayedTask
-                    val customBlock = ItemFrameCustomBlock.fromItemFrame(itemFrame) ?: return@scheduleSyncDelayedTask
+                    val customBlock = EntityCustomBlock.fromEntity(entity) ?: return@scheduleSyncDelayedTask
                     customBlock.breakNaturally(null, true)
 
                     e.isCancelled = true
@@ -90,6 +89,7 @@ object BlockListener : Listener {
                             customBlock,
                             direction.blockFace
                         )
+
                         EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK -> BlockManager.cancelDigging(e.player)
                         else -> {}
                     }
@@ -149,11 +149,8 @@ object BlockListener : Listener {
 
         // Item Frame Barrier Blocks
         if (event.action == Action.LEFT_CLICK_BLOCK) {
-            val customBlock = ItemFrameCustomBlock.fromBlock(block) ?: ItemFrameCustomBlock.fromBlock(
-                block.getRelative(
-                    event.blockFace
-                )
-            )
+            val customBlock =
+                EntityCustomBlock.fromBlock(block.getRelative(event.blockFace)) ?: EntityCustomBlock.fromBlock(block)
             if (customBlock != null && event.player.canBuildAt(block.location)) {
                 if (customBlock.breakNaturally(event.player.inventory.itemInMainHand, true)) {
                     event.setUseItemInHand(Event.Result.DENY)
@@ -177,7 +174,7 @@ object BlockListener : Listener {
 
         // Sit
         if (event.hand == EquipmentSlot.HAND && event.action == Action.RIGHT_CLICK_BLOCK && item.type == Material.AIR) {
-            val customBlock = ItemFrameCustomBlock.fromBlock(
+            val customBlock = EntityCustomBlock.fromBlock(
                 block.getRelative(
                     event.blockFace
                 )
@@ -187,10 +184,8 @@ object BlockListener : Listener {
                 val sitHeight = BlockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
                 val sitRotate = BlockManager.blockTemplates[customBlock.key]?.sitRotate
 
-                val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(customBlock.itemFrame.facing.direction)
-                val seatLocation = customBlock.itemFrame.location.block.location.apply {
-                    rotation = customBlock.itemFrame.rotation
-                }.add(0.0, -1.0, 0.0)
+                val offset = Vector(0.0, sitHeight, 0.0).rotateAroundY(customBlock.entity.location.pitch.toDouble())
+                val seatLocation = customBlock.entity.location.add(0.0, -1.0, 0.0)
 
                 GSitAPI.createSeat(
                     seatLocation.block,
@@ -289,12 +284,12 @@ object BlockListener : Listener {
         }
 
         val itemFrame = event.rightClicked as? ItemFrame ?: return
-        val customBlock = ItemFrameCustomBlock.fromItemFrame(itemFrame) ?: return
+        val customBlock = EntityCustomBlock.fromEntity(itemFrame) ?: return
 
         // Sit
         val sitHeight = BlockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
 
-        val offset = Vector(sitHeight, sitHeight, sitHeight).multiply(itemFrame.facing.direction)
+        val offset = Vector(0.0, sitHeight, 0.0).multiply(itemFrame.facing.direction)
         val seatLocation = itemFrame.location.block.location.apply {
             rotation = itemFrame.rotation
         }.add(0.0, -1.0, 0.0)
@@ -317,7 +312,7 @@ object BlockListener : Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     fun onItemFrameBreak(event: HangingBreakEvent) {
         val itemFrame = event.entity as? ItemFrame ?: return
-        val customBlock = ItemFrameCustomBlock.fromItemFrame(itemFrame) ?: return
+        val customBlock = EntityCustomBlock.fromEntity(itemFrame) ?: return
 
         customBlock.breakNaturally(null, true)
 
