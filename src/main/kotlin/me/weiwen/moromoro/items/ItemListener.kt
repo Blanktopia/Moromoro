@@ -6,6 +6,8 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.actions.Trigger
+import me.weiwen.moromoro.actions.condition.InputKey
+import me.weiwen.moromoro.actions.condition.lastPressed
 import me.weiwen.moromoro.equip.EquippedItemsManager
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
@@ -623,33 +625,41 @@ object ItemListener : Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerKeyPress(event: PlayerInputEvent) {
-        if (event.input.isForward) {
-            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_FORWARD)
-            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_FORWARD)
+        val player = event.player
+        if (event.input.isForward && !player.currentInput.isForward) {
+            EquippedItemsManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_FORWARD)
+            TrinketManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_FORWARD)
+            lastPressed.getOrPut(player.uniqueId) { mutableMapOf() }.put(InputKey.FORWARD, System.currentTimeMillis())
         }
-        if (event.input.isBackward) {
-            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_BACKWARD)
-            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_BACKWARD)
+        if (event.input.isBackward && !player.currentInput.isBackward) {
+            EquippedItemsManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_BACKWARD)
+            TrinketManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_BACKWARD)
+            lastPressed.getOrPut(player.uniqueId) { mutableMapOf() }.put(InputKey.BACKWARD, System.currentTimeMillis())
         }
-        if (event.input.isLeft) {
-            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_LEFT)
-            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_LEFT)
+        if (event.input.isLeft && !player.currentInput.isLeft) {
+            EquippedItemsManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_LEFT)
+            TrinketManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_LEFT)
+            lastPressed.getOrPut(player.uniqueId) { mutableMapOf() }.put(InputKey.LEFT, System.currentTimeMillis())
         }
-        if (event.input.isRight) {
-            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_RIGHT)
-            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_RIGHT)
+        if (event.input.isRight && !player.currentInput.isRight) {
+            EquippedItemsManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_RIGHT)
+            TrinketManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_RIGHT)
+            lastPressed.getOrPut(player.uniqueId) { mutableMapOf() }.put(InputKey.RIGHT, System.currentTimeMillis())
         }
-        if (event.input.isJump) {
-            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_JUMP)
-            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_JUMP)
+        if (event.input.isJump && !player.currentInput.isJump) {
+            EquippedItemsManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_JUMP)
+            TrinketManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_JUMP)
+            lastPressed.getOrPut(player.uniqueId) { mutableMapOf() }.put(InputKey.JUMP, System.currentTimeMillis())
         }
-        if (event.input.isSneak) {
-            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_SNEAK)
-            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_SNEAK)
+        if (event.input.isSneak && !player.currentInput.isSneak) {
+            EquippedItemsManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_SNEAK)
+            TrinketManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_SNEAK)
+            lastPressed.getOrPut(player.uniqueId) { mutableMapOf() }.put(InputKey.SNEAK, System.currentTimeMillis())
         }
-        if (event.input.isSprint) {
-            EquippedItemsManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_SPRINT)
-            TrinketManager.runEquipTriggers(event, event.player, Trigger.KEY_DOWN_SPRINT)
+        if (event.input.isSprint && !player.currentInput.isSprint) {
+            EquippedItemsManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_SPRINT)
+            TrinketManager.runEquipTriggers(event, player, Trigger.KEY_DOWN_SPRINT)
+            lastPressed.getOrPut(player.uniqueId) { mutableMapOf() }.put(InputKey.SPRINT, System.currentTimeMillis())
         }
     }
 
