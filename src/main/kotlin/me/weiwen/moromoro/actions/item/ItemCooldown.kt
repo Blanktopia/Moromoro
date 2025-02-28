@@ -10,14 +10,14 @@ import me.weiwen.moromoro.actions.Context
 data class ItemCooldown(val ticks: Int = 0) : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
-        val material = ctx.item?.type ?: return false
+        val item = ctx.item ?: return false
 
-        if (player.hasCooldown(material)) {
+        if (player.hasCooldown(item)) {
             return false
         }
 
         if (ticks > 0) {
-            player.setCooldown(material, ticks)
+            player.setCooldown(item, ticks)
         }
 
         return true

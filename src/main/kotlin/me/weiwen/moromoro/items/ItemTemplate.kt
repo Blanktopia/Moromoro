@@ -10,6 +10,7 @@ import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
 import io.papermc.paper.datacomponent.item.ItemAttributeModifiers
 import io.papermc.paper.datacomponent.item.Unbreakable
+import io.papermc.paper.datacomponent.item.UseCooldown
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -23,6 +24,7 @@ import me.weiwen.moromoro.serializers.*
 import me.weiwen.moromoro.types.AttributeModifier
 import me.weiwen.moromoro.types.CustomEquipmentSlot
 import me.weiwen.moromoro.types.modifier
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Color
 import org.bukkit.NamespacedKey
@@ -61,6 +63,8 @@ data class ItemTemplate(
     val enchantmentGlint: Boolean? = null,
     val attributes: List<AttributeModifier> = listOf(),
     val flags: List<ItemFlag> = listOf(),
+    @SerialName("cooldown-group")
+    val cooldownGroup: String? = null,
 
     val color: Color? = null,
     val dyeable: Boolean = false,
@@ -91,6 +95,7 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
     }
 
     enchantmentGlint?.let { glint -> item.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint) }
+    cooldownGroup?.let { group -> item.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(1f).cooldownGroup(Key.key(cooldownGroup)).build()) }
 
     val itemMeta = item.itemMeta
 
