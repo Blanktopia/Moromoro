@@ -20,23 +20,23 @@ data class AddVelocity(
     val rotatePitch: Boolean = false
 ) : Action {
     override fun perform(ctx: Context): Boolean {
-        val player = ctx.player ?: return false
+        val entity = ctx.entity ?: ctx.player ?: return false
 
         val vec = Vector(x, y, z)
 
         if (rotateYaw) {
-            vec.rotateAroundY(-player.location.yaw.toDouble() * PI / 180)
+            vec.rotateAroundY(-entity.location.yaw.toDouble() * PI / 180)
         }
         if (rotatePitch) {
-            vec.rotateAroundAxis(player.location.direction.crossProduct(Vector(0, 1, 0)), -player.location.pitch.toDouble() * PI / 180)
+            vec.rotateAroundAxis(entity.location.direction.crossProduct(Vector(0, 1, 0)), -entity.location.pitch.toDouble() * PI / 180)
         }
 
         if (max != null) {
-            if (player.velocity.lengthSquared() <= max * max) {
-                player.velocity = player.velocity.add(vec).normalize().multiply(max)
+            if (entity.velocity.lengthSquared() <= max * max) {
+                entity.velocity = entity.velocity.add(vec).normalize().multiply(max)
             }
         } else {
-            player.velocity = player.velocity.add(vec)
+            entity.velocity = entity.velocity.add(vec)
         }
 
         return true
