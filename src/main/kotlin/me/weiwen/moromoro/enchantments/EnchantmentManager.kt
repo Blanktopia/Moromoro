@@ -25,6 +25,7 @@ import me.weiwen.moromoro.actions.actionModule
 import me.weiwen.moromoro.serializers.component
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
+import org.bukkit.Registry
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemType
 import java.io.File
@@ -139,7 +140,9 @@ object EnchantmentManager: Manager {
                 enchantments.addAll(tag)
             } else {
                 val typedKey = TypedKey.create(RegistryKey.ENCHANTMENT, Key.key(key))
-                enchantments.add(typedKey)
+                if (Registry.ENCHANTMENT.get(typedKey) != null) {
+                    enchantments.add(typedKey)
+                }
             }
         }
         return enchantments
