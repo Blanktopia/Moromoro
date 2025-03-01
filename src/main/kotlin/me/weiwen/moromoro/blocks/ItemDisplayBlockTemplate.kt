@@ -11,13 +11,15 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.BlockTrigger
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.blocks.autotile.AutoTile
+import me.weiwen.moromoro.blocks.autotile.Sides
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.playSoundAt
-import me.weiwen.moromoro.extensions.rotation
+import me.weiwen.moromoro.items.ItemManager
+import me.weiwen.moromoro.items.item
 import me.weiwen.moromoro.serializers.ItemStackSerializer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
-import org.bukkit.Rotation
 import org.bukkit.SoundCategory
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.EntityType
@@ -49,6 +51,9 @@ class ItemDisplayBlockTemplate(
 
     override val triggers: Map<BlockTrigger, List<Action>> = mapOf(),
 
+    @SerialName("auto-tile")
+    val autoTile: AutoTile? = null,
+
     val pitch: Float = 0f,
     val yaw: Float = 0f,
 
@@ -76,12 +81,6 @@ class ItemDisplayBlockTemplate(
         val location = block.getRelative(blockFace).location
         val world = location.world ?: return false
 
-        val rotation = if (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN) {
-            player.location?.clone()?.apply { yaw += 180 }?.rotation ?: Rotation.NONE
-        } else {
-            Rotation.NONE
-        }
-
         // Try to place item display
         val itemDisplay = try {
             world.spawnEntity(location.add(0.5, 0.5, 0.5).let {
@@ -100,7 +99,6 @@ class ItemDisplayBlockTemplate(
                     it.pitch = 90f
                 }
                 it.pitch += pitch
-                it.yaw += yaw
                 it
             }, EntityType.ITEM_DISPLAY) as ItemDisplay
         } catch (e: IllegalArgumentException) {
@@ -114,8 +112,15 @@ class ItemDisplayBlockTemplate(
             )
         }
 
-        // Move item into item frame
-        itemDisplay.setItemStack(item.clone())
+        // Move item into item display
+        val sides = Sides(key, block.getRelative(blockFace), player.facing)
+        val (renderKey, rotation) = autoTile?.autotile(sides) ?: Pair(key, 0f)
+        val renderTemplate = ItemManager.templates[renderKey] ?: return false
+        val renderYaw = (renderTemplate.block as? ItemDisplayBlockTemplate)?.yaw ?: 0f
+        val renderItem = renderTemplate.item(key)
+        val yaw = itemDisplay.yaw
+        itemDisplay.setRotation(yaw + rotation + renderYaw, itemDisplay.pitch)
+        itemDisplay.setItemStack(renderItem ?: item.clone())
 
         if (collision) {
             location.block.type = Material.BARRIER
@@ -128,6 +133,22 @@ class ItemDisplayBlockTemplate(
                 it?.volume ?: 1f,
                 it?.pitch ?: 1f
             )
+        }
+
+        autoTile?.let { autoTile ->
+            autoTile.neighbours(sides).forEach {
+                if (it.key != key) return@forEach
+                if (it !is EntityCustomBlock) return@forEach
+                val entity = it.entity as? ItemDisplay ?: return@forEach
+//                if (entity.facing != itemDisplay.facing) return@forEach
+                val sides = Sides(key, it.block, player.facing)
+                val (renderKey, rotation) = autoTile.autotile(sides) ?: return@forEach
+                val renderTemplate = ItemManager.templates[renderKey] ?: return@forEach
+                val renderYaw = (renderTemplate.block as? ItemDisplayBlockTemplate)?.yaw ?: 0f
+                val renderItem = renderTemplate.item(key)
+                entity.setRotation(yaw + rotation + renderYaw, entity.pitch)
+                entity.setItemStack(renderItem)
+            }
         }
 
         return true

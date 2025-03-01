@@ -10,6 +10,7 @@ import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.BlockTrigger
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.blocks.autotile.AutoTile
 import me.weiwen.moromoro.serializers.ItemStackSerializer
 import org.bukkit.inventory.ItemStack
 

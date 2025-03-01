@@ -21,6 +21,7 @@ import me.weiwen.moromoro.packets.blockFace
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.block.BlockFace
+import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.ItemFrame
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
@@ -234,8 +235,8 @@ object BlockListener : Listener {
                 val blockTemplate = BlockManager.blockTemplates[customBlock.key] ?: return
                 val sitHeight = blockTemplate.sitHeight ?: return
                 val sitRotate = blockTemplate.sitRotate
-                val yaw = if (blockTemplate is ItemDisplayBlockTemplate) {
-                    blockTemplate.yaw
+                val yaw = if (blockTemplate is ItemDisplayBlockTemplate && customBlock.entity is ItemDisplay) {
+                    -blockTemplate.yaw
                 } else {
                     0f
                 }
@@ -363,7 +364,11 @@ object BlockListener : Listener {
         val blockTemplate = BlockManager.blockTemplates[customBlock.key] ?: return
         val sitHeight = blockTemplate.sitHeight ?: return
         val sitRotate = blockTemplate.sitRotate
-        val yaw = if (blockTemplate is ItemDisplayBlockTemplate) { blockTemplate.yaw } else { 0f }
+        val yaw = if (blockTemplate is ItemDisplayBlockTemplate && customBlock.entity is ItemDisplay) {
+            -blockTemplate.yaw
+        } else {
+            0f
+        }
 
         val offset = Vector(0.0, sitHeight, 0.0).rotateAroundY(customBlock.entity.location.pitch.toDouble())
         val seatLocation = customBlock.entity.location.add(0.0, -1.0, 0.0)
