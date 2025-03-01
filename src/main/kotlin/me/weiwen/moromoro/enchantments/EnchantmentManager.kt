@@ -90,6 +90,14 @@ object EnchantmentManager: Manager {
             )
 
             event.registrar().addToTag(
+                EnchantmentTagKeys.IN_ENCHANTING_TABLE,
+                templates.entries.stream()
+                    .filter { it.value.inEnchantingTable }
+                    .map { TagEntry.valueEntry(TypedKey.create(RegistryKey.ENCHANTMENT, Key.key(config.namespace, it.key))) }
+                    .collect(Collectors.toSet())
+            )
+
+            event.registrar().addToTag(
                EnchantmentTagKeys.TREASURE,
                templates.entries.stream()
                    .filter { it.value.treasure }
@@ -106,9 +114,41 @@ object EnchantmentManager: Manager {
             )
 
             event.registrar().addToTag(
+                EnchantmentTagKeys.ON_MOB_SPAWN_EQUIPMENT,
+                templates.entries.stream()
+                    .filter { it.value.onMobSpawnEquipment }
+                    .map { TagEntry.valueEntry(TypedKey.create(RegistryKey.ENCHANTMENT, Key.key(config.namespace, it.key))) }
+                    .collect(Collectors.toSet())
+            )
+
+            event.registrar().addToTag(
+                EnchantmentTagKeys.ON_RANDOM_LOOT,
+                templates.entries.stream()
+                    .filter { it.value.onRandomLoot }
+                    .map { TagEntry.valueEntry(TypedKey.create(RegistryKey.ENCHANTMENT, Key.key(config.namespace, it.key))) }
+                    .collect(Collectors.toSet())
+            )
+
+            event.registrar().addToTag(
+                EnchantmentTagKeys.ON_TRADED_EQUIPMENT,
+                templates.entries.stream()
+                    .filter { it.value.onTradedEquipment }
+                    .map { TagEntry.valueEntry(TypedKey.create(RegistryKey.ENCHANTMENT, Key.key(config.namespace, it.key))) }
+                    .collect(Collectors.toSet())
+            )
+
+            event.registrar().addToTag(
                 EnchantmentTagKeys.SMELTS_LOOT,
                 templates.entries.stream()
                     .filter { it.value.smeltsLoot }
+                    .map { TagEntry.valueEntry(TypedKey.create(RegistryKey.ENCHANTMENT, Key.key(config.namespace, it.key))) }
+                    .collect(Collectors.toSet())
+            )
+
+            event.registrar().addToTag(
+                EnchantmentTagKeys.TRADEABLE,
+                templates.entries.stream()
+                    .filter { it.value.tradeable }
                     .map { TagEntry.valueEntry(TypedKey.create(RegistryKey.ENCHANTMENT, Key.key(config.namespace, it.key))) }
                     .collect(Collectors.toSet())
             )

@@ -39,11 +39,16 @@ data class EnchantmentTemplate(
     val slots: EquipmentSlotGroup = EquipmentSlotGroup.ANY,
 
     val curse: Boolean = false,
+    @SerialName("in-enchanting-table")
+    val inEnchantingTable: Boolean = false,
     val treasure: Boolean = false,
+    @SerialName("on-mob-spawn-equipment")
+    val onMobSpawnEquipment: Boolean = false,
+    @SerialName("on-random-loot")
+    val onRandomLoot: Boolean = false,
+    @SerialName("on-traded-equipment")
+    val onTradedEquipment: Boolean = false,
     @SerialName("smelts-loot")
     val smeltsLoot: Boolean = false,
+    val tradeable: Boolean = false,
 )
-
-fun EnchantmentTemplate.enchantment() {
-
-}
