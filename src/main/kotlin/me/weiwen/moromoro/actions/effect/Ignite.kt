@@ -9,7 +9,7 @@ import me.weiwen.moromoro.actions.Context
 @SerialName("ignite")
 data class Ignite(val duration: Int = 80) : Action {
     override fun perform(ctx: Context): Boolean {
-        val entity = ctx.entity ?: return false
+        val entity = ctx.entity ?: ctx.player ?: return false
         entity.fireTicks = duration
 
         return true
