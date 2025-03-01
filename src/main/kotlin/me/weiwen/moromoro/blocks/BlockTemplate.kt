@@ -229,8 +229,6 @@ class ItemBlockTemplate(
 class ItemDisplayBlockTemplate(
     private val collision: Boolean = false,
 
-    val wall: Boolean = false,
-
     @SerialName("sit-height")
     override val sitHeight: Double? = null,
     @SerialName("sit-rotate")
@@ -245,6 +243,10 @@ class ItemDisplayBlockTemplate(
     override val tools: List<ItemStack>? = null,
 
     override val sounds: SoundGroup = SoundGroup(),
+
+    val pitch: Float = 0f,
+    val yaw: Float = 0f,
+
 ) : BlockTemplate() {
     override fun place(ctx: Context): Boolean {
         val player = ctx.player ?: return false
@@ -277,24 +279,24 @@ class ItemDisplayBlockTemplate(
 
         // Try to place item display
         val itemDisplay = try {
-            world.spawnEntity(location.add(0.5, 0.5, 0.5).apply {
+            world.spawnEntity(location.add(0.5, 0.5, 0.5).let {
                 if (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN) {
                     val preciseYaw = player.location.yaw.plus(180)
-                    yaw = if (player.isSneaking) {
+                    it.yaw = if (player.isSneaking) {
                         preciseYaw
                     } else {
                         45f * (preciseYaw / 45).roundToInt()
                     }
                     if (blockFace == BlockFace.DOWN) {
-                        pitch = 180f
+                        it.pitch = 180f
                     }
                 } else {
-                    direction = blockFace.direction
-                    pitch = 90f
+                    it.direction = blockFace.direction
+                    it.pitch = 90f
                 }
-                if (wall) {
-                    pitch -= 90f
-                }
+                it.pitch += pitch
+                it.yaw += yaw
+                it
             }, EntityType.ITEM_DISPLAY) as ItemDisplay
         } catch (e: IllegalArgumentException) {
             return false

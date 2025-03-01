@@ -13,7 +13,6 @@ import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
-import me.weiwen.moromoro.extensions.rotation
 import me.weiwen.moromoro.managers.BlockManager
 import me.weiwen.moromoro.managers.customBlockState
 import me.weiwen.moromoro.packets.WrapperPlayClientBlockDig
@@ -181,8 +180,10 @@ object BlockListener : Listener {
             )
 
             if (customBlock != null) {
-                val sitHeight = BlockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
-                val sitRotate = BlockManager.blockTemplates[customBlock.key]?.sitRotate
+                val blockTemplate = BlockManager.blockTemplates[customBlock.key] ?: return
+                val sitHeight = blockTemplate.sitHeight ?: return
+                val sitRotate = blockTemplate.sitRotate
+                val yaw = if (blockTemplate is ItemDisplayBlockTemplate) { blockTemplate.yaw } else { 0f }
 
                 val offset = Vector(0.0, sitHeight, 0.0).rotateAroundY(customBlock.entity.location.pitch.toDouble())
                 val seatLocation = customBlock.entity.location.add(0.0, -1.0, 0.0)
@@ -194,7 +195,7 @@ object BlockListener : Listener {
                     offset.x,
                     offset.y,
                     offset.z,
-                    seatLocation.yaw,
+                    seatLocation.yaw + yaw,
                     true
                 )
 
@@ -287,21 +288,22 @@ object BlockListener : Listener {
         val customBlock = EntityCustomBlock.fromEntity(itemFrame) ?: return
 
         // Sit
-        val sitHeight = BlockManager.blockTemplates[customBlock.key]?.sitHeight ?: return
+        val blockTemplate = BlockManager.blockTemplates[customBlock.key] ?: return
+        val sitHeight = blockTemplate.sitHeight ?: return
+        val sitRotate = blockTemplate.sitRotate
+        val yaw = if (blockTemplate is ItemDisplayBlockTemplate) { blockTemplate.yaw } else { 0f }
 
-        val offset = Vector(0.0, sitHeight, 0.0).multiply(itemFrame.facing.direction)
-        val seatLocation = itemFrame.location.block.location.apply {
-            rotation = itemFrame.rotation
-        }.add(0.0, -1.0, 0.0)
+        val offset = Vector(0.0, sitHeight, 0.0).rotateAroundY(customBlock.entity.location.pitch.toDouble())
+        val seatLocation = customBlock.entity.location.add(0.0, -1.0, 0.0)
 
         GSitAPI.createSeat(
             seatLocation.block,
             event.player,
-            false,
+            sitRotate ?: false,
             offset.x,
             offset.y,
             offset.z,
-            seatLocation.yaw,
+            yaw,
             true
         )
 
