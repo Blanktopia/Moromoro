@@ -9,6 +9,7 @@ import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction
 import dev.geco.gsit.api.GSitAPI
 import io.papermc.paper.event.block.BlockBreakBlockEvent
 import me.weiwen.moromoro.Moromoro.Companion.plugin
+import me.weiwen.moromoro.actions.BlockTrigger
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.customItemKey
@@ -121,7 +122,21 @@ object BlockListener : Listener {
         val customBlock = MushroomCustomBlock.fromBlock(block)
         if (customBlock != null) {
             event.drops.clear()
-            customBlock.breakNaturally(null, true)
+            if (customBlock.breakNaturally(null, true)) {
+                val triggers = customBlock.template?.block?.triggers?.get(BlockTrigger.BLOCK_BREAK)
+                if (triggers != null) {
+                    val ctx = Context(
+                        event,
+                        null,
+                        null,
+                        null,
+                        customBlock.block,
+                        null,
+                        null,
+                    )
+                    triggers.forEach { it.perform(ctx) }
+                }
+            }
             return
         }
     }
@@ -134,10 +149,21 @@ object BlockListener : Listener {
         val customBlock = MushroomCustomBlock.fromBlock(block)
         if (customBlock != null) {
             event.isCancelled = true
-            customBlock.breakNaturally(
-                event.player.inventory.itemInMainHand,
-                event.player.gameMode != GameMode.CREATIVE
-            )
+            if (customBlock.breakNaturally(event.player.inventory.itemInMainHand, event.player.gameMode != GameMode.CREATIVE)) {
+                val triggers = customBlock.template?.block?.triggers?.get(BlockTrigger.BLOCK_BREAK)
+                if (triggers != null) {
+                    val ctx = Context(
+                        event,
+                        event.player,
+                        null,
+                        null,
+                        customBlock.block,
+                        null,
+                        null,
+                    )
+                    triggers.forEach { it.perform(ctx) }
+                }
+            }
             return
         }
     }
@@ -152,6 +178,19 @@ object BlockListener : Listener {
                 EntityCustomBlock.fromBlock(block.getRelative(event.blockFace)) ?: EntityCustomBlock.fromBlock(block)
             if (customBlock != null && event.player.canBuildAt(block.location)) {
                 if (customBlock.breakNaturally(event.player.inventory.itemInMainHand, true)) {
+                    val triggers = customBlock.template?.block?.triggers?.get(BlockTrigger.BLOCK_BREAK)
+                    if (triggers != null) {
+                        val ctx = Context(
+                            event,
+                            event.player,
+                            null,
+                            null,
+                            customBlock.block,
+                            null,
+                            null,
+                        )
+                        triggers.forEach { it.perform(ctx) }
+                    }
                     event.setUseItemInHand(Event.Result.DENY)
                     event.setUseInteractedBlock(Event.Result.DENY)
                     return
@@ -171,19 +210,35 @@ object BlockListener : Listener {
             else -> return
         }
 
-        // Sit
-        if (event.hand == EquipmentSlot.HAND && event.action == Action.RIGHT_CLICK_BLOCK && item.type == Material.AIR) {
-            val customBlock = EntityCustomBlock.fromBlock(
-                block.getRelative(
-                    event.blockFace
+        val customBlock = EntityCustomBlock.fromBlock(block.getRelative(event.blockFace)) ?: EntityCustomBlock.fromBlock(block)
+        if (!event.player.isSneaking && event.hand == EquipmentSlot.HAND && customBlock != null) {
+            // Triggers
+            val triggers = customBlock.template?.block?.triggers?.get(BlockTrigger.BLOCK_USE)
+             if (triggers != null) {
+                val ctx = Context(
+                    event,
+                    event.player,
+                    null,
+                    null,
+                    customBlock.block,
+                    null,
+                    null,
+                    customBlock,
                 )
-            )
+                triggers.forEach { it.perform(ctx) }
+                return
+            }
 
-            if (customBlock != null) {
+            // Sit
+            else if (event.hand == EquipmentSlot.HAND && event.action == Action.RIGHT_CLICK_BLOCK && item.type == Material.AIR) {
                 val blockTemplate = BlockManager.blockTemplates[customBlock.key] ?: return
                 val sitHeight = blockTemplate.sitHeight ?: return
                 val sitRotate = blockTemplate.sitRotate
-                val yaw = if (blockTemplate is ItemDisplayBlockTemplate) { blockTemplate.yaw } else { 0f }
+                val yaw = if (blockTemplate is ItemDisplayBlockTemplate) {
+                    blockTemplate.yaw
+                } else {
+                    0f
+                }
 
                 val offset = Vector(0.0, sitHeight, 0.0).rotateAroundY(customBlock.entity.location.pitch.toDouble())
                 val seatLocation = customBlock.entity.location.add(0.0, -1.0, 0.0)
@@ -255,6 +310,7 @@ object BlockListener : Listener {
 
 
             if (blockTemplate.place(ctx)) {
+                blockTemplate.triggers.get(BlockTrigger.BLOCK_PLACE)?.forEach { it.perform(ctx) }
                 if (event.player.gameMode != GameMode.CREATIVE) {
                     item.amount -= 1
                 }
@@ -286,6 +342,22 @@ object BlockListener : Listener {
 
         val itemFrame = event.rightClicked as? ItemFrame ?: return
         val customBlock = EntityCustomBlock.fromEntity(itemFrame) ?: return
+
+        // Triggers
+        val triggers = customBlock.template?.block?.triggers?.get(BlockTrigger.BLOCK_USE)
+        if (triggers != null) {
+            val ctx = Context(
+                event,
+                event.player,
+                null,
+                null,
+                customBlock.block,
+                null,
+                null,
+                customBlock,
+            )
+            triggers.forEach { it.perform(ctx) }
+        }
 
         // Sit
         val blockTemplate = BlockManager.blockTemplates[customBlock.key] ?: return

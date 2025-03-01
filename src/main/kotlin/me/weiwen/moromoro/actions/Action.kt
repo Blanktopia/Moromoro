@@ -8,6 +8,7 @@ import me.weiwen.moromoro.actions.clock.Delay
 import me.weiwen.moromoro.actions.clock.Repeat
 import me.weiwen.moromoro.actions.command.*
 import me.weiwen.moromoro.actions.condition.*
+import me.weiwen.moromoro.actions.customBlock.ToggleCustomBlock
 import me.weiwen.moromoro.actions.damage.DamageEntity
 import me.weiwen.moromoro.actions.damage.Immunity
 import me.weiwen.moromoro.actions.damage.Knockback
@@ -51,6 +52,7 @@ import me.weiwen.moromoro.actions.velocity.AddVelocity
 import me.weiwen.moromoro.actions.velocity.ClampVelocity
 import me.weiwen.moromoro.actions.velocity.MultiplyVelocity
 import me.weiwen.moromoro.actions.velocity.SetVelocity
+import me.weiwen.moromoro.blocks.CustomBlock
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Entity
@@ -67,6 +69,7 @@ class Context(
     var block: Block?,
     var blockFace: BlockFace?,
     var projectile: Projectile? = null,
+    var customBlock: CustomBlock? = null,
 ) {
     var isCancelled = false
     var removeItem = false
@@ -195,6 +198,7 @@ val actionModule = SerializersModule {
         subclass(StripBlock::class)
         subclass(SudoCommand::class)
         subclass(TillBlock::class)
+        subclass(ToggleCustomBlock::class)
         subclass(ToggleEnchantment::class)
         subclass(ToggleItemFrameVisibility::class)
         subclass(Undisguise::class)

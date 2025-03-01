@@ -1,3 +1,5 @@
+@file:JvmName("BlockTriggerKt")
+
 package me.weiwen.moromoro.actions
 
 import kotlinx.serialization.SerialName
@@ -162,7 +164,7 @@ enum class Trigger {
     @SerialName("key-down-sneak")
     KEY_DOWN_SNEAK,
     @SerialName("key-down-sprint")
-    KEY_DOWN_SPRINT
+    KEY_DOWN_SPRINT,
     ;
 }
 
