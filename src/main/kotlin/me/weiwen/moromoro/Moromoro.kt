@@ -99,7 +99,7 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
         manager.commandBuilder("pack", ArgumentDescription.of("Downloads the server resource pack")).let { builder ->
             manager.command(builder.senderType(Player::class.java).permission("moromoro.pack").handler { ctx ->
                 val player = ctx.sender as Player
-                ResourcePackManager.send(player)
+                ResourcePackManager.send(player, false)
             })
         }
 

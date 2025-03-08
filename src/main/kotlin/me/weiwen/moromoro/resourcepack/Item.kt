@@ -1,109 +1,110 @@
-package me.weiwen.moromoro.resourcepack
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToJsonElement
 import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.items.ItemTemplate
 import net.kyori.adventure.key.Key
-import org.bukkit.Registry
-import org.bukkit.inventory.ItemType
 import java.io.File
 
 @Serializable
-data class ItemModel(
-    val item: String,
-    val predicate: Predicate,
-    val model: String
+data class ItemModelFile(
+    val model: ItemModel
 )
 
 @Serializable
-data class Model(
+sealed interface ItemModel {}
+
+@Serializable
+@SerialName("minecraft:condition")
+data class ConditionItemModel(
+    val property: String,
+    val on_false: ItemModel,
+    val on_true: ItemModel,
+) : ItemModel
+
+@Serializable
+@SerialName("minecraft:model")
+data class BasicItemModel(
     val model: String,
-    val type: String = "model",
+    val tints: JsonArray? = null,
+) : ItemModel
+
+@Serializable
+@SerialName("minecraft:range_dispatch")
+data class RangeDispatchItemModel(
+    val property: String,
+    val entries: MutableList<RangeDispatchItemModelEntry>,
+    val scale: Double? = null,
+    var fallback: ItemModel? = null,
+) : ItemModel
+
+@Serializable
+data class RangeDispatchItemModelEntry(
+    val threshold: Double,
+    val model: ItemModel,
 )
 
 @Serializable
-data class RangeDispatch(
-    val entries: List<RangeDispatchEntry>,
-    val fallback: Model,
-    val type: String = "range_dispatch",
-    val property: String = "custom_model_data",
-)
+@SerialName("minecraft:select")
+data class SelectItemModel(
+    val property: String,
+    val cases: MutableList<SelectItemModelSwitchCase>,
+    var fallback: ItemModel? = null,
+) : ItemModel
 
 @Serializable
-data class RangeDispatchEntry(
-    val threshold: Int,
-    val model: Model,
-)
-
-@Serializable
-data class Select(
-    val cases: List<SelectCase>,
-    val fallback: Model,
-    val type: String = "select",
-    val property: String = "custom_model_data",
-)
-
-@Serializable
-data class SelectCase(
-    @SerialName("when") val case: String,
-    val model: Model,
-)
-
-@Serializable
-data class ItemModelOverride(
-    val model: String,
-    val predicate: Predicate,
-)
-
-@Serializable
-data class Predicate(
-    val custom_model_data: Int,
-    val pulling: Int? = null,
-    val pull: Double? = null,
-    val charged: Int? = null,
-    val firework: Int? = null,
-    val blocking: Int? = null,
+data class SelectItemModelSwitchCase(
+    val `when`: String,
+    val model: ItemModel,
 )
 
 fun generateItems(templates: Map<String, ItemTemplate>) {
     val root = File(plugin.dataFolder, "pack/assets/minecraft")
 
-    val rangeDispatches: MutableMap<ItemType, MutableList<RangeDispatchEntry>> = mutableMapOf()
+    val itemModels: MutableMap<Key, MutableMap<Double, ItemModel>> = mutableMapOf()
 
     for ((_, item) in templates) {
-        for (model in item.models) {
-            val item = Registry.ITEM.get(Key.key(model.item)) ?: continue
-            rangeDispatches.getOrPut(item) { mutableListOf() }.add(RangeDispatchEntry(model.predicate.custom_model_data, Model(model.model)))
-        }
-
-        val model = item.model ?: continue
+        val model = item.customModel ?: item.model?.let { BasicItemModel(it) } ?: continue
         val customModelData = item.customModelData ?: continue
-        rangeDispatches.getOrPut(item.item) { mutableListOf() }.add(RangeDispatchEntry(customModelData, Model(model)))
+        itemModels.getOrPut(item.item) { mutableMapOf() }[customModelData] = model
     }
 
-    for ((item, entries) in rangeDispatches) {
-        val path = "items/${item.key.value()}.json"
-        val json = defaultItem(entries, "item/${item.key.value()}")
+    for ((item, customModels) in itemModels) {
+        val path = "items/${item.value()}.json"
+        val model = ItemModelFile(mergeModels(customModels, defaultModel(item)))
+        val json = Json.encodeToJsonElement(model)
         val file = File(root, path)
         file.parentFile.mkdirs()
-        file.writeText(JsonObject(json).toString())
+        file.writeText(json.toString())
     }
 }
 
-private val json = Json { encodeDefaults = true }
+fun defaultModel(item: Key): ItemModel {
+    if (item.namespace() == "minecraft") {
+        val file = plugin.getResource("default/items/${item.value()}.json")
+        if (file != null) {
+            return Json.decodeFromStream<ItemModelFile>(file).model
+        } else {
+            plugin.logger.info("Failed to load default model: ${item.value()}")
+        }
+    }
+    return BasicItemModel("${item.namespace()}:item/${item.value()}")
+}
 
-fun defaultItem(entries: List<RangeDispatchEntry>, fallbackModel: String): JsonObject {
-    return JsonObject(
-        mapOf(
-            Pair(
-                "model",
-                // json.encodeToJsonElement(Select(cases, Model(fallbackModel)))
-                json.encodeToJsonElement(RangeDispatch(entries, Model(fallbackModel)))
-            )
-        )
+fun mergeModels(customModels: Map<Double, ItemModel>, fallback: ItemModel): ItemModel {
+    val entries = customModels.entries
+        .sortedBy { it.key }
+        .map { RangeDispatchItemModelEntry(it.key, it.value) }
+        .toMutableList()
+
+    return RangeDispatchItemModel(
+        "custom_model_data",
+        entries,
+        null,
+        fallback,
     )
 }

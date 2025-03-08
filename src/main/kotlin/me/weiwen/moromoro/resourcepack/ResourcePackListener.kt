@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerResourcePackStatusEvent
 object ResourcePackListener : Listener {
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        ResourcePackManager.send(event.player)
+        ResourcePackManager.send(event.player, false)
     }
 
     @EventHandler

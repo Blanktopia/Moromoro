@@ -1,5 +1,6 @@
 package me.weiwen.moromoro.resourcepack
 
+import generateItems
 import me.weiwen.moromoro.Manager
 import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.items.ItemManager
@@ -12,13 +13,13 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 object ResourcePackManager : Manager {
-    fun send(player: Player) {
+    fun send(player: Player, force: Boolean = false) {
         val url = plugin.config.resourcePackUrl ?: return
         val hash = plugin.config.resourcePackHash
-        if (hash == null || hash.isEmpty()) {
+        if (hash.isNullOrEmpty()) {
             player.setResourcePack(url)
         } else {
-            player.setResourcePack(url, hash)
+            player.setResourcePack(url, hash, force)
         }
     }
 
