@@ -73,8 +73,19 @@ fun generateItems(templates: Map<String, ItemTemplate>) {
         itemModels.getOrPut(item.item) { mutableMapOf() }[customModelData] = model
     }
 
+    val overlays = File(plugin.dataFolder, "pack-overlays").listFiles { file, s -> file.isDirectory && !s.startsWith("_") }
+
     for ((item, customModels) in itemModels) {
         val path = "items/${item.value()}.json"
+        for (overlay in overlays) {
+            val overlayItemFile = overlay.resolve("assets/minecraft/${path}")
+            if (overlayItemFile.exists() && overlayItemFile.isFile) {
+                val overlayItem = Json.decodeFromStream<ItemModelFile>(overlayItemFile.inputStream())
+                if (overlayItem.model is RangeDispatchItemModel && (overlayItem.model.property == "minecraft:custom_model_data" || overlayItem.model.property == "custom_model_data")) {
+                    customModels.putAll(overlayItem.model.entries.map { it.threshold to it.model })
+                }
+            }
+        }
         val model = ItemModelFile(mergeModels(customModels, defaultModel(item)))
         val json = Json.encodeToJsonElement(model)
         val file = File(root, path)
