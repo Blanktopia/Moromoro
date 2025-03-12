@@ -50,7 +50,7 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
 
             val lore = itemMeta.lore()
             if (lore != null) {
-                lore[1] = message
+                lore[0] = message
                 itemMeta.lore(lore)
             }
 
