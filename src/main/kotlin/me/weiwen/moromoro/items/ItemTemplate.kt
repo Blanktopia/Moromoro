@@ -34,6 +34,7 @@ import org.bukkit.NamespacedKey
 import org.bukkit.Registry
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
+import org.bukkit.inventory.ItemRarity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.persistence.PersistentDataType
@@ -72,6 +73,7 @@ data class ItemTemplate(
     @SerialName("cooldown-group")
     val cooldownGroup: Key? = null,
     val tool: ToolTemplate? = null,
+    val rarity: String? = null,
 
     val color: Color? = null,
     val dyeable: Boolean = false,
@@ -109,6 +111,7 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
     enchantmentGlint?.let { glint -> item.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint) }
     cooldownGroup?.let { group -> item.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(1f).cooldownGroup(cooldownGroup).build()) }
     tool?.let { tool -> item.setData(DataComponentTypes.TOOL, tool.dataComponent()) }
+    rarity?.let { rarity -> item.setData(DataComponentTypes.RARITY, ItemRarity.valueOf(rarity))}
 
     val itemMeta = item.itemMeta
 
