@@ -16,6 +16,12 @@ data class ItemModelFile(
 )
 
 @Serializable
+data class Model(
+    val parent: String,
+    val textures: Map<String, String>
+)
+
+@Serializable
 sealed interface ItemModel {}
 
 @Serializable
@@ -61,6 +67,22 @@ data class SelectItemModelSwitchCase(
     val `when`: String,
     val model: ItemModel,
 )
+
+fun generateItemModels(templates: Map<String, ItemTemplate>) {
+    val root = File(plugin.dataFolder, "pack/assets/")
+
+    for ((_, item) in templates) {
+        if (item.itemModel == null) continue
+        val key = item.itemModel
+        val path = "${key.namespace()}/items/${key.value()}.json"
+        if (root.resolve(path).exists()) continue
+        val model = ItemModelFile(BasicItemModel(key.asMinimalString()))
+        val json = Json.encodeToJsonElement(model)
+        val file = File(root, path)
+        file.parentFile.mkdirs()
+        file.writeText(json.toString())
+    }
+}
 
 fun generateItems(templates: Map<String, ItemTemplate>) {
     val root = File(plugin.dataFolder, "pack/assets/minecraft")

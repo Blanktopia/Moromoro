@@ -50,6 +50,8 @@ data class ItemTemplate(
     val lore: List<FormattedString>? = null,
 
     val item: Key,
+    @SerialName("item-model")
+    val itemModel: Key? = null,
     @SerialName("custom-model-data")
     val customModelData: Double? = null,
     val head: String? = null,
@@ -96,7 +98,7 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
     if (unbreakable) item.setData(DataComponentTypes.UNBREAKABLE, Unbreakable.unbreakable(true))
 
     customModelData?.let { data -> item.setData(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addFloat(data.toFloat()).build()) }
-    // model?.let { model -> item.setData(DataComponentTypes.ITEM_MODEL, Key.key(model)) }
+    itemModel?.let { model -> item.setData(DataComponentTypes.ITEM_MODEL, model) }
 
     if (attributes.isNotEmpty()) {
         val attributeModifiers = ItemAttributeModifiers.itemAttributes()

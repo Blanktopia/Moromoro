@@ -1,5 +1,6 @@
 package me.weiwen.moromoro.resourcepack
 
+import generateItemModels
 import generateItems
 import me.weiwen.moromoro.Manager
 import me.weiwen.moromoro.Moromoro.Companion.plugin
@@ -24,6 +25,7 @@ object ResourcePackManager : Manager {
     }
 
     fun generate() {
+        generateItemModels(ItemManager.templates)
         generateItems(ItemManager.templates)
         generateMushroomBlocks(BlockManager.blockTemplates.values)
         bundleResourcePack()
