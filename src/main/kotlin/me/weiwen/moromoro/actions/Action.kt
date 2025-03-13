@@ -203,6 +203,7 @@ val actionModule = SerializersModule {
         subclass(ToggleItemFrameVisibility::class)
         subclass(Undisguise::class)
         subclass(UsePlayerFacing::class)
+        subclass(VoidBundle::class)
         subclass(WaterBucket::class)
     }
 }

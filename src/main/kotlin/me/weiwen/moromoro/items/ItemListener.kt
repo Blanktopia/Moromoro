@@ -484,62 +484,95 @@ object ItemListener : Listener {
     fun onInventoryClick(event: InventoryClickEvent) {
         val player = event.whoClicked as? Player ?: return
         val inventory = event.clickedInventory ?: return
-        var item = inventory.getItem(event.slot) ?: return
 
-        ItemManager.migrateItem(item)?.let {
-            inventory.setItem(event.slot, it)
-            return
-        }
+        var item: ItemStack
+        var triggers: Map<Trigger, List<me.weiwen.moromoro.actions.Action>>
+        var trigger: Trigger
 
-        val key = item.customItemKey ?: return
-
-        // Equip trinket
-        if (event.click == ClickType.RIGHT || event.click == ClickType.SHIFT_RIGHT) {
+        if (event.currentItem?.customItemKey != null) {
+            item = event.currentItem!!
+            ItemManager.migrateItem(item)?.let {
+                inventory.setItem(event.slot, it)
+                return
+            }
             val key = item.customItemKey
-            val template = ItemManager.templates[key]
-            if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
-                if (TrinketManager.equipTrinket(player, item)) {
-                    event.currentItem = null
-                }
-                plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
-                    TrinketManager.openTrinketInventory(player)
-                }, 1)
 
-                event.isCancelled
-            }
-        }
+            // Equip trinket
+            if (event.click == ClickType.RIGHT || event.click == ClickType.SHIFT_RIGHT) {
+                val template = ItemManager.templates[key]
+                if (template != null && template.slots.contains(CustomEquipmentSlot.TRINKET)) {
+                    if (TrinketManager.equipTrinket(player, item)) {
+                        event.currentItem = null
+                    }
+                    plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
+                        TrinketManager.openTrinketInventory(player)
+                    }, 1)
 
-        val triggers = ItemManager.triggers[key] ?: return
-
-        val trigger = when (event.click) {
-            ClickType.RIGHT -> Trigger.RIGHT_CLICK_INVENTORY
-            ClickType.LEFT -> Trigger.LEFT_CLICK_INVENTORY
-            ClickType.MIDDLE -> Trigger.MIDDLE_CLICK_INVENTORY
-            ClickType.SHIFT_RIGHT -> Trigger.SHIFT_RIGHT_CLICK_INVENTORY
-            ClickType.SHIFT_LEFT -> Trigger.SHIFT_LEFT_CLICK_INVENTORY
-            ClickType.DOUBLE_CLICK -> Trigger.DOUBLE_CLICK_INVENTORY
-            ClickType.DROP -> Trigger.DROP_INVENTORY
-            ClickType.CONTROL_DROP -> Trigger.CONTROL_DROP_INVENTORY
-            ClickType.WINDOW_BORDER_LEFT -> Trigger.LEFT_BORDER_INVENTORY
-            ClickType.WINDOW_BORDER_RIGHT -> Trigger.RIGHT_BORDER_INVENTORY
-            ClickType.NUMBER_KEY -> when (event.hotbarButton) {
-                0 -> Trigger.NUMBER_1_INVENTORY
-                1 -> Trigger.NUMBER_2_INVENTORY
-                2 -> Trigger.NUMBER_3_INVENTORY
-                3 -> Trigger.NUMBER_4_INVENTORY
-                4 -> Trigger.NUMBER_5_INVENTORY
-                5 -> Trigger.NUMBER_6_INVENTORY
-                6 -> Trigger.NUMBER_7_INVENTORY
-                7 -> Trigger.NUMBER_8_INVENTORY
-                8 -> Trigger.NUMBER_9_INVENTORY
-                else -> {
-                    plugin.logger.log(Level.WARNING, "Unexpected hotbar button: ${event.hotbarButton}")
-                    Trigger.NUMBER_1_INVENTORY
+                    event.isCancelled
                 }
             }
-            ClickType.CREATIVE -> Trigger.CREATIVE_INVENTORY
-            ClickType.SWAP_OFFHAND -> Trigger.SWAP_OFFHAND_INVENTORY
-            ClickType.UNKNOWN -> return
+
+            triggers = ItemManager.triggers[key] ?: return
+            if (event.cursor.isEmpty) {
+                trigger = when (event.click) {
+                    ClickType.RIGHT -> Trigger.RIGHT_CLICK_INVENTORY
+                    ClickType.LEFT -> Trigger.LEFT_CLICK_INVENTORY
+                    ClickType.MIDDLE -> Trigger.MIDDLE_CLICK_INVENTORY
+                    ClickType.SHIFT_RIGHT -> Trigger.SHIFT_RIGHT_CLICK_INVENTORY
+                    ClickType.SHIFT_LEFT -> Trigger.SHIFT_LEFT_CLICK_INVENTORY
+                    ClickType.DOUBLE_CLICK -> Trigger.DOUBLE_CLICK_INVENTORY
+                    ClickType.DROP -> Trigger.DROP_INVENTORY
+                    ClickType.CONTROL_DROP -> Trigger.CONTROL_DROP_INVENTORY
+                    ClickType.NUMBER_KEY -> when (event.hotbarButton) {
+                        0 -> Trigger.NUMBER_1_INVENTORY
+                        1 -> Trigger.NUMBER_2_INVENTORY
+                        2 -> Trigger.NUMBER_3_INVENTORY
+                        3 -> Trigger.NUMBER_4_INVENTORY
+                        4 -> Trigger.NUMBER_5_INVENTORY
+                        5 -> Trigger.NUMBER_6_INVENTORY
+                        6 -> Trigger.NUMBER_7_INVENTORY
+                        7 -> Trigger.NUMBER_8_INVENTORY
+                        8 -> Trigger.NUMBER_9_INVENTORY
+                        else -> {
+                            plugin.logger.log(Level.WARNING, "Unexpected hotbar button: ${event.hotbarButton}")
+                            Trigger.NUMBER_1_INVENTORY
+                        }
+                    }
+
+                    ClickType.CREATIVE -> Trigger.CREATIVE_INVENTORY
+                    ClickType.SWAP_OFFHAND -> Trigger.SWAP_OFFHAND_INVENTORY
+                    else -> return
+                }
+            } else {
+                trigger = when (event.click) {
+                    ClickType.RIGHT -> Trigger.RIGHT_CLICK_ON_OTHER_INVENTORY
+                    ClickType.LEFT -> Trigger.LEFT_CLICK_ON_OTHER_INVENTORY
+                    ClickType.MIDDLE -> Trigger.MIDDLE_CLICK_ON_OTHER_INVENTORY
+                    ClickType.SHIFT_RIGHT -> Trigger.SHIFT_RIGHT_CLICK_ON_OTHER_INVENTORY
+                    ClickType.SHIFT_LEFT -> Trigger.SHIFT_LEFT_CLICK_ON_OTHER_INVENTORY
+                    ClickType.DOUBLE_CLICK -> Trigger.DOUBLE_CLICK_ON_OTHER_INVENTORY
+                    ClickType.WINDOW_BORDER_LEFT -> Trigger.LEFT_BORDER_INVENTORY
+                    ClickType.WINDOW_BORDER_RIGHT -> Trigger.RIGHT_BORDER_INVENTORY
+                    else -> return
+                }
+            }
+        } else if (event.cursor.customItemKey != null) {
+            item = event.cursor
+            val key = item.customItemKey
+            triggers = ItemManager.triggers[key] ?: return
+            trigger = when (event.click) {
+                ClickType.RIGHT -> Trigger.RIGHT_CLICK_ON_OTHER_INVENTORY
+                ClickType.LEFT -> Trigger.LEFT_CLICK_ON_OTHER_INVENTORY
+                ClickType.MIDDLE -> Trigger.MIDDLE_CLICK_ON_OTHER_INVENTORY
+                ClickType.SHIFT_RIGHT -> Trigger.SHIFT_RIGHT_CLICK_ON_OTHER_INVENTORY
+                ClickType.SHIFT_LEFT -> Trigger.SHIFT_LEFT_CLICK_ON_OTHER_INVENTORY
+                ClickType.DOUBLE_CLICK -> Trigger.DOUBLE_CLICK_ON_OTHER_INVENTORY
+                ClickType.WINDOW_BORDER_LEFT -> Trigger.LEFT_BORDER_INVENTORY
+                ClickType.WINDOW_BORDER_RIGHT -> Trigger.RIGHT_BORDER_INVENTORY
+                else -> return
+            }
+        } else {
+            return
         }
 
         val ctx = Context(

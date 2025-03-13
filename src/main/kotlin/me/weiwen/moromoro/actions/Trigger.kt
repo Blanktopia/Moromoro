@@ -150,6 +150,30 @@ enum class Trigger {
     CREATIVE_INVENTORY,
     @SerialName("swap-offhand-inventory")
     SWAP_OFFHAND_INVENTORY,
+    @SerialName("right-click-other-on-inventory")
+    RIGHT_CLICK_OTHER_ON_INVENTORY,
+    @SerialName("left-click-other-on-inventory")
+    LEFT_CLICK_OTHER_ON_INVENTORY,
+    @SerialName("middle-click-other-on-inventory")
+    MIDDLE_CLICK_OTHER_ON_INVENTORY,
+    @SerialName("shift-right-click-other-on-inventory")
+    SHIFT_RIGHT_CLICK_OTHER_ON_INVENTORY,
+    @SerialName("shift-left-click-other-on-inventory")
+    SHIFT_LEFT_CLICK_OTHER_ON_INVENTORY,
+    @SerialName("double-click-other-on-inventory")
+    DOUBLE_CLICK_OTHER_ON_INVENTORY,
+    @SerialName("right-click-other-inventory")
+    RIGHT_CLICK_ON_OTHER_INVENTORY,
+    @SerialName("left-click-on-other-inventory")
+    LEFT_CLICK_ON_OTHER_INVENTORY,
+    @SerialName("middle-click-on-other-inventory")
+    MIDDLE_CLICK_ON_OTHER_INVENTORY,
+    @SerialName("shift-right-click-on-other-inventory")
+    SHIFT_RIGHT_CLICK_ON_OTHER_INVENTORY,
+    @SerialName("shift-left-click-on-other-inventory")
+    SHIFT_LEFT_CLICK_ON_OTHER_INVENTORY,
+    @SerialName("double-click-on-other-inventory")
+    DOUBLE_CLICK_ON_OTHER_INVENTORY,
 
     @SerialName("key-down-forward")
     KEY_DOWN_FORWARD,
