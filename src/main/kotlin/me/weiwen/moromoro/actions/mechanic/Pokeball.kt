@@ -9,8 +9,11 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.canBuildAt
+import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.playSoundAt
+import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.serializers.EntityTypeSerializer
+import me.weiwen.moromoro.serializers.component
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -48,7 +51,7 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
                 .decoration(TextDecoration.ITALIC, false)
                 .color(TextColor.color(0xffffff))
 
-            val lore = itemMeta.lore()
+            val lore = ItemManager.templates[item.customItemKey]?.lore?.map { text -> text.component.decoration(TextDecoration.ITALIC, false) }?.toMutableList()
             if (lore != null) {
                 lore[0] = message
                 itemMeta.lore(lore)
@@ -98,7 +101,7 @@ class Pokeball(private val blacklist: List<EntityType> = listOf(EntityType.ENDER
 
             val lore = itemMeta.lore()
             if (lore != null) {
-                lore[1] = message
+                lore[0] = message
                 itemMeta.lore(lore)
             }
 
