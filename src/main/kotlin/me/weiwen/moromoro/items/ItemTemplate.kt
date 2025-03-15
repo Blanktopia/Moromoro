@@ -38,8 +38,6 @@ import org.bukkit.inventory.ItemRarity
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.persistence.PersistentDataType
-import java.nio.ByteBuffer
-import java.util.*
 import java.util.logging.Level
 
 @Serializable
@@ -74,6 +72,8 @@ data class ItemTemplate(
     val cooldownGroup: Key? = null,
     val tool: ToolTemplate? = null,
     val rarity: String? = null,
+    @SerialName("max-stack-size")
+    val maxStackSize: Int? = null,
 
     val color: Color? = null,
     val dyeable: Boolean = false,
@@ -111,7 +111,10 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
     enchantmentGlint?.let { glint -> item.setData(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, glint) }
     cooldownGroup?.let { group -> item.setData(DataComponentTypes.USE_COOLDOWN, UseCooldown.useCooldown(1f).cooldownGroup(cooldownGroup).build()) }
     tool?.let { tool -> item.setData(DataComponentTypes.TOOL, tool.dataComponent()) }
-    rarity?.let { rarity -> item.setData(DataComponentTypes.RARITY, ItemRarity.valueOf(rarity))}
+    rarity?.let { rarity -> item.setData(DataComponentTypes.RARITY, ItemRarity.valueOf(rarity.uppercase()))}
+
+    val stackSize = if (unique) { 1 } else { maxStackSize }
+    stackSize?.let { maxStackSize -> item.setData(DataComponentTypes.MAX_STACK_SIZE, maxStackSize)}
 
     val itemMeta = item.itemMeta
 
@@ -124,18 +127,6 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
             NamespacedKey(Moromoro.plugin.config.namespace, "version"),
             PersistentDataType.INTEGER,
             version
-        )
-    }
-
-    if (unique) {
-        val uuid = UUID.randomUUID()
-        val bb = ByteBuffer.wrap(ByteArray(16))
-        bb.putLong(uuid.mostSignificantBits)
-        bb.putLong(uuid.leastSignificantBits)
-        persistentData.set(
-            NamespacedKey(Moromoro.plugin.config.namespace, "uuid"),
-            PersistentDataType.BYTE_ARRAY,
-            bb.array()
         )
     }
 
