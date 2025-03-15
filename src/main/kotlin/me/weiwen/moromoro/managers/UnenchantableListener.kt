@@ -1,9 +1,7 @@
 package me.weiwen.moromoro.managers
 
 import me.weiwen.moromoro.Moromoro
-import me.weiwen.moromoro.extensions.isSoulbound
 import me.weiwen.moromoro.extensions.isUnenchantable
-import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -35,13 +33,6 @@ object UnenchantableListener : Listener {
             event.result = null
             (event.viewers.get(0) as? Player)?.updateInventory()
             return
-        }
-
-        if (!target.isSoulbound && target.amount == 1 && sacrifice.type == Material.ENCHANTED_BOOK && sacrifice.isSoulbound) {
-            val result = event.result ?: target.clone()
-            result.isSoulbound = true
-            event.result = result
-            inventory.repairCost = 1
         }
     }
 
