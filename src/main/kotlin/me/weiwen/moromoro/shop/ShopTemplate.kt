@@ -9,7 +9,9 @@ package me.weiwen.moromoro.shop
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
+import com.github.stefvanschie.inventoryframework.pane.OutlinePane
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
+import com.github.stefvanschie.inventoryframework.pane.Pane
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.addNavigation
@@ -45,10 +47,11 @@ data class ShopTemplate(
 
         val miniMessage = MiniMessage.miniMessage()
 
-        val pages = PaginatedPane(0, 0, 8, 6)
+        val pages = PaginatedPane(1, 1, 7, 4)
         pages.populateWithGuiItems(
             categories.map { (category, shopItems) ->
                 val item = (shopItems.getOrNull(0)?.item ?: ItemStack(Material.BLACK_STAINED_GLASS_PANE)).clone().apply {
+                    amount = 1
                     itemFlags.addAll(sequenceOf(ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_DYE, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ARMOR_TRIM, ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_STORED_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE))
                     itemMeta = itemMeta.apply {
                         displayName(Component.text(category).decoration(TextDecoration.ITALIC, false))
@@ -66,7 +69,19 @@ data class ShopTemplate(
         )
         pages.setOnClick { it.isCancelled = true }
         gui.addPane(pages)
-        gui.addNavigation(pages, null)
+
+        val background = OutlinePane(0, 0, 9, 6).apply {
+            addItem(GuiItem(ItemStack(Material.BLACK_STAINED_GLASS_PANE).apply {
+                itemMeta = itemMeta.apply {
+                    displayName(Component.text(""))
+                }
+            }))
+            setRepeat(true)
+            priority = Pane.Priority.LOWEST
+            setOnClick { it.isCancelled = true }
+        }
+        gui.addPane(background)
+
         gui.show(player)
     }
 
