@@ -1,12 +1,18 @@
+@file:UseSerializers(
+    KeySerializer::class,
+)
 
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToJsonElement
 import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.items.ItemTemplate
+import me.weiwen.moromoro.serializers.KeySerializer
 import net.kyori.adventure.key.Key
 import java.io.File
 
@@ -27,7 +33,7 @@ sealed interface ItemModel {}
 @Serializable
 @SerialName("minecraft:condition")
 data class ConditionItemModel(
-    val property: String,
+    val property: Key,
     val on_false: ItemModel,
     val on_true: ItemModel,
 ) : ItemModel
@@ -35,14 +41,14 @@ data class ConditionItemModel(
 @Serializable
 @SerialName("minecraft:model")
 data class BasicItemModel(
-    val model: String,
+    val model: Key,
     val tints: JsonArray? = null,
 ) : ItemModel
 
 @Serializable
 @SerialName("minecraft:range_dispatch")
 data class RangeDispatchItemModel(
-    val property: String,
+    val property: Key,
     val entries: MutableList<RangeDispatchItemModelEntry>,
     val scale: Double? = null,
     var fallback: ItemModel? = null,
@@ -57,16 +63,45 @@ data class RangeDispatchItemModelEntry(
 @Serializable
 @SerialName("minecraft:select")
 data class SelectItemModel(
-    val property: String,
+    val property: Key,
     val cases: MutableList<SelectItemModelSwitchCase>,
     var fallback: ItemModel? = null,
 ) : ItemModel
 
 @Serializable
 data class SelectItemModelSwitchCase(
-    val `when`: String,
+    @Contextual
+    val `when`: ListOrString,
     val model: ItemModel,
 )
+
+@Serializable
+data class ListOrString(
+    val values: List<String>,
+)
+
+@Serializable
+@SerialName("minecraft:empty")
+data object EmptyItemModel : ItemModel
+
+@Serializable
+@SerialName("minecraft:bundle/selected_item")
+data object BundleSelectedItemItemModel : ItemModel
+
+@Serializable
+@SerialName("minecraft:special")
+data class SpecialItemModel(
+    val model: SpecialItemModelType,
+    val base: Key,
+) : ItemModel
+
+@Serializable
+data class SpecialItemModelType(
+    val type: Key,
+)
+
+val json = Json {
+}
 
 fun generateItemModels(templates: Map<String, ItemTemplate>) {
     val root = File(plugin.dataFolder, "pack/assets/")
@@ -76,7 +111,7 @@ fun generateItemModels(templates: Map<String, ItemTemplate>) {
         val key = item.itemModel
         val path = "${key.namespace()}/items/${key.value()}.json"
         if (root.resolve(path).exists()) continue
-        val model = ItemModelFile(BasicItemModel(key.asMinimalString()))
+        val model = ItemModelFile(BasicItemModel(key))
         val json = Json.encodeToJsonElement(model)
         val file = File(root, path)
         file.parentFile.mkdirs()
@@ -96,6 +131,13 @@ fun generateItems(templates: Map<String, ItemTemplate>) {
     }
 
     val overlays = File(plugin.dataFolder, "pack-overlays").listFiles { file, s -> file.isDirectory && !s.startsWith("_") }
+    for (overlay in overlays) {
+        val itemsDir = overlay.resolve("assets/minecraft/items")
+        val items = itemsDir.listFiles()?.map { file -> file.nameWithoutExtension } ?: continue
+        for (item in items) {
+            itemModels.putIfAbsent(Key.key(item), mutableMapOf())
+        }
+    }
 
     for ((item, customModels) in itemModels) {
         val path = "items/${item.value()}.json"
@@ -103,7 +145,7 @@ fun generateItems(templates: Map<String, ItemTemplate>) {
             val overlayItemFile = overlay.resolve("assets/minecraft/${path}")
             if (overlayItemFile.exists() && overlayItemFile.isFile) {
                 val overlayItem = Json.decodeFromStream<ItemModelFile>(overlayItemFile.inputStream())
-                if (overlayItem.model is RangeDispatchItemModel && (overlayItem.model.property == "minecraft:custom_model_data" || overlayItem.model.property == "custom_model_data")) {
+                if (overlayItem.model is RangeDispatchItemModel && overlayItem.model.property == Key.key("custom_model_data")) {
                     customModels.putAll(overlayItem.model.entries.map { it.threshold to it.model })
                 }
             }
@@ -125,7 +167,7 @@ fun defaultModel(item: Key): ItemModel {
             plugin.logger.info("Failed to load default model: ${item.value()}")
         }
     }
-    return BasicItemModel("${item.namespace()}:item/${item.value()}")
+    return BasicItemModel(Key.key(item.namespace(), "item/${item.value()}"))
 }
 
 fun mergeModels(customModels: Map<Double, ItemModel>, fallback: ItemModel): ItemModel {
@@ -135,7 +177,7 @@ fun mergeModels(customModels: Map<Double, ItemModel>, fallback: ItemModel): Item
         .toMutableList()
 
     return RangeDispatchItemModel(
-        "custom_model_data",
+        Key.key("custom_model_data"),
         entries,
         null,
         fallback,

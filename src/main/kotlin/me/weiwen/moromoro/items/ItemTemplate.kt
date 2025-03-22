@@ -55,7 +55,7 @@ data class ItemTemplate(
     val customModelData: Double? = null,
     val head: String? = null,
 
-    val model: String? = null,
+    val model: Key? = null,
     @SerialName("custom-model")
     val customModel: ItemModel? = null,
 
