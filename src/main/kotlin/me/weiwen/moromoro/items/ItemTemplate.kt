@@ -7,7 +7,6 @@
 
 package me.weiwen.moromoro.items
 
-import ItemModel
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
 import io.papermc.paper.datacomponent.item.ItemAttributeModifiers
@@ -57,7 +56,7 @@ data class ItemTemplate(
 
     val model: Key? = null,
     @SerialName("custom-model")
-    val customModel: ItemModel? = null,
+    val customModel: String? = null,
 
     val unique: Boolean = false,
     val unbreakable: Boolean = false,

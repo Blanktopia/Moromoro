@@ -1,15 +1,15 @@
 @file:UseSerializers(
     KeySerializer::class,
 )
+@file:OptIn(ExperimentalSerializationApi::class)
 
-import kotlinx.serialization.Contextual
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.*
 import me.weiwen.moromoro.Moromoro.Companion.plugin
 import me.weiwen.moromoro.items.ItemTemplate
 import me.weiwen.moromoro.serializers.KeySerializer
@@ -70,15 +70,25 @@ data class SelectItemModel(
 
 @Serializable
 data class SelectItemModelSwitchCase(
-    @Contextual
-    val `when`: ListOrString,
+    @Serializable(with = ListOrStringSerializer::class)
+    val `when`: List<String>,
     val model: ItemModel,
 )
 
-@Serializable
-data class ListOrString(
-    val values: List<String>,
-)
+data class ListOrString(val list: List<String>)
+object ListOrStringSerializer :
+    JsonTransformingSerializer<List<String>>(ListSerializer(String.serializer())) {
+    override fun transformDeserialize(element: JsonElement): JsonElement {
+        if (element is JsonArray) return element
+        return JsonArray(listOf(element.jsonPrimitive))
+    }
+
+    override fun transformSerialize(element: JsonElement): JsonElement {
+        if (element !is JsonArray) return element
+        if (element.size != 1) return element
+        return element[0]
+    }
+}
 
 @Serializable
 @SerialName("minecraft:empty")
@@ -99,9 +109,6 @@ data class SpecialItemModel(
 data class SpecialItemModelType(
     val type: Key,
 )
-
-val json = Json {
-}
 
 fun generateItemModels(templates: Map<String, ItemTemplate>) {
     val root = File(plugin.dataFolder, "pack/assets/")
@@ -125,7 +132,7 @@ fun generateItems(templates: Map<String, ItemTemplate>) {
     val itemModels: MutableMap<Key, MutableMap<Double, ItemModel>> = mutableMapOf()
 
     for ((_, item) in templates) {
-        val model = item.customModel ?: item.model?.let { BasicItemModel(it) } ?: continue
+        val model = item.customModel?.let { Json.decodeFromString<ItemModel>(it) } ?: item.model?.let { BasicItemModel(it) } ?: continue
         val customModelData = item.customModelData ?: continue
         itemModels.getOrPut(item.item) { mutableMapOf() }[customModelData] = model
     }
