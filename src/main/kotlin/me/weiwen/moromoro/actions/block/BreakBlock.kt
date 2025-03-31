@@ -8,6 +8,7 @@ import me.weiwen.moromoro.blocks.CustomBlock
 import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.isRightTool
 import org.bukkit.GameMode
+import org.bukkit.Material
 import org.bukkit.util.Vector
 
 @Serializable
@@ -21,7 +22,10 @@ data class BreakBlock(val radius: Int = 0, val depth: Int = 0) : Action {
 
         if (!block.isRightTool(item)) return false
 
-        val hardness = block.type.hardness
+        var hardness = block.type.hardness
+        if (block.type == Material.DIRT) {
+            hardness = Material.GRASS_BLOCK.hardness
+        }
 
         val (xOffset, yOffset, zOffset) = when {
             blockFace.modX != 0 -> {
