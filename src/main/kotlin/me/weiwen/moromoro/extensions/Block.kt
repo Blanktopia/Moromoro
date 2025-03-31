@@ -45,7 +45,12 @@ fun Block.isRightTool(item: ItemStack): Boolean {
         } else if (item.type.isHoe) {
             Tag.MINEABLE_HOE.isTagged(type)
         } else if (item.type == Material.SHEARS) {
-            Tag.LEAVES.isTagged(type) || Tag.WOOL_CARPETS.isTagged(type) || Tag.WOOL.isTagged(type)
+            Tag.LEAVES.isTagged(type)
+                    || Tag.WOOL_CARPETS.isTagged(type)
+                    || Tag.WOOL.isTagged(type)
+                    || Tag.CROPS.isTagged(type)
+                    || Tag.FLOWERS.isTagged(type)
+                    || type in setOf(Material.SHORT_GRASS, Material.TALL_GRASS, Material.SEAGRASS, Material.TALL_SEAGRASS, Material.FERN, Material.LARGE_FERN, Material.VINE)
         } else {
             false
         }
