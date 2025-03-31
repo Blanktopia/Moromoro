@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import me.weiwen.moromoro.actions.Action
 import me.weiwen.moromoro.actions.Context
+import me.weiwen.moromoro.extensions.isPartial
 import me.weiwen.moromoro.extensions.playSoundAt
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextColor
@@ -20,6 +21,8 @@ object SelectMaterial : Action {
     override fun perform(ctx: Context): Boolean {
         val player = ctx.player ?: return false
         val block = ctx.block ?: return false
+
+        if (block.type.isPartial) return false
 
         materials[player.uniqueId] = block.type
 

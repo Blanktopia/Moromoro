@@ -11,6 +11,7 @@ import org.bukkit.block.BlockFace
 import org.bukkit.block.data.*
 import org.bukkit.block.data.type.Leaves
 import org.bukkit.block.data.type.Slab
+import org.bukkit.block.data.type.TrapDoor
 import org.bukkit.block.data.type.Wall
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.event.block.BlockBreakEvent
@@ -37,10 +38,6 @@ object ReplaceBlock : Action {
             return false
         }
 
-        if (block.type.isPartial) {
-            return false
-        }
-
         replaceBlock(ctx, material)
 
         return true
@@ -55,6 +52,10 @@ object ReplaceBlock : Action {
             Pair(baseBlock.getRelative(blockFace), baseBlock)
         } else {
             Pair(baseBlock, blockFace.let { baseBlock.getRelative(it.oppositeFace) })
+        }
+
+        if (block.type.isPartial || material.isPartial) {
+            return false
         }
 
         val state = block.state
@@ -114,9 +115,13 @@ object ReplaceBlock : Action {
         if (buildEvent.isCancelled) return false
 
         state.blockData = state.blockData.apply {
-            if (this is Leaves) (blockData as? Leaves)?.let { isPersistent = true }
+            if (this is Leaves) isPersistent = true
             if (this is Orientable) (blockData as? Orientable)?.let { axis = it.axis }
-            if (this is Directional) (blockData as? Directional)?.let { facing = it.facing }
+            if (this is Directional) {
+                facing = (blockData as? Directional)?.facing ?: player.facing
+                if (this is TrapDoor && blockData !is TrapDoor || this !is TrapDoor && blockData is TrapDoor) facing =
+                    facing.oppositeFace
+            }
             if (this is MultipleFacing) (blockData as? MultipleFacing)?.let {
                 it.faces.forEach { face -> setFace(face, true) }
             }
@@ -127,14 +132,14 @@ object ReplaceBlock : Action {
             }
             if (this is Openable) (blockData as? Openable)?.let { isOpen = it.isOpen }
             if (this is Rotatable) (blockData as? Rotatable)?.let { rotation = it.rotation }
-            if (this is Bisected) (blockData as? Bisected)?.let { half = half }
+            if (this is Bisected) half = (blockData as? Bisected)?.half ?: if (player.pitch < 0) Bisected.Half.TOP else Bisected.Half.BOTTOM
             if (this is Slab) (blockData as? Slab)?.let {
                 if (it.type == Slab.Type.DOUBLE) return@apply
                 type = it.type
             }
         }
 
-        state.update(true, false)
+        state.update(true, true)
 
         player.location.spawnParticleLine(block.location.add(0.5, 0.5, 0.5), Particle.BLOCK, 0.2, material.createBlockData())
         block.playSoundAt(block.soundGroup.placeSound, SoundCategory.BLOCKS, 1.0f, 1.0f)
