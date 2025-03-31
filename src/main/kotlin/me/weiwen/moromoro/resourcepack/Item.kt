@@ -32,6 +32,14 @@ sealed interface ItemModel {}
 
 @Serializable
 @SerialName("minecraft:condition")
+data class MinecraftConditionItemModel(
+    val property: Key,
+    val on_false: ItemModel,
+    val on_true: ItemModel,
+) : ItemModel
+
+@Serializable
+@SerialName("condition")
 data class ConditionItemModel(
     val property: Key,
     val on_false: ItemModel,
@@ -40,6 +48,13 @@ data class ConditionItemModel(
 
 @Serializable
 @SerialName("minecraft:model")
+data class MinecraftBasicItemModel(
+    val model: Key,
+    val tints: JsonArray? = null,
+) : ItemModel
+
+@Serializable
+@SerialName("model")
 data class BasicItemModel(
     val model: Key,
     val tints: JsonArray? = null,
@@ -47,6 +62,15 @@ data class BasicItemModel(
 
 @Serializable
 @SerialName("minecraft:range_dispatch")
+data class MinecraftRangeDispatchItemModel(
+    val property: Key,
+    val entries: MutableList<RangeDispatchItemModelEntry>,
+    val scale: Double? = null,
+    var fallback: ItemModel? = null,
+) : ItemModel
+
+@Serializable
+@SerialName("range_dispatch")
 data class RangeDispatchItemModel(
     val property: Key,
     val entries: MutableList<RangeDispatchItemModelEntry>,
@@ -62,6 +86,14 @@ data class RangeDispatchItemModelEntry(
 
 @Serializable
 @SerialName("minecraft:select")
+data class MinecraftSelectItemModel(
+    val property: Key,
+    val cases: MutableList<SelectItemModelSwitchCase>,
+    var fallback: ItemModel? = null,
+) : ItemModel
+
+@Serializable
+@SerialName("select")
 data class SelectItemModel(
     val property: Key,
     val cases: MutableList<SelectItemModelSwitchCase>,
@@ -92,14 +124,29 @@ object ListOrStringSerializer :
 
 @Serializable
 @SerialName("minecraft:empty")
+data object MinecraftEmptyItemModel : ItemModel
+
+@Serializable
+@SerialName("empty")
 data object EmptyItemModel : ItemModel
 
 @Serializable
 @SerialName("minecraft:bundle/selected_item")
+data object MinecraftBundleSelectedItemItemModel : ItemModel
+
+@Serializable
+@SerialName("bundle/selected_item")
 data object BundleSelectedItemItemModel : ItemModel
 
 @Serializable
 @SerialName("minecraft:special")
+data class MinecraftSpecialItemModel(
+    val model: SpecialItemModelType,
+    val base: Key,
+) : ItemModel
+
+@Serializable
+@SerialName("special")
 data class SpecialItemModel(
     val model: SpecialItemModelType,
     val base: Key,
