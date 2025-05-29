@@ -32,7 +32,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
     implementation("com.charleskorn.kaml:kaml:0.72.0")
 
-    compileOnly("org.purpurmc.purpur", "purpur-api", "1.21.4-R0.1-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur", "purpur-api", "1.21.5-R0.1-SNAPSHOT")
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.12.3")
@@ -51,8 +51,8 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        capabilitiesResolution.withCapability("org.spigotmc:spigot-api:1.21.4-R0.1-SNAPSHOT") {
-            select("org.purpurmc.purpur:purpur-api:1.21.4-R0.1-SNAPSHOT")
+        capabilitiesResolution.withCapability("org.spigotmc:spigot-api:1.21.5-R0.1-SNAPSHOT") {
+            select("org.purpurmc.purpur:purpur-api:1.21.5-R0.1-SNAPSHOT")
         }
         force("com.google.guava:guava:33.3.1-jre")
         force("com.google.code.gson:gson:2.11.0")

@@ -3,7 +3,7 @@ package me.weiwen.moromoro.types
 import org.bukkit.inventory.EquipmentSlot
 
 enum class CustomEquipmentSlot {
-    HAND, OFF_HAND, FEET, LEGS, CHEST, HEAD, TRINKET, BODY
+    HAND, OFF_HAND, FEET, LEGS, CHEST, HEAD, TRINKET, BODY, SADDLE
 }
 
 val CustomEquipmentSlot.equipmentSlot: EquipmentSlot?
@@ -15,6 +15,7 @@ val CustomEquipmentSlot.equipmentSlot: EquipmentSlot?
         CustomEquipmentSlot.CHEST -> EquipmentSlot.CHEST
         CustomEquipmentSlot.HEAD -> EquipmentSlot.HEAD
         CustomEquipmentSlot.BODY -> EquipmentSlot.BODY
+        CustomEquipmentSlot.SADDLE -> EquipmentSlot.SADDLE
         else -> null
     }
 
@@ -27,4 +28,5 @@ val EquipmentSlot.customEquipmentSlot: CustomEquipmentSlot
         EquipmentSlot.CHEST -> CustomEquipmentSlot.CHEST
         EquipmentSlot.HEAD -> CustomEquipmentSlot.HEAD
         EquipmentSlot.BODY -> CustomEquipmentSlot.BODY
+        EquipmentSlot.SADDLE -> CustomEquipmentSlot.SADDLE
     }

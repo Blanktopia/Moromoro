@@ -10,7 +10,6 @@ package me.weiwen.moromoro.items
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.CustomModelData
 import io.papermc.paper.datacomponent.item.ItemAttributeModifiers
-import io.papermc.paper.datacomponent.item.Unbreakable
 import io.papermc.paper.datacomponent.item.UseCooldown
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -96,7 +95,7 @@ fun ItemTemplate.item(key: String, amount: Int = 1): ItemStack {
     name?.let { item.setData(DataComponentTypes.ITEM_NAME, it.component.decoration(TextDecoration.ITALIC, false)) }
     lore?.let { item.lore(it.map { text -> text.component.decoration(TextDecoration.ITALIC, false) }) }
 
-    if (unbreakable) item.setData(DataComponentTypes.UNBREAKABLE, Unbreakable.unbreakable(true))
+    if (unbreakable) item.setData(DataComponentTypes.UNBREAKABLE)
 
     customModelData?.let { data -> item.setData(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addFloat(data.toFloat()).build()) }
     itemModel?.let { model -> item.setData(DataComponentTypes.ITEM_MODEL, model) }
