@@ -36,7 +36,7 @@ class ItemBlockTemplate(
     @SerialName("sit-rotate")
     override val sitRotate: Boolean? = null,
 
-    override val drops: List<ItemStack>? = null,
+    override val drops: List<String>? = null,
     override val experience: Int = 0,
     @SerialName("can-fortune")
     override val canFortune: Boolean = false,

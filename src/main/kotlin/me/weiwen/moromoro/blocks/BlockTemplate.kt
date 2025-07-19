@@ -23,7 +23,7 @@ sealed class BlockTemplate {
     @SerialName("sit-rotate")
     abstract val sitRotate: Boolean?
 
-    abstract val drops: List<ItemStack>?
+    abstract val drops: List<String>?
     abstract val experience: Int
 
     @SerialName("can-fortune")

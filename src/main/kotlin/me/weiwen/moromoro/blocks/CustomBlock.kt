@@ -1,13 +1,13 @@
 package me.weiwen.moromoro.blocks
 
+import com.sk89q.worldedit.world.registry.Registries
+import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.*
 import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.items.ItemTemplate
 import me.weiwen.moromoro.items.item
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.Particle
-import org.bukkit.SoundCategory
+import net.kyori.adventure.key.Key
+import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
@@ -84,7 +84,9 @@ sealed interface CustomBlock {
                         this.experience = experience
                     }
                 }
-                template.block?.drops?.map { it.clone() } ?: listOf(template.item(key, 1))
+                template.block?.drops?.mapNotNull {
+                    Registry.ITEM.get(Key.key(it))?.createItemStack() ?: ItemManager.templates[it]?.item(it, 1)
+                } ?: listOf(template.item(key, 1))
             } else {
                 listOf(template.item(key, 1))
             }
