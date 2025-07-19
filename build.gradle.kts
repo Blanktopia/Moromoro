@@ -42,7 +42,7 @@ dependencies {
 
     implementation("cloud.commandframework", "cloud-paper", "1.8.4")
     implementation("org.bstats", "bstats-bukkit", "3.1.0")
-    implementation("com.github.stefvanschie.inventoryframework", "IF", "0.10.19")
+    implementation("com.github.stefvanschie.inventoryframework", "IF", "0.11.0")
     compileOnly("net.essentialsx", "EssentialsX", "2.21.0-SNAPSHOT")
     compileOnly("LibsDisguises", "LibsDisguises", "10.0.44")
     compileOnly("com.github.TechFortress:GriefPrevention:16.18.2")
