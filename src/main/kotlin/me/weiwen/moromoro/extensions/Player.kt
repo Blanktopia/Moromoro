@@ -4,6 +4,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin
 import com.sk89q.worldguard.protection.flags.Flags
+import me.ryanhamshire.GriefPrevention.Claim
 import me.ryanhamshire.GriefPrevention.GriefPrevention
 import me.weiwen.moromoro.hooks.ShulkerPacksHook
 import org.bukkit.Bukkit
@@ -13,11 +14,16 @@ import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.BlockStateMeta
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 
+private val claimCache = ConcurrentHashMap<UUID, Claim?>()
 
 fun Player.hasAccessTrust(location: Location): Boolean {
     if (Bukkit.getServer().pluginManager.isPluginEnabled("GriefPrevention")) {
-        val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return false
+        val cachedClaim = claimCache[uniqueId]
+        val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, cachedClaim) ?: return false
+        claimCache[uniqueId] = claim
         return claim.allowAccess(this) == null
     }
 
@@ -38,7 +44,9 @@ fun Player.canBuildAt(location: Location): Boolean {
     }
 
     if (Bukkit.getServer().pluginManager.isPluginEnabled("GriefPrevention")) {
-        val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null) ?: return true
+        val cachedClaim = claimCache[uniqueId]
+        val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, cachedClaim) ?: return true
+        claimCache[uniqueId] = claim
         if (claim.allowBuild(this, Material.STONE) != null) {
             return false
         }
