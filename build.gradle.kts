@@ -38,7 +38,7 @@ dependencies {
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.12.3")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.12.3") { isTransitive = false }
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
+    compileOnly("net.dmulloy2:ProtocolLib:5.1.0")
 
     implementation("cloud.commandframework", "cloud-paper", "1.8.4")
     implementation("org.bstats", "bstats-bukkit", "3.1.0")
