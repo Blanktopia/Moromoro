@@ -11,6 +11,8 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.*
 import me.weiwen.moromoro.Moromoro.Companion.plugin
+import me.weiwen.moromoro.blocks.ItemBlockTemplate
+import me.weiwen.moromoro.blocks.ItemDisplayBlockTemplate
 import me.weiwen.moromoro.items.ItemTemplate
 import me.weiwen.moromoro.serializers.KeySerializer
 import net.kyori.adventure.key.Key
@@ -200,6 +202,8 @@ fun generateItems(templates: Map<String, ItemTemplate>) {
             if (overlayItemFile.exists() && overlayItemFile.isFile) {
                 val overlayItem = Json.decodeFromStream<ItemModelFile>(overlayItemFile.inputStream())
                 if (overlayItem.model is RangeDispatchItemModel && overlayItem.model.property == Key.key("custom_model_data")) {
+                    customModels.putAll(overlayItem.model.entries.map { it.threshold to it.model })
+                } else if (overlayItem.model is MinecraftRangeDispatchItemModel && overlayItem.model.property == Key.key("custom_model_data")) {
                     customModels.putAll(overlayItem.model.entries.map { it.threshold to it.model })
                 }
             }
