@@ -9,6 +9,7 @@ import me.weiwen.moromoro.actions.Trigger
 import me.weiwen.moromoro.actions.condition.InputKey
 import me.weiwen.moromoro.actions.condition.lastPressed
 import me.weiwen.moromoro.equip.EquippedItemsManager
+import me.weiwen.moromoro.extensions.canBuildAt
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.managers.ProjectileManager
@@ -155,6 +156,10 @@ object ItemListener : Listener {
         val triggers = ItemManager.triggers[key] ?: return
         when (event.action) {
             Action.LEFT_CLICK_BLOCK -> {
+                if (!event.player.canBuildAt(event.clickedBlock?.location ?: return)) {
+                    event.setUseItemInHand(Event.Result.DENY)
+                    return
+                }
                 triggers[Trigger.LEFT_CLICK_BLOCK]?.forEach { it.perform(ctx); didAction = true }
                 triggers[Trigger.LEFT_CLICK]?.forEach { it.perform(ctx); didAction = true }
             }
