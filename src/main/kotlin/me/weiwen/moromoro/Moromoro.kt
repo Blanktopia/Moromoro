@@ -8,6 +8,7 @@ import cloud.commandframework.bukkit.parsers.location.LocationArgument
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.paper.PaperCommandManager
 import me.weiwen.moromoro.blocks.BlockListener
+import me.weiwen.moromoro.blocks.ChunkMigrationListener
 import me.weiwen.moromoro.enchantments.listeners.*
 import me.weiwen.moromoro.equip.EquippedItemsManager
 import me.weiwen.moromoro.hooks.EssentialsHook
@@ -65,6 +66,7 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
             BlockListener,
             RecipeListener,
             UnenchantableListener,
+            ChunkMigrationListener,
 
             // Enchantments
             Beheading,
@@ -189,6 +191,7 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
                             })
                         }
                     }
+
                 builder.literal("reload").let { builder ->
                     manager.command(builder.handler { ctx ->
                         EquippedItemsManager.disable()
