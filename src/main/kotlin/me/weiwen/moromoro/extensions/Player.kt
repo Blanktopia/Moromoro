@@ -5,6 +5,7 @@ import com.sk89q.worldguard.WorldGuard
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin
 import com.sk89q.worldguard.protection.flags.Flags
 import me.ryanhamshire.GriefPrevention.Claim
+import me.ryanhamshire.GriefPrevention.ClaimPermission
 import me.ryanhamshire.GriefPrevention.GriefPrevention
 import me.weiwen.moromoro.hooks.ShulkerPacksHook
 import org.bukkit.Bukkit
@@ -12,6 +13,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.ShulkerBox
 import org.bukkit.entity.Player
+import org.bukkit.event.Event
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.BlockStateMeta
 import java.util.UUID
@@ -24,7 +26,7 @@ fun Player.hasAccessTrust(location: Location): Boolean {
         val cachedClaim = claimCache[uniqueId]
         val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, cachedClaim) ?: return false
         claimCache[uniqueId] = claim
-        return claim.allowAccess(this) == null
+        return claim.checkPermission(this, ClaimPermission.Access, null) == null
     }
 
     return false
@@ -47,9 +49,7 @@ fun Player.canBuildAt(location: Location): Boolean {
         val cachedClaim = claimCache[uniqueId]
         val claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, cachedClaim) ?: return true
         claimCache[uniqueId] = claim
-        if (claim.allowBuild(this, Material.STONE) != null) {
-            return false
-        }
+        return claim.checkPermission(this, ClaimPermission.Build, null) == null
     }
 
     return true
