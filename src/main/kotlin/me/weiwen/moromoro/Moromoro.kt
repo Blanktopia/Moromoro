@@ -1,12 +1,5 @@
 package me.weiwen.moromoro
 
-import cloud.commandframework.ArgumentDescription
-import cloud.commandframework.arguments.standard.IntegerArgument
-import cloud.commandframework.arguments.standard.StringArgument
-import cloud.commandframework.bukkit.parsers.PlayerArgument
-import cloud.commandframework.bukkit.parsers.location.LocationArgument
-import cloud.commandframework.execution.CommandExecutionCoordinator
-import cloud.commandframework.paper.PaperCommandManager
 import me.weiwen.moromoro.blocks.BlockListener
 import me.weiwen.moromoro.blocks.ChunkMigrationListener
 import me.weiwen.moromoro.enchantments.listeners.*
@@ -28,7 +21,14 @@ import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.function.Function
+import org.incendo.cloud.bukkit.parser.PlayerParser.playerParser
+import org.incendo.cloud.bukkit.parser.location.LocationParser.locationParser
+import org.incendo.cloud.description.Description
+import org.incendo.cloud.execution.ExecutionCoordinator
+import org.incendo.cloud.paper.LegacyPaperCommandManager
+import org.incendo.cloud.parser.standard.IntegerParser.integerParser
+import org.incendo.cloud.parser.standard.StringParser.quotedStringParser
+import org.incendo.cloud.parser.standard.StringParser.stringParser
 
 class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
     companion object {
@@ -85,10 +85,7 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
             Stride
         )
 
-        val manager = PaperCommandManager(
-            this, CommandExecutionCoordinator.simpleCoordinator(),
-            Function.identity(), Function.identity()
-        )
+        val manager = LegacyPaperCommandManager.createNative(this, ExecutionCoordinator.simpleCoordinator())
 
         try {
             manager.registerBrigadier()
@@ -98,41 +95,41 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
             plugin.logger.warning("Failed to initialize Brigadier support: " + e.message)
         }
 
-        manager.commandBuilder("pack", ArgumentDescription.of("Downloads the server resource pack")).let { builder ->
+        manager.commandBuilder("pack", Description.of("Downloads the server resource pack")).let { builder ->
             manager.command(builder.senderType(Player::class.java).permission("moromoro.pack").handler { ctx ->
-                val player = ctx.sender as Player
+                val player = ctx.sender() as Player
                 ResourcePackManager.send(player, false)
             })
         }
 
-        manager.commandBuilder("trinkets", ArgumentDescription.of("Opens your trinket bag")).let { builder ->
+        manager.commandBuilder("trinkets", Description.of("Opens your trinket bag")).let { builder ->
             manager.command(builder.senderType(Player::class.java).permission("moromoro.trinkets").handler { ctx ->
-                TrinketManager.openTrinketInventory(ctx.sender as Player)
+                TrinketManager.openTrinketInventory(ctx.sender() as Player)
             })
         }
 
-        manager.commandBuilder("moromoro", ArgumentDescription.of("Manages the Moromoro plugin"))
+        manager.commandBuilder("moromoro", Description.of("Manages the Moromoro plugin"))
             .permission("moromoro.admin").let { builder ->
                 manager.command(
-                    builder.literal("shop", ArgumentDescription.of("Opens a shop to a user"))
-                        .argument(StringArgument.of("shop", StringArgument.StringMode.QUOTED))
-                        .argument(PlayerArgument.optional("player"))
+                    builder.literal("shop", Description.of("Opens a shop to a user"))
+                        .required("shop", quotedStringParser())
+                        .optional("player", playerParser())
                         .handler { ctx ->
                             val player =
-                                ctx.getOptional<Player>("player").orElseGet { ctx.sender as? Player }
+                                ctx.optional<Player>("player").orElseGet { ctx.sender() as? Player }
                                     ?: return@handler
                             ShopManager.show(player, ctx.get("shop"))
                         })
                 manager.command(
-                    builder.literal("items", ArgumentDescription.of("Opens a GUI to spawn custom items"))
+                    builder.literal("items", Description.of("Opens a GUI to spawn custom items"))
                         .senderType(Player::class.java)
-                        .handler { ItemManager.creativeItemPicker(it.sender as Player) }
+                        .handler { ItemManager.creativeItemPicker(it.sender() as Player) }
                 )
                 manager.command(
-                    builder.literal("drop", ArgumentDescription.of("Drops a custom item at the specified location"))
-                        .argument(StringArgument.of("key"))
-                        .argument(IntegerArgument.of("amount"))
-                        .argument(LocationArgument.of("location"))
+                    builder.literal("drop", Description.of("Drops a custom item at the specified location"))
+                        .required("key", stringParser())
+                        .required("amount", integerParser())
+                        .required("location", locationParser())
                         .handler {
                             val key = it.get<String>("key")
                             val template = ItemManager.templates[key] ?: return@handler
@@ -141,52 +138,52 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
                             location.world.dropItemNaturally(location, item)
                         })
 
-                builder.literal("debug", ArgumentDescription.of("Prints some debug information"))
+                builder.literal("debug", Description.of("Prints some debug information"))
                     .let { debugBuilder ->
                         manager.command(debugBuilder.handler { ctx ->
-                            ctx.sender.sendMessage(ChatColor.GOLD.toString() + "${ItemManager.keys.size} items, ${BlockManager.blockTemplates.size} blocks, ${RecipeManager.recipes.size} recipes loaded.")
+                            ctx.sender().sendMessage(ChatColor.GOLD.toString() + "${ItemManager.keys.size} items, ${BlockManager.blockTemplates.size} blocks, ${RecipeManager.recipes.size} recipes loaded.")
                         })
 
                         debugBuilder.literal("blocks").let { builder ->
                             manager.command(builder.handler { ctx ->
                                 val blocks = BlockManager.blockTemplates.keys.joinToString(", ")
-                                ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$blocks")
+                                ctx.sender().sendMessage(ChatColor.GOLD.toString() + "$blocks")
                             })
-                            manager.command(builder.argument(StringArgument.of("key")).handler { ctx ->
+                            manager.command(builder.required("key", stringParser()).handler { ctx ->
                                 val template = BlockManager.blockTemplates[ctx.get("key")]
                                 if (template != null) {
-                                    ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                                    ctx.sender().sendMessage(ChatColor.GOLD.toString() + "$template")
                                 } else {
-                                    ctx.sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
+                                    ctx.sender().sendMessage(ChatColor.GOLD.toString() + "No such item.")
                                 }
                             })
                         }
                         debugBuilder.literal("items").let { builder ->
                             manager.command(builder.literal("items").handler { ctx ->
                                 val items = ItemManager.keys.joinToString(", ")
-                                ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$items")
+                                ctx.sender().sendMessage(ChatColor.GOLD.toString() + "$items")
                             })
-                            manager.command(builder.argument(StringArgument.of("key")).handler { ctx ->
+                            manager.command(builder.required("key", stringParser()).handler { ctx ->
                                 val template = ItemManager.templates[ctx.get("key")]
                                 if (template != null) {
-                                    ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                                    ctx.sender().sendMessage(ChatColor.GOLD.toString() + "$template")
                                 } else {
-                                    ctx.sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
+                                    ctx.sender().sendMessage(ChatColor.GOLD.toString() + "No such item.")
                                 }
                             })
                         }
                         debugBuilder.literal("recipes").let { builder ->
                             manager.command(builder.literal("recipes").handler { ctx ->
                                 val recipes = RecipeManager.recipes.keys.joinToString(", ") { key -> key.key }
-                                ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$recipes")
+                                ctx.sender().sendMessage(ChatColor.GOLD.toString() + "$recipes")
                             })
-                            manager.command(builder.argument(StringArgument.of("key")).handler { ctx ->
+                            manager.command(builder.required("key", stringParser()).handler { ctx ->
                                 val template =
                                     RecipeManager.recipes[NamespacedKey(this.config.namespace, ctx.get("key"))]
                                 if (template != null) {
-                                    ctx.sender.sendMessage(ChatColor.GOLD.toString() + "$template")
+                                    ctx.sender().sendMessage(ChatColor.GOLD.toString() + "$template")
                                 } else {
-                                    ctx.sender.sendMessage(ChatColor.GOLD.toString() + "No such item.")
+                                    ctx.sender().sendMessage(ChatColor.GOLD.toString() + "No such item.")
                                 }
                             })
                         }
@@ -205,37 +202,37 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
                         RecipeManager.enable()
                         ShopManager.enable()
                         EquippedItemsManager.enable()
-                        ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
+                        ctx.sender().sendMessage(ChatColor.GOLD.toString() + "Reloaded configuration!")
                     })
                     manager.command(builder.literal("config").handler { ctx ->
                         config = parseConfig(Companion.plugin)
-                        ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded config.")
+                        ctx.sender().sendMessage(ChatColor.GOLD.toString() + "Reloaded config.")
                     })
                     manager.command(builder.literal("items").handler { ctx ->
                         EquippedItemsManager.disable()
                         ItemManager.disable()
                         ItemManager.enable()
                         EquippedItemsManager.enable()
-                        ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded items.")
+                        ctx.sender().sendMessage(ChatColor.GOLD.toString() + "Reloaded items.")
                     })
                     manager.command(builder.literal("blocks").handler { ctx ->
                         BlockManager.disable()
                         BlockManager.enable()
-                        ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded blocks.")
+                        ctx.sender().sendMessage(ChatColor.GOLD.toString() + "Reloaded blocks.")
                     })
                     manager.command(builder.literal("recipes").handler { ctx ->
                         RecipeManager.disable()
                         RecipeManager.enable()
-                        ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded recipes.")
+                        ctx.sender().sendMessage(ChatColor.GOLD.toString() + "Reloaded recipes.")
                     })
                     manager.command(builder.literal("shops").handler { ctx ->
                         ShopManager.disable()
                         ShopManager.enable()
-                        ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Reloaded shops.")
+                        ctx.sender().sendMessage(ChatColor.GOLD.toString() + "Reloaded shops.")
                     })
                     manager.command(builder.literal("pack").handler { ctx ->
                         ResourcePackManager.generate()
-                        ctx.sender.sendMessage(ChatColor.GOLD.toString() + "Generated resource pack!")
+                        ctx.sender().sendMessage(ChatColor.GOLD.toString() + "Generated resource pack!")
                     })
                 }
             }

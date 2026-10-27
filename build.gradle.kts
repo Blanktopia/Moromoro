@@ -40,7 +40,7 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT")
     compileOnly("net.dmulloy2:ProtocolLib:5.1.0")
 
-    implementation("cloud.commandframework", "cloud-paper", "1.8.4")
+    implementation("org.incendo", "cloud-paper", "2.0.1")
     implementation("org.bstats", "bstats-bukkit", "3.1.0")
     implementation("com.github.stefvanschie.inventoryframework", "IF", "0.12.2")
     compileOnly("net.essentialsx", "EssentialsX", "2.21.0-SNAPSHOT")
@@ -110,7 +110,7 @@ tasks.withType<ShadowJar> {
 
     reloc("org.bstats")
     reloc("de.themoep.minedown")
-    reloc("cloud.commandframework")
+    reloc("org.incendo.cloud")
     reloc("com.github.stefvanschie.inventoryframework")
 }
 
