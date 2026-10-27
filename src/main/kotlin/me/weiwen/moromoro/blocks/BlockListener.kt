@@ -1,11 +1,13 @@
 package me.weiwen.moromoro.blocks
 
-import com.comphenix.protocol.PacketType
-import com.comphenix.protocol.ProtocolLibrary
-import com.comphenix.protocol.events.PacketAdapter
-import com.comphenix.protocol.events.PacketEvent
-import com.comphenix.protocol.wrappers.EnumWrappers
-import com.comphenix.protocol.wrappers.WrappedEnumEntityUseAction
+import com.github.retrooper.packetevents.PacketEvents
+import com.github.retrooper.packetevents.event.PacketListener
+import com.github.retrooper.packetevents.event.PacketListenerPriority
+import com.github.retrooper.packetevents.event.PacketReceiveEvent
+import com.github.retrooper.packetevents.protocol.packettype.PacketType
+import com.github.retrooper.packetevents.protocol.player.DiggingAction
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientInteractEntity
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPlayerDigging
 import dev.geco.gsit.api.GSitAPI
 import io.papermc.paper.event.block.BlockBreakBlockEvent
 import me.weiwen.moromoro.Moromoro.Companion.plugin
@@ -16,13 +18,13 @@ import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.isReallyInteractable
 import me.weiwen.moromoro.managers.BlockManager
 import me.weiwen.moromoro.managers.customBlockState
-import me.weiwen.moromoro.packets.WrapperPlayClientBlockDig
 import me.weiwen.moromoro.packets.blockFace
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.ItemDisplay
 import org.bukkit.entity.ItemFrame
+import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -40,63 +42,66 @@ import org.bukkit.util.Vector
 object BlockListener : Listener {
 
     init {
-        val manager = ProtocolLibrary.getProtocolManager()
-
-        manager.removePacketListeners(plugin)
-
-        manager.addPacketListener(object : PacketAdapter(plugin, PacketType.Play.Client.USE_ENTITY) {
-            override fun onPacketReceiving(e: PacketEvent) {
-                val packet = e.packet
-
-                val useAction: WrappedEnumEntityUseAction = packet.enumEntityUseActions.read(0)
-                val action: EnumWrappers.EntityUseAction = useAction.action
-
-                if (action != EnumWrappers.EntityUseAction.ATTACK) {
-                    return
-                }
-
-                val entityId = packet.integers.read(0)
-
-                plugin.server.scheduler.scheduleSyncDelayedTask(plugin) {
-                    val entity = e.player.world.getNearbyEntities(e.player.location, 10.0, 10.0, 10.0) {
-                        it.entityId == entityId
-                    }.firstOrNull() ?: return@scheduleSyncDelayedTask
-
-                    if (!e.player.canBuildAt(entity.location)) {
-                        return@scheduleSyncDelayedTask
-                    }
-
-                    // Break custom blocks
-                    val customBlock = EntityCustomBlock.fromEntity(entity) ?: return@scheduleSyncDelayedTask
-                    customBlock.breakNaturally(null, true)
-
-                    e.isCancelled = true
+        PacketEvents.getAPI().eventManager.registerListener(object : PacketListener {
+            override fun onPacketReceive(e: PacketReceiveEvent) {
+                when (e.packetType) {
+                    PacketType.Play.Client.INTERACT_ENTITY -> onInteractEntity(e)
+                    PacketType.Play.Client.PLAYER_DIGGING -> onPlayerDigging(e)
+                    else -> {}
                 }
             }
-        })
+        }, PacketListenerPriority.NORMAL)
+    }
 
-        manager.addPacketListener(object : PacketAdapter(plugin, PacketType.Play.Client.BLOCK_DIG) {
-            override fun onPacketReceiving(e: PacketEvent) {
-                val packet = WrapperPlayClientBlockDig(e.packet)
+    // packetevents releases the packet after the listener returns, so read it before scheduling
+    private fun onInteractEntity(e: PacketReceiveEvent) {
+        val packet = WrapperPlayClientInteractEntity(e)
 
-                plugin.server.scheduler.scheduleSyncDelayedTask(plugin) {
-                    val location = packet.location?.toLocation(e.player.world) ?: return@scheduleSyncDelayedTask
-                    val customBlock = CustomBlock.fromBlock(location.block) ?: return@scheduleSyncDelayedTask
-                    val direction = packet.direction ?: return@scheduleSyncDelayedTask
+        if (packet.action != WrapperPlayClientInteractEntity.InteractAction.ATTACK) {
+            return
+        }
 
-                    when (packet.status) {
-                        EnumWrappers.PlayerDigType.START_DESTROY_BLOCK -> BlockManager.startDigging(
-                            e.player,
-                            customBlock,
-                            direction.blockFace
-                        )
+        val player = e.getPlayer<Player>() ?: return
+        val entityId = packet.entityId
 
-                        EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK -> BlockManager.cancelDigging(e.player)
-                        else -> {}
-                    }
-                }
+        plugin.server.scheduler.scheduleSyncDelayedTask(plugin) {
+            val entity = player.world.getNearbyEntities(player.location, 10.0, 10.0, 10.0) {
+                it.entityId == entityId
+            }.firstOrNull() ?: return@scheduleSyncDelayedTask
+
+            if (!player.canBuildAt(entity.location)) {
+                return@scheduleSyncDelayedTask
             }
-        })
+
+            // Break custom blocks
+            val customBlock = EntityCustomBlock.fromEntity(entity) ?: return@scheduleSyncDelayedTask
+            customBlock.breakNaturally(null, true)
+        }
+    }
+
+    private fun onPlayerDigging(e: PacketReceiveEvent) {
+        val packet = WrapperPlayClientPlayerDigging(e)
+
+        val player = e.getPlayer<Player>() ?: return
+        val position = packet.blockPosition
+        val direction = packet.blockFace.blockFace ?: return
+        val action = packet.action
+
+        plugin.server.scheduler.scheduleSyncDelayedTask(plugin) {
+            val block = player.world.getBlockAt(position.x, position.y, position.z)
+            val customBlock = CustomBlock.fromBlock(block) ?: return@scheduleSyncDelayedTask
+
+            when (action) {
+                DiggingAction.START_DIGGING -> BlockManager.startDigging(
+                    player,
+                    customBlock,
+                    direction
+                )
+
+                DiggingAction.CANCELLED_DIGGING -> BlockManager.cancelDigging(player)
+                else -> {}
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

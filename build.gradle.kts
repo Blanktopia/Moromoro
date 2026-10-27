@@ -17,13 +17,12 @@ repositories {
 
     maven("https://repo.purpurmc.org/snapshots")
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
-    maven("https://repo.codemc.org/repository/maven-public") // bStats
+    maven("https://repo.codemc.org/repository/maven-public") // bStats, packetevents
     maven("https://repo.minebench.de/") // MineDown
     maven("https://repo.essentialsx.net/snapshots/") // EssentialsX
     maven("https://jitpack.io") // GriefPrevention, VaultAPI
     maven("https://maven.enginehub.org/repo/") // WorldGuard
     maven("https://mvn.lib.co.nz/public") // Lib's Disguises
-    maven("https://repo.dmulloy2.net/repository/public/") // ProtocolLib
     maven("https://repo.mineinabyss.com")
 }
 
@@ -38,7 +37,7 @@ dependencies {
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.12.3")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit:2.12.3") { isTransitive = false }
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.1.0-SNAPSHOT")
-    compileOnly("net.dmulloy2:ProtocolLib:5.1.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.14.0")
 
     implementation("org.incendo", "cloud-paper", "2.0.1")
     implementation("org.bstats", "bstats-bukkit", "3.1.0")
@@ -74,7 +73,7 @@ paper {
         register("Essentials") {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
-        register("ProtocolLib") {
+        register("packetevents") {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("Vault") {

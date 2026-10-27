@@ -1,14 +1,15 @@
 package me.weiwen.moromoro.packets
 
-import com.comphenix.protocol.wrappers.EnumWrappers
 import org.bukkit.block.BlockFace
+import com.github.retrooper.packetevents.protocol.world.BlockFace as PacketBlockFace
 
-val EnumWrappers.Direction.blockFace: BlockFace
+val PacketBlockFace.blockFace: BlockFace?
     get() = when (this) {
-        EnumWrappers.Direction.DOWN -> BlockFace.DOWN
-        EnumWrappers.Direction.UP -> BlockFace.UP
-        EnumWrappers.Direction.NORTH -> BlockFace.NORTH
-        EnumWrappers.Direction.SOUTH -> BlockFace.SOUTH
-        EnumWrappers.Direction.WEST -> BlockFace.WEST
-        EnumWrappers.Direction.EAST -> BlockFace.EAST
+        PacketBlockFace.DOWN -> BlockFace.DOWN
+        PacketBlockFace.UP -> BlockFace.UP
+        PacketBlockFace.NORTH -> BlockFace.NORTH
+        PacketBlockFace.SOUTH -> BlockFace.SOUTH
+        PacketBlockFace.WEST -> BlockFace.WEST
+        PacketBlockFace.EAST -> BlockFace.EAST
+        PacketBlockFace.OTHER -> null
     }
