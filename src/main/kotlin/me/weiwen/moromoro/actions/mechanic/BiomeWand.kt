@@ -5,6 +5,7 @@ package me.weiwen.moromoro.actions.mechanic
 import com.github.stefvanschie.inventoryframework.gui.GuiItem
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
+import com.github.stefvanschie.inventoryframework.pane.util.Slot
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.math.BlockVector3
@@ -92,7 +93,7 @@ object BiomeWandPick : Action {
     private fun openGui(player: Player) {
         val gui = ChestGui(6, "Select a Biome:")
 
-        val pages = PaginatedPane(0, 0, 8, 6).apply {
+        val pages = PaginatedPane(8, 6).apply {
             populateWithGuiItems(biomes.map { biome ->
                 GuiItem(ItemStack(biomeMaterial(biome)).apply {
                     setDisplayName("${ChatColor.YELLOW}${formatBiomeName(biome)}")
@@ -107,7 +108,7 @@ object BiomeWandPick : Action {
                 it.isCancelled = true
             }
         }
-        gui.addPane(pages)
+        gui.addPane(Slot.fromXY(0, 0), pages)
         gui.addNavigation(pages, null)
 
         gui.show(player)

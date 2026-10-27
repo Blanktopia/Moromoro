@@ -5,6 +5,7 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
+import com.github.stefvanschie.inventoryframework.pane.util.Slot
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.weiwen.moromoro.Manager
@@ -127,7 +128,7 @@ object ItemManager: Manager {
     fun creativeItemPicker(player: Player) {
         val gui = ChestGui(6, "Moromoro")
 
-        val pages = PaginatedPane(0, 0, 8, 6)
+        val pages = PaginatedPane(8, 6)
         pages.populateWithItemStacks(
             templates
                 .entries
@@ -148,7 +149,7 @@ object ItemManager: Manager {
                 )
             )
         }
-        gui.addPane(pages)
+        gui.addPane(Slot.fromXY(0, 0), pages)
         gui.addNavigation(pages, null)
         gui.show(player)
     }

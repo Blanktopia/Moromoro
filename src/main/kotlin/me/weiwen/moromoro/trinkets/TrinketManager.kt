@@ -201,7 +201,7 @@ object TrinketManager : Manager {
     fun openTrinketInventory(player: Player) {
         val gui = ChestGui(2, "Trinkets")
 
-        val trinketPane = StaticPane(0, 0, 9, 2)
+        val trinketPane = StaticPane(9, 2)
 
         val guiItems = player.trinkets.mapIndexed { i, item ->
             if (item != null) {
@@ -307,7 +307,7 @@ object TrinketManager : Manager {
             }
         }
 
-        gui.addPane(trinketPane)
+        gui.addPane(Slot.fromXY(0, 0), trinketPane)
 
         gui.show(player)
     }

@@ -12,6 +12,7 @@ import com.github.stefvanschie.inventoryframework.gui.type.ChestGui
 import com.github.stefvanschie.inventoryframework.pane.OutlinePane
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
 import com.github.stefvanschie.inventoryframework.pane.Pane
+import com.github.stefvanschie.inventoryframework.pane.util.Slot
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import me.weiwen.moromoro.addNavigation
@@ -47,7 +48,7 @@ data class ShopTemplate(
 
         val miniMessage = MiniMessage.miniMessage()
 
-        val pages = PaginatedPane(1, 1, 7, 4)
+        val pages = PaginatedPane(7, 4)
         pages.populateWithGuiItems(
             categories.map { (category, shopItems) ->
                 val item = (shopItems.getOrNull(0)?.item ?: ItemStack(Material.BLACK_STAINED_GLASS_PANE)).clone().apply {
@@ -68,9 +69,9 @@ data class ShopTemplate(
             }
         )
         pages.setOnClick { it.isCancelled = true }
-        gui.addPane(pages)
+        gui.addPane(Slot.fromXY(1, 1), pages)
 
-        val background = OutlinePane(0, 0, 9, 6).apply {
+        val background = OutlinePane(9, 6).apply {
             addItem(GuiItem(ItemStack(Material.BLACK_STAINED_GLASS_PANE).apply {
                 itemMeta = itemMeta.apply {
                     displayName(Component.text(""))
@@ -80,7 +81,7 @@ data class ShopTemplate(
             priority = Pane.Priority.LOWEST
             setOnClick { it.isCancelled = true }
         }
-        gui.addPane(background)
+        gui.addPane(Slot.fromXY(0, 0), background)
 
         gui.show(player)
     }
@@ -90,7 +91,7 @@ data class ShopTemplate(
 
         val miniMessage = MiniMessage.miniMessage()
 
-        val pages = PaginatedPane(0, 0, 8, 6)
+        val pages = PaginatedPane(8, 6)
         pages.populateWithGuiItems(
             items.map { shopItem ->
                 val item = shopItem.item.clone().apply {
@@ -115,7 +116,7 @@ data class ShopTemplate(
             }
         )
         pages.setOnClick { it.isCancelled = true }
-        gui.addPane(pages)
+        gui.addPane(Slot.fromXY(0, 0), pages)
         gui.addNavigation(pages) { show(player) }
         gui.show(player)
     }

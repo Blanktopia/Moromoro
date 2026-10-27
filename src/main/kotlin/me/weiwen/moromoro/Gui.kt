@@ -6,6 +6,7 @@ import com.github.stefvanschie.inventoryframework.pane.OutlinePane
 import com.github.stefvanschie.inventoryframework.pane.PaginatedPane
 import com.github.stefvanschie.inventoryframework.pane.Pane
 import com.github.stefvanschie.inventoryframework.pane.StaticPane
+import com.github.stefvanschie.inventoryframework.pane.util.Slot
 import me.weiwen.moromoro.extensions.setHeadHash
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
@@ -25,7 +26,7 @@ fun playerHeadFromHash(name: String, url: String) =
     }
 
 fun ChestGui.addNavigation(pages: PaginatedPane, parent: (() -> Unit)?) {
-    val background = OutlinePane(8, 0, 1, 6).apply {
+    val background = OutlinePane(1, 6).apply {
         addItem(GuiItem(ItemStack(Material.BLACK_STAINED_GLASS_PANE).apply {
             itemMeta = itemMeta.apply {
                 displayName(Component.text(""))
@@ -35,9 +36,9 @@ fun ChestGui.addNavigation(pages: PaginatedPane, parent: (() -> Unit)?) {
         priority = Pane.Priority.LOWEST
         setOnClick { it.isCancelled = true }
     }
-    addPane(background)
+    addPane(Slot.fromXY(8, 0), background)
 
-    val buttons = StaticPane(8, 0, 1, 6).apply {
+    val buttons = StaticPane(1, 6).apply {
         addItem(GuiItem(PREV_PAGE_ICON) {
             if (pages.page > 0) {
                 pages.page = pages.page - 1
@@ -59,5 +60,5 @@ fun ChestGui.addNavigation(pages: PaginatedPane, parent: (() -> Unit)?) {
             }, 0, 0)
         }
     }
-    addPane(buttons)
+    addPane(Slot.fromXY(8, 0), buttons)
 }
