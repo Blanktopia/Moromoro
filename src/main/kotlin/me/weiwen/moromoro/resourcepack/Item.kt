@@ -47,21 +47,25 @@ fun generateItems(templates: Map<String, ItemTemplate>) {
 
     for ((item, customModels) in itemModels) {
         val path = "items/${item.value()}.json"
+        val default = defaultItem(item)
+        var fallback = default.getValue("model")
         val selectCases = mutableListOf<JsonElement>()
         for (overlay in overlays) {
             val overlayItemFile = overlay.resolve("assets/minecraft/${path}")
             if (!overlayItemFile.isFile) continue
             val overlayModel = Json.parseToJsonElement(overlayItemFile.readText()).jsonObject.getValue("model").jsonObject
-            if (overlayModel.key("property") != CUSTOM_MODEL_DATA) continue
-            when (overlayModel.key("type")) {
-                RANGE_DISPATCH -> for (entry in overlayModel.getValue("entries").jsonArray) {
+            val onCustomModelData = overlayModel.key("property") == CUSTOM_MODEL_DATA
+            val type = overlayModel.key("type")
+            when {
+                onCustomModelData && type == RANGE_DISPATCH -> for (entry in overlayModel.getValue("entries").jsonArray) {
                     customModels[entry.jsonObject.getValue("threshold").jsonPrimitive.double] = entry.jsonObject.getValue("model")
                 }
-                SELECT -> selectCases.addAll(overlayModel.getValue("cases").jsonArray)
+                onCustomModelData && type == SELECT -> selectCases.addAll(overlayModel.getValue("cases").jsonArray)
+                // An overlay model that does not dispatch on custom_model_data replaces the vanilla model.
+                else -> fallback = overlayModel
             }
         }
-        val default = defaultItem(item)
-        val fallback = if (selectCases.isEmpty()) default.getValue("model") else selectModel(selectCases, default.getValue("model"))
+        if (selectCases.isNotEmpty()) fallback = selectModel(selectCases, fallback)
         val json = JsonObject(default + ("model" to mergeModels(customModels, fallback)))
         val file = File(root, path)
         file.parentFile.mkdirs()
