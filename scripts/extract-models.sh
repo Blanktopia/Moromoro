@@ -4,12 +4,11 @@ set -e
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <minecraft.jar>"
-    echo "Example: $0 ~/.minecraft/versions/1.21.5/1.21.5.jar"
+    echo "Example: $0 ~/.minecraft/versions/26.3/26.3.jar"
     exit 1
 fi
 
 JAR_FILE="$1"
-MODELS_DIR="src/main/resources/default/models"
 ITEMS_DIR="src/main/resources/default/items"
 
 if [ ! -f "$JAR_FILE" ]; then
@@ -17,21 +16,13 @@ if [ ! -f "$JAR_FILE" ]; then
     exit 1
 fi
 
-echo "Extracting models and items from $JAR_FILE..."
+echo "Extracting items from $JAR_FILE..."
 
-# Create target directories if they don't exist
-mkdir -p "$MODELS_DIR"
+rm -rf "$ITEMS_DIR"
 mkdir -p "$ITEMS_DIR"
 
-# Extract assets/minecraft/models/ and assets/minecraft/items/ from the jar
-unzip -q -o "$JAR_FILE" "assets/minecraft/models/*" "assets/minecraft/items/*" -d /tmp/moromoro-extract
-
-# Move extracted files to target directories
-cp -r /tmp/moromoro-extract/assets/minecraft/models/* "$MODELS_DIR/"
+unzip -q -o "$JAR_FILE" "assets/minecraft/items/*" -d /tmp/moromoro-extract
 cp -r /tmp/moromoro-extract/assets/minecraft/items/* "$ITEMS_DIR/"
-
-# Clean up
 rm -rf /tmp/moromoro-extract
 
-echo "Successfully extracted models to $MODELS_DIR"
 echo "Successfully extracted items to $ITEMS_DIR"

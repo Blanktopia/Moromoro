@@ -3,13 +3,11 @@ Easily build custom items for your Minecraft server
 
 ## Setup
 
-The following folders should be extracted from the Minecraft jar:
-- `src/main/resources/default/models/` from `assets/minecraft/models/`
-- `src/main/resources/default/items/` from `assets/minecraft/items/`
-
-You can use the provided script to extract both:
+`src/main/resources/default/items/` holds the vanilla item definitions (`assets/minecraft/items/`) of the target client version.
+Moromoro uses them as the fallback of each generated item definition.
+To update them, run the script with the client jar of the new version:
 ```bash
-./extract-models.sh ~/.minecraft/versions/1.21.5/1.21.5.jar
+./scripts/extract-models.sh ~/.minecraft/versions/26.3/26.3.jar
 ```
 
 ## Build
