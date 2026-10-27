@@ -32,7 +32,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
     implementation("com.charleskorn.kaml:kaml:0.104.0")
 
-    compileOnly("org.purpurmc.purpur", "purpur-api", "1.21.5-R0.1-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur", "purpur-api", "26.3.build.2654-stable")
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core:2.12.3")
@@ -51,19 +51,19 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        capabilitiesResolution.withCapability("org.spigotmc:spigot-api:1.21.5-R0.1-SNAPSHOT") {
-            select("org.purpurmc.purpur:purpur-api:1.21.5-R0.1-SNAPSHOT")
+        capabilitiesResolution.withCapability("org.spigotmc:spigot-api:26.3.build.2654-stable") {
+            select("org.purpurmc.purpur:purpur-api:26.3.build.2654-stable")
         }
-        force("com.google.guava:guava:33.3.1-jre")
-        force("com.google.code.gson:gson:2.11.0")
-        force("it.unimi.dsi:fastutil:8.5.15")
+        force("com.google.guava:guava:33.6.0-jre")
+        force("com.google.code.gson:gson:2.14.0")
+        force("it.unimi.dsi:fastutil:8.5.18")
     }
 }
 
 paper {
     main = "me.weiwen.moromoro.Moromoro"
     bootstrapper = "me.weiwen.moromoro.MoromoroBootstrap"
-    apiVersion = "1.21"
+    apiVersion = "26.3"
     name = "Moromoro"
     version = project.version.toString()
     description = "Easily build custom items for your Minecraft server"

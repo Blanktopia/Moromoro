@@ -13,7 +13,7 @@ import me.weiwen.moromoro.actions.BlockTrigger
 import me.weiwen.moromoro.actions.Context
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.extensions.playSoundAt
-import me.weiwen.moromoro.extensions.rotation
+import me.weiwen.moromoro.extensions.frameRotation
 import me.weiwen.moromoro.serializers.ItemStackSerializer
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -69,7 +69,7 @@ class ItemBlockTemplate(
         }
 
         val rotation = if (blockFace == BlockFace.UP || blockFace == BlockFace.DOWN) {
-            player?.location?.clone()?.apply { yaw += 180 }?.rotation ?: Rotation.NONE
+            player?.location?.clone()?.apply { yaw += 180 }?.frameRotation ?: Rotation.NONE
         } else {
             Rotation.NONE
         }

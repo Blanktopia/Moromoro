@@ -704,10 +704,10 @@ object ItemListener : Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     fun onPlayerJoin(event: PlayerJoinEvent) {
         event.player.equipment.let { eq ->
-            eq.helmet?.let { ItemManager.migrateItem(it)?.let { eq.helmet = it } }
-            eq.chestplate?.let { ItemManager.migrateItem(it)?.let { eq.chestplate = it } }
-            eq.leggings?.let { ItemManager.migrateItem(it)?.let { eq.leggings = it } }
-            eq.boots?.let { ItemManager.migrateItem(it)?.let { eq.boots = it } }
+            eq.helmet?.let { ItemManager.migrateItem(it)?.let { eq.setHelmet(it) } }
+            eq.chestplate?.let { ItemManager.migrateItem(it)?.let { eq.setChestplate(it) } }
+            eq.leggings?.let { ItemManager.migrateItem(it)?.let { eq.setLeggings(it) } }
+            eq.boots?.let { ItemManager.migrateItem(it)?.let { eq.setBoots(it) } }
         }
 
         event.player.inventory.storageContents.forEach { item ->

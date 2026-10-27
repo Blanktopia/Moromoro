@@ -57,7 +57,7 @@ object EnchantmentManager: Manager {
             exclusiveEnchantmentsTag[key] = TagKey.create(RegistryKey.ENCHANTMENT, Key.key(config.namespace, "exclusive_set/${key}"))
         }
 
-        context.lifecycleManager.registerEventHandler(RegistryEvents.ENCHANTMENT.freeze().newHandler { event ->
+        context.lifecycleManager.registerEventHandler(RegistryEvents.ENCHANTMENT.compose().newHandler { event ->
             for ((key, template) in templates) {
                 event.registry().register(EnchantmentKeys.create(Key.key(config.namespace, key))) { b ->
                     template.name?.component?.let { b.description(it) }

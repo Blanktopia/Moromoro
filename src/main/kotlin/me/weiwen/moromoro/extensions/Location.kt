@@ -4,7 +4,7 @@ import org.bukkit.Location
 import org.bukkit.Rotation
 import kotlin.math.roundToInt
 
-var Location.rotation: Rotation
+var Location.frameRotation: Rotation
 get() =
     when (Math.floorMod((yaw / 45).roundToInt(), 8)) {
         0 -> Rotation.NONE
