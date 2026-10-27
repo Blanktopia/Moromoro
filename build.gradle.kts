@@ -22,7 +22,7 @@ repositories {
     maven("https://repo.essentialsx.net/snapshots/") // EssentialsX
     maven("https://jitpack.io") // GriefPrevention, VaultAPI
     maven("https://maven.enginehub.org/repo/") // WorldGuard
-    maven("https://repo.md-5.net/content/groups/public/") // Lib's Disguises
+    maven("https://mvn.lib.co.nz/public") // Lib's Disguises
     maven("https://repo.dmulloy2.net/repository/public/") // ProtocolLib
     maven("https://repo.mineinabyss.com")
 }
@@ -44,9 +44,9 @@ dependencies {
     implementation("org.bstats", "bstats-bukkit", "3.1.0")
     implementation("com.github.stefvanschie.inventoryframework", "IF", "0.12.2")
     compileOnly("net.essentialsx", "EssentialsX", "2.21.0-SNAPSHOT")
-    compileOnly("LibsDisguises", "LibsDisguises", "10.0.44")
+    compileOnly("me.libraryaddict.disguises", "libsdisguises", "26.10.24")
     compileOnly("com.github.TechFortress:GriefPrevention:16.18.2")
-    compileOnly("com.github.Gecolay.GSit:core:2.1.0")
+    compileOnly("com.github.Gecolay.GSit:core:3.5.1")
 }
 
 configurations.all {
