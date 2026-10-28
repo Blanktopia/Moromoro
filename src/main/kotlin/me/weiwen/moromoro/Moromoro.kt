@@ -21,6 +21,7 @@ import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
+import org.incendo.cloud.bukkit.CloudBukkitCapabilities
 import org.incendo.cloud.bukkit.parser.PlayerParser.playerParser
 import org.incendo.cloud.bukkit.parser.location.LocationParser.locationParser
 import org.incendo.cloud.description.Description
@@ -88,8 +89,12 @@ class Moromoro(var config: MoromoroConfig) : JavaPlugin() {
         val manager = LegacyPaperCommandManager.createNative(this, ExecutionCoordinator.simpleCoordinator())
 
         try {
-            manager.registerBrigadier()
-            manager.registerAsynchronousCompletions()
+            // Brigadier already completes asynchronously on Paper; its async listener breaks with native Brigadier
+            if (manager.hasCapability(CloudBukkitCapabilities.NATIVE_BRIGADIER)) {
+                manager.registerBrigadier()
+            } else if (manager.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) {
+                manager.registerAsynchronousCompletions()
+            }
             plugin.logger.info("Registered commands.")
         } catch (e: Exception) {
             plugin.logger.warning("Failed to initialize Brigadier support: " + e.message)
